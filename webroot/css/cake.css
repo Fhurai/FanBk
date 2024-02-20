@@ -1,0 +1,644 @@
+/* Miligram overrides */
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
+}
+
+.top-nav-links,
+.side-nav,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Raleway", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 400;
+    color: #a1a1a1;
+}
+
+a {
+    color: #2f85ae;
+    -webkit-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
+
+a:hover,
+a:focus,
+a:active {
+    color: #2a6496;
+    -webkit-transition: all 0.2s easeout;
+    transition: all 0.2s ease-out;
+}
+
+.side-nav a,
+.top-nav-links a,
+th a,
+.actions a {
+    color: #606c76;
+}
+
+.side-nav a:hover,
+.side-nav a:focus,
+.actions a:hover,
+.actions a:focus {
+    color: #2f85ae;
+}
+
+/* Utility */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive thead input.half {
+    width: 10rem;
+}
+
+footer {
+    margin: 0 auto;
+    max-width: 112rem;
+    padding: 0 2rem;
+    position: relative;
+    width: 100%;
+}
+
+footer>div>ul {
+    list-style: none;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+footer>div>ul li {
+    margin: 2rem;
+}
+
+footer>div>ul li.hidden > a {
+    visibility: hidden;
+}
+
+footer>div>ul li.hidden:hover > a {
+    visibility: visible;
+}
+
+.right-float {
+    float: right;
+}
+
+/* Main */
+body {
+    background: #101010;
+}
+
+hr {
+    border-top-color: #1a1a1a;
+}
+
+.content {
+    padding: 2rem;
+    background: #1a1a1a;
+    border-radius: 0.4rem;
+    /* Thanks Stripe */
+    box-shadow: 0 7px 14px 0 rgba(60, 66, 87, 0.1),
+        0 3px 6px 0 rgba(0, 0, 0, 0.07);
+}
+
+.actions a {
+    font-weight: bold;
+    padding: 0 0.4rem;
+}
+
+.actions a:first-child {
+    padding-left: 0;
+}
+
+th {
+    white-space: nowrap;
+}
+
+input,
+select,
+textarea {
+    color: #e1e1e1;
+}
+
+select option {
+    background-color: #1a1a1a;
+}
+
+select option[selected] {
+    background-color: #a1a1a1;
+    color: #1a1a1a;
+}
+
+select optgroup{
+    background-color: #2c2c2c;
+}
+
+div.form.content form fieldset select[multiple]{
+    min-height: 30rem;
+}
+
+div.form.content form fieldset textarea{
+    min-height: 15rem;
+    resize: none;
+}
+
+select[multiple] option:checked {
+    background-color: #4f4f4f;
+}
+
+select[multiple="multiple"] {
+    height: 15rem;
+}
+
+div.addButton {
+    text-align: center;
+    cursor: pointer;
+}
+
+a:not(.button),
+a:visited:not(.button) {
+    color: #d33c43
+}
+
+a:hover:not(.button) {
+    color: #d33c43af;
+}
+
+
+.descriptif {
+    border: 2px solid #2f2f2f;
+    border-radius: 10px;
+}
+
+.descriptif .descriptif-line .descriptif-block {
+    text-wrap: nowrap;
+}
+
+.descriptif p:not(.descriptif-line) {
+    margin: 0 10px;
+}
+
+.descriptif p.descriptif-line {
+    padding: 0 10px;
+    background-color: #2f2f2f;
+    color: #d33c43;
+}
+
+.descriptif a.title {
+    font-weight: bolder;
+    font-style: italic;
+}
+
+.descriptif .clickable {
+    visibility: hidden;
+}
+
+.descriptif:hover .clickable {
+    visibility: visible;
+}
+
+.clickable {
+    cursor: pointer;
+    padding: 0 10px;
+    background-color: #2f2f2f;
+    border-radius: 10px 10px 0 0;
+}
+
+.clickable:hover {
+    background-color: #4f4f4f;
+}
+
+.sticky {
+    position: relative;
+}
+
+.descriptif .contextual-menu {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #4f4f4f;
+    border-radius: 10px;
+}
+
+.descriptif .contextual-menu:not(.open) {
+    visibility: hidden;
+}
+
+.descriptif .contextual-menu ul {
+    list-style-type: none;
+    margin: 0 10px;
+    text-align: right;
+}
+
+.descriptif form .descriptif-form {
+    display: flex;
+    flex-flow: row;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.allow-new-open div:first-child>label,
+.allow-new-closed div:first-child>label {
+    cursor: pointer;
+}
+
+.allow-new-open>* {
+    width: 50%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.allow-new-closed>div:nth-child(1) {
+    width: 100%;
+}
+
+.allow-new-closed>div:nth-child(2) {
+    display: none;
+}
+
+/* Nav bar */
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 112rem;
+    padding: 2rem;
+    margin: 0 auto 2rem;
+}
+
+.top-nav-title a {
+    font-size: 2.4rem;
+    color: #d33c43;
+}
+
+.top-nav-title span {
+    color: #404041;
+}
+
+.top-nav-links a {
+    margin: 0 0.5rem;
+}
+
+.top-nav-title a,
+.top-nav-links a {
+    font-weight: bold;
+}
+
+.side-nav-item {
+    display: block;
+    padding: 0.5rem 0;
+}
+
+div.access-bar ul {
+    list-style: none;
+    display: flex;
+    float: right;
+}
+
+div.access-bar ul li {
+    border: 1px solid #1a1a1a;
+}
+
+/* View action */
+.view.content .text {
+    margin-top: 1.2rem;
+}
+
+.related {
+    margin-top: 2rem;
+}
+
+/* Flash messages */
+.message {
+    padding: 1rem;
+
+    background: #eff8ff;
+    color: #2779bd;
+
+    border-color: #6cb2eb;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message.success {
+    background: #e3fcec;
+    color: #1f9d55;
+    border-color: #51d88a;
+}
+
+.message.warning {
+    background: #fffabc;
+    color: #8d7b00;
+    border-color: #d3b800;
+}
+
+.message.error {
+    background: #fcebea;
+    color: #cc1f1a;
+    border-color: #ef5753;
+}
+
+/* Forms */
+.input.radio,
+.input.checkbox {
+    margin-bottom: 2.0rem;
+}
+
+.input.radio input,
+.input.checkbox input {
+    margin: 0;
+}
+
+.input.radio label,
+.input.checkbox label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.input.radio label>input,
+.input.checkbox label>input {
+    margin-right: 1.0rem;
+}
+
+.input.radio label:first-of-type {
+    margin-bottom: 2.0rem;
+}
+
+/* Paginator */
+.paginator {
+    text-align: right;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+}
+
+.pagination li {
+    margin: 0 0.5rem;
+}
+
+.prev.disabled a,
+.next.disabled a {
+    cursor: not-allowed;
+    color: #606c76;
+}
+
+.asc:after {
+    content: " \2193";
+}
+
+.desc:after {
+    content: " \2191";
+}
+
+/* Error */
+.error-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+}
+
+@media screen and (max-width: 640px) {
+    .top-nav {
+        margin: 0 auto;
+    }
+
+    .side-nav {
+        margin-bottom: 1rem;
+    }
+
+    .heading {
+        margin-bottom: 1rem;
+    }
+
+    .side-nav-item {
+        display: inline;
+        margin: 0 1.5rem 0 0;
+    }
+
+    .asc:after {
+        content: " \2192";
+    }
+
+    .desc:after {
+        content: " \2190";
+    }
+}
+
+/* The Modal (background) */
+.modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #1a1a1a;
+    margin: 10% auto;
+    /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #d33c43;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+.close:hover,
+.close:focus {
+    color: #606c76;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/** MODAL **/
+
+.modal .modal-content>div {
+    border: 2px solid #2f2f2f;
+    border-radius: 10px;
+}
+
+.modal .modal-content .header {
+    background-color: #2f2f2f;
+    text-align: center;
+}
+
+.modal .modal-content .header .highlighted {
+    color: #d33c43;
+}
+
+.modal .modal-content .header .highlighted.title {
+    font-size: 20px;
+    font-style: italic;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.modal .modal-content .body {
+    border-radius: 10px;
+    border-style: dotted;
+    border-width: 0 2px;
+    border-color: #2f2f2f;
+    text-align: center;
+}
+
+.modal .modal-content .body .line {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin: 1rem auto;
+    max-width: 986px;
+}
+
+.modal .modal-content .body .line.small {
+    width: 600px;
+}
+
+.modal .modal-content .body .line .input.checkbox input {
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.modal .modal-content .body .line .input.checkbox {
+    padding: 0;
+}
+
+.modal .modal-content .body .line .input.checkbox input:not(:checked)+span {
+    background-color: #d33c43;
+    width: 100%;
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    font-weight: unset;
+    font-size: 1.7rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.modal .modal-content .body .line .input.checkbox input:not(:checked)+span:after {
+    content: "Sans";
+}
+
+.modal .modal-content .body .line .input.checkbox input:checked+span {
+    background-color: #21611f;
+    width: 100%;
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    font-weight: unset;
+    font-size: 1.7rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.modal .modal-content .body .line .input.checkbox input:checked+span:after {
+    content: "Avec";
+}
+
+.modal .modal-content .body .line div.input.select,
+.modal .modal-content .body .line div.input.text {
+    padding: 0;
+    line-height: normal;
+}
+
+.modal .modal-content .body .line div.input.select select, .modal .modal-content .body .line div.input.text input {
+    margin: 0;
+    border-bottom: 0;
+}
+
+.modal .modal-content .body>div:not(.line) label,
+.modal .modal-content .body>div:not(.line) select,
+.modal .modal-content .body>div:not(.line) textarea {
+    max-width: 50%;
+    margin: 0 auto;
+    display: block;
+}
+
+.modal .modal-content .body:not(.center) .input {
+    padding: 1rem 1rem 0 1rem;
+    max-width: 49rem;
+}
+
+.modal .modal-content .body .input label {
+    margin: 0;
+    font-weight: unset;
+}
+
+.modal .modal-content .footer {
+    background-color: #2f2f2f;
+    text-align: center;
+}
+
+.modal .modal-content .footer>button {
+    vertical-align: middle;
+    margin: 0.5rem;
+}
+
+@media screen and (max-width: 640px) {
+    .modal .modal-content .header .highlighted.title {
+        width: 27.5rem;
+        display: block;
+    }
+
+    .modal .modal-content .body .line.small {
+        width: unset;
+    }
+
+    .modal .modal-content .body .input {
+        padding: 2rem 0 0 0;
+        margin: 0 auto;
+    }
+}
