@@ -52,6 +52,6 @@ $maxlength = isset($maxlength) ? $maxlength : null;
     <?php endif; ?>
 </div>
 
-<!-- Imports pour l'apparence et le fonctionnement du select. -->
+<!-- Imports pour l'apparence et le fonctionnement du champ text. -->
 <?= $this->Html->script(["fly/text"]); ?>
 <?= $this->Html->css(["fly/text"]); ?>

@@ -114,60 +114,6 @@ hr {
         0 3px 6px 0 rgba(0, 0, 0, 0.07);
 }
 
-.actions a {
-    font-weight: bold;
-    padding: 0 0.4rem;
-}
-
-.actions a:first-child {
-    padding-left: 0;
-}
-
-th {
-    white-space: nowrap;
-}
-
-input,
-select,
-textarea {
-    color: #e1e1e1;
-}
-
-select option {
-    background-color: #1a1a1a;
-}
-
-select option[selected] {
-    background-color: #a1a1a1;
-    color: #1a1a1a;
-}
-
-select optgroup{
-    background-color: #2c2c2c;
-}
-
-div.form.content form fieldset select[multiple]{
-    min-height: 30rem;
-}
-
-div.form.content form fieldset textarea{
-    min-height: 15rem;
-    resize: none;
-}
-
-select[multiple] option:checked {
-    background-color: #4f4f4f;
-}
-
-select[multiple="multiple"] {
-    height: 15rem;
-}
-
-div.addButton {
-    text-align: center;
-    cursor: pointer;
-}
-
 a:not(.button),
 a:visited:not(.button) {
     color: #d33c43
@@ -249,25 +195,6 @@ a:hover:not(.button) {
     flex-flow: row;
     flex-direction: row;
     flex-wrap: wrap;
-}
-
-.allow-new-open div:first-child>label,
-.allow-new-closed div:first-child>label {
-    cursor: pointer;
-}
-
-.allow-new-open>* {
-    width: 50%;
-    display: inline-block;
-    vertical-align: top;
-}
-
-.allow-new-closed>div:nth-child(1) {
-    width: 100%;
-}
-
-.allow-new-closed>div:nth-child(2) {
-    display: none;
 }
 
 /* Nav bar */

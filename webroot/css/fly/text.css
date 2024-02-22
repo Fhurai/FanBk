@@ -113,6 +113,7 @@
 .flytext .text .textor .input input {
     border: none;
     margin-bottom: unset;
+    color: var(--white-color);
 }
 
 /*
