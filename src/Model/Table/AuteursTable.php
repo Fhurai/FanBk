@@ -80,7 +80,7 @@ class AuteursTable extends Table
     public function newEmptyEntity(): Auteur{
         $fandom = new Auteur();
         $fandom->id = null;
-        $fandom->nom = "Nouvel auteur";
+        $fandom->nom = "";
         $fandom->creation_date = new FrozenTime("Europe/Paris");
         $fandom->update_date = new FrozenTime("Europe/Paris");
         return $fandom;
