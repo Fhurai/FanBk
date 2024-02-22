@@ -13,6 +13,7 @@ use Cake\I18n\FrozenTime;
 
 <!-- Groupe de champs -->
 <fieldset>
+    
     <!-- Légende du formulaire. -->
     <legend><?= __(ucfirst($action) . ' Auteur') ?></legend>
     <?php
