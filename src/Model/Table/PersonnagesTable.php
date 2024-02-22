@@ -98,7 +98,7 @@ class PersonnagesTable extends Table
     public function newEmptyEntity(): Personnage{
         $personnage = new Personnage();
         $personnage->id = null;
-        $personnage->nom = "Nouveau personnage";
+        $personnage->nom = "";
         $personnage->fandom = 0;
         $personnage->creation_date = new FrozenTime("Europe/Paris");
         $personnage->update_date = new FrozenTime("Europe/Paris");
