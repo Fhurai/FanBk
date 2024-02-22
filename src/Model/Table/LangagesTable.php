@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Table;
@@ -82,11 +83,12 @@ class LangagesTable extends Table
      * 
      * @return Langage
      */
-    public function newEmptyEntity(): Langage{
+    public function newEmptyEntity(): Langage
+    {
         $fandom = new Langage();
         $fandom->id = null;
-        $fandom->nom = "Nouveau langage";
-        $fandom->abbreviation = "N/A";
+        $fandom->nom = "";
+        $fandom->abbreviation = "";
         $fandom->creation_date = new FrozenTime("Europe/Paris");
         $fandom->update_date = new FrozenTime("Europe/Paris");
         return $fandom;
@@ -97,7 +99,8 @@ class LangagesTable extends Table
      * 
      * @return Query La requete des langages actifs.
      */
-    public function findActive(Query $query, $options){
+    public function findActive(Query $query, $options)
+    {
         return $this->find()->where(["suppression_date IS" => null]);
     }
 
@@ -106,8 +109,8 @@ class LangagesTable extends Table
      * 
      * @return Query La requête des langages inactifs.
      */
-    public function findInactive(Query $query, $options){
+    public function findInactive(Query $query, $options)
+    {
         return $this->find()->where(["suppression_date IS NOT" => null]);
     }
-
 }

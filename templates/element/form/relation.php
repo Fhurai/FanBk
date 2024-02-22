@@ -18,12 +18,13 @@ use Cake\I18n\FrozenTime;
     <legend><?= __(ucfirst($action) . ' Relation') ?></legend>
     <?php
 
-    // Champ nom du personnage (l'utilisateur peut définir le nom du personnage => requis.)
-    echo $this->Form->control('nom', ["type" =>  $action === "add" ? "hidden" : "text"]);
+    // Champ nom du personnage (l'utilisateur peut définir le nom de la relation => requis.)
+    if ($action === "edit")
+        echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $relation->nom, "required" => true, "placeholder" => "Nom du personnage", "maxlength" => 50]);
 
     // Selecteur simple pour choisir le fandom auquel appartient le personnage.
     echo $this->element("fly/multiselect", ["options" => $personnages, "name" => "personnages", "label" => "Personnages", "value" => $relation->personnages, "required" => true]);
-    
+
     // Date de modification changé par le système pour le système. L'utilisateur n'a pas a voir ce champ.
     echo $this->Form->control('update_date', ['type' => 'hidden', 'value' => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
     ?>
