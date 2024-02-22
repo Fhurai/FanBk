@@ -84,7 +84,7 @@ class FandomsTable extends Table
     public function newEmptyEntity(): Fandom{
         $fandom = new Fandom();
         $fandom->id = null;
-        $fandom->nom = "Nouveau fandom";
+        $fandom->nom = "";
         $fandom->creation_date = new FrozenTime("Europe/Paris");
         $fandom->update_date = new FrozenTime("Europe/Paris");
         return $fandom;

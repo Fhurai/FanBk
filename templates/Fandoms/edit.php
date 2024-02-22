@@ -1,24 +1,22 @@
 <?php
-use Cake\I18n\FrozenTime;
+
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Fandom $fandom
+ * @var \App\Model\Entity\Fandom $fandom Le fandom à modifier.
  */
 ?>
+<!-- Partie Edit -->
 <div class="row">
+
+    <!-- Partie menu coté -->
     <?= $this->element("sidemenu/fandom", ["fandom" => $fandom, "action" => "edit"]) ?>
+
+    <!-- Partie centrale -->
     <div class="column-responsive column-80">
+
+        <!-- Partie formulaire -->
         <div class="fandoms form content">
-            <?= $this->Form->create($fandom) ?>
-            <fieldset>
-                <legend><?= __('Edit Fandom') ?></legend>
-                <?php
-                    echo $this->Form->control('nom');
-                    echo $this->Form->control('update_date', ['type' => 'hidden', 'value' => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Submit')) ?>
-            <?= $this->Form->end() ?>
+            <?= $this->element("form/fandom", ["fandom" => $fandom, "action" => "edit"]) ?>
         </div>
     </div>
 </div>
