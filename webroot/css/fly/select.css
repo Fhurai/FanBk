@@ -78,7 +78,7 @@
 /*
  * Indicateur champ de recherche contient une valeur correcte.
  */
-.flyselect .select .selector.valid::after {
+.flyselect .select .selector.valid:has(input[required])::after {
     content: "correct";
     color: var(--green-color);
 }
