@@ -20,7 +20,7 @@ use Cake\I18n\FrozenTime;
     <?php
 
     // Champ nom du personnage (l'utilisateur doit définir le nom du personnage => requis.)
-    echo $this->Form->control('nom');
+    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $personnage->nom, "required" => true, "placeholder" => "Nom du personnage", "maxlength" => 50]);
 
     // Selecteur simple pour choisir le fandom auquel appartient le personnage.
     echo $this->element("fly/select", ["options" => $fandoms, "name" => "fandom", "label" => "Fandom", "value" => $personnage->fandom, "required" => true]);
