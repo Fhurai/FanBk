@@ -1,29 +1,23 @@
 <?php
+
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Personnage $personnage
- * @var \Cake\Collection\CollectionInterface|string[] $fandoms
+ * @var \App\Model\Entity\Personnage $personnage Le personnage à modifier.
+ * @var string[]|\Cake\Collection\CollectionInterface|string[] $fandoms La listes fandoms disponibles pour le personnage.
  */
-
-use Cake\I18n\FrozenTime;
-
 ?>
+<!-- Partie Add -->
 <div class="row">
+
+    <!-- Partie menu coté -->
     <?= $this->element("sidemenu/personnage", ["personnage" => $personnage, "action" => "add"]) ?>
+
+    <!-- Partie centrale -->
     <div class="column-responsive column-80">
+
+    <!-- Partie formulaire -->
         <div class="personnages form content">
-            <?= $this->Form->create($personnage) ?>
-            <fieldset>
-                <legend><?= __('Add Personnage') ?></legend>
-                <?php
-                    echo $this->Form->control('nom');
-                    echo $this->Form->control('fandom');
-                    echo $this->Form->control('creation_date', ['type' => 'hidden', 'value' => $personnage->creation_date->format('Y-m-d H:i:s')]);
-                    echo $this->Form->control('update_date', ['type' => 'hidden', 'value' => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Submit')) ?>
-            <?= $this->Form->end() ?>
+            <?= $this->element("form/personnage", ["personnage" => $personnage, "action" => "add"]) ?>
         </div>
     </div>
 </div>

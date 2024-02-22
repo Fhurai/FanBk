@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use App\Model\Entity\Personnage;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\I18n\FrozenTime;
 use Cake\Validation\Validator;
+use App\Model\Entity\Personnage;
 
 /**
  * Personnages Model
@@ -100,7 +99,7 @@ class PersonnagesTable extends Table
         $personnage = new Personnage();
         $personnage->id = null;
         $personnage->nom = "Nouveau personnage";
-        $personnage->fandom = 1;
+        $personnage->fandom = 0;
         $personnage->creation_date = new FrozenTime("Europe/Paris");
         $personnage->update_date = new FrozenTime("Europe/Paris");
         return $personnage;
