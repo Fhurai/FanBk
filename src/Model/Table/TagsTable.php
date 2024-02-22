@@ -85,8 +85,8 @@ class TagsTable extends Table
     {
         $tag = new Tag();
         $tag->id = null;
-        $tag->nom = "Nouveau tag";
-        $tag->description = "N/A";
+        $tag->nom = "";
+        $tag->description = "";
         $tag->creation_date = new FrozenTime("Europe/Paris");
         $tag->update_date = new FrozenTime("Europe/Paris");
         return $tag;

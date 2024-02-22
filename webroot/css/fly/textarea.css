@@ -1,0 +1,119 @@
+/*
+* Setup variables de couleur
+*/
+:root {
+    --red-color: #d33c43;
+    --orange-color: #d3b73c;
+    --green-color: #3cd343;
+    --white-color: #f1f1f1;
+    --lightgrey: #888;
+    --darkgrey: #2a2a2a;
+}
+
+/*
+ * Texte justifié sur l'ensemble du composant et marge en dessous pour donner de la place au composant suivant.
+ */
+.flytextarea {
+    text-align: justify;
+    margin-bottom: 2rem;
+}
+
+/*
+ * Indication de composant rempli requis en rouge à coté du label.
+ */
+.flytextarea .required::before {
+    content: "required";
+    color: var(--red-color);
+    font-size: 10px;
+    vertical-align: top;
+}
+
+/*
+ * Encadré en rouge d'erreur si un paramètre vital est manquant.
+ */
+.flytextarea .error {
+    color: var(--red-color);
+    border-style: double;
+    border-width: 1rem;
+    border-color: var(--red-color);
+}
+
+/*
+ * Tous les éléments de la barre de recherche sont sur fond gris foncé et non noir.
+ */
+.flytextarea .text .textor>* {
+    background-color: var(--darkgrey);
+}
+
+/*
+ * Indicateur si le contenu du champ est valide ou non.
+ */
+.flytextarea .text .textor::after {
+    float: right;
+}
+
+/*
+ * Indicateur champ vide.
+ */
+.flytextarea .text .textor:not(.valid):has(textarea[required]:empty)::after {
+    content: "empty";
+    color: var(--red-color);
+}
+
+/*
+ * Indicateur champ de recherche rempli avec information incorrecte.
+ */
+.flytextarea .text .textor:not(.valid):has(textarea[required]:not(:placeholder-shown))::after {
+    content: "wrong";
+    color: var(--orange-color);
+}
+
+/*
+ * Indicateur champ contient une valeur correcte.
+ */
+.flytextarea .text .textor.valid:has(textarea[required])::after {
+    content: "correct";
+    color: var(--green-color);
+}
+
+/*
+ * Champ
+ */
+.flytextarea .text .textor .textarea {
+    border-style: solid;
+    border-width: 5px;
+    border-color: var(--lightgrey);
+    border-radius: 4px;
+}
+
+/*
+ * Contour Champ vide.
+ */
+.flytextarea .text .textor .textarea:has(textarea[required]:empty) {
+    border-color: var(--red-color);
+}
+
+/*
+ * Contour Champ rempli avec information incorrecte.
+ */
+.flytextarea .text .textor .textarea:has(textarea[required]:not(:placeholder-shown)) {
+    border-color: var(--orange-color);
+}
+
+/*
+ * Contour Champ rempli avec information incorrecte.
+ */
+.flytextarea .text .textor.valid .textarea:has(textarea[required]) {
+    border-color: var(--green-color);
+}
+
+/*
+ * textarea du Champ
+ */
+.flytextarea .text .textor .textarea textarea {
+    border: none;
+    margin-bottom: unset;
+    resize: none;
+    min-height: 15rem;
+    color: var(--white-color);
+}
