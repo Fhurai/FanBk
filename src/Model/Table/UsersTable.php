@@ -114,13 +114,14 @@ class UsersTable extends Table
      */
     public function newEmptyEntity(): User
     {
-        $tag = new User();
-        $tag->id = null;
-        $tag->nom = "Nouveau tag";
-        $tag->description = "N/A";
-        $tag->creation_date = new FrozenTime("Europe/Paris");
-        $tag->update_date = new FrozenTime("Europe/Paris");
-        return $tag;
+        $user = new User();
+        $user->id = null;
+        $user->username = "";
+        $user->email = "";
+        $user->birthday = FrozenTime::now("Europe/Paris");
+        $user->creation_date = new FrozenTime("Europe/Paris");
+        $user->update_date = new FrozenTime("Europe/Paris");
+        return $user;
     }
 
     /**

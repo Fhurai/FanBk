@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Model\Entity\User;
 use Cake\I18n\FrozenTime;
 use Cake\Mailer\Mailer;
+use DateTime;
 
 /**
  * Users Controller
@@ -23,6 +24,17 @@ class UsersController extends AppController
         // Configure the login action to not require authentication, preventing
         // the infinite redirect loop issue
         $this->Authentication->addUnauthenticatedActions(['login', 'add', 'lost']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+
+        $loggedAdmin = $this->request->getSession()->read("user.is_admin", false);
+        $this->set(compact("loggedAdmin"));
     }
 
     /**
@@ -66,6 +78,8 @@ class UsersController extends AppController
         $user = $this->Users->newEmptyEntity();
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
+            // La date envoyée par l'input est en UTC et non en Europe/Paris. Obligé de faire la conversion.
+            $user->birthday = FrozenTime::createFromFormat("Y-m-d H:i:s", $this->request->getData("birthday"), "Europe/Paris");
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 
@@ -124,6 +138,11 @@ class UsersController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    /**
+     * Login Method
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
     public function login()
     {
         $this->request->allowMethod(['get', 'post']);
@@ -167,7 +186,11 @@ class UsersController extends AppController
         }
     }
 
-    // in src/Controller/UsersController.php
+    /**
+     * Logout Method
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
     public function logout()
     {
         $result = $this->Authentication->getResult();
@@ -179,10 +202,14 @@ class UsersController extends AppController
         }
     }
 
+    /**
+     * Method to recuperate a lost login.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
     public function lost()
     {
-        if($this->request->is(["post"])){
-
+        if ($this->request->is(["post"])) {
         }
     }
 
