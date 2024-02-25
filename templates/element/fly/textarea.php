@@ -1,7 +1,6 @@
 <?php
 
 /**
- * @var \Cake\Collection\CollectionInterface|string[]|array[] $options
  * @var string $name
  * @var string $label
  * @var string $class
@@ -12,7 +11,7 @@
  */
 
 // Setup des variables en fonction qu'elles ont été fournies ou non.
-$label = isset($label) ? $label : "New Select";
+$label = isset($label) ? $label : "New Textarea";
 $class = isset($class) ? $class : "";
 $value = isset($value) ? $value : null;
 $placeholder = isset($placeholder) ? $placeholder : "Your text here...";
@@ -26,7 +25,7 @@ $required = isset($required) ? $required : false;
         <!-- Partie textarea -->
         <div class="text">
             <!-- Label -->
-            <?php // Si le select multiple est requis, un petit text rouge est affiché. 
+            <?php // Si le textarea est requis, un petit text rouge est affiché. 
             ?>
             <label><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 

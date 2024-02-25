@@ -37,7 +37,7 @@ const activateFlyText = (container) => {
  * @param {Element} input 
  * @returns true si le pattern est matché, sinon false.
  */
-const matchPattern = (input) => input.value.match(new RegExp(input.pattern));
+const matchPatternFlytext = (input) => input.value.match(new RegExp(input.pattern));
 
 /**
  * Méthode qui vérifie si le contenu de l'input ou non, selon qu'il y a un pattern ou non.
@@ -59,7 +59,7 @@ const checkInput = (container) => {
         if (input.hasAttribute("pattern")) {
             
             // Est ce que le contenu correspond au pattern ?
-            if (matchPattern(input))
+            if (matchPatternFlytext(input))
                 // Oui, on alerte l'utilisateur.
                 alert.dataset.content = "Matching pattern";
             else {

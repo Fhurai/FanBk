@@ -1,7 +1,6 @@
 <?php
 
 /**
- * @var \Cake\Collection\CollectionInterface|string[]|array[] $options
  * @var string $name
  * @var string $label
  * @var string $class
@@ -12,7 +11,7 @@
  */
 
 // Setup des variables en fonction qu'elles ont été fournies ou non.
-$label = isset($label) ? $label : "New Select";
+$label = isset($label) ? $label : "New Text";
 $class = isset($class) ? $class : "";
 $value = isset($value) ? $value : null;
 $placeholder = isset($placeholder) ? $placeholder : "Your text here...";
@@ -30,11 +29,11 @@ $maxlength = isset($maxlength) ? $maxlength : null;
             <!-- Label -->
             <?php // Si le select multiple est requis, un petit text rouge est affiché. 
             ?>
-            <label><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
+            <label for="<?= $name ?>"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 
             <!-- Conteneur de l'input text -->
             <div class="textor">
-                <div class="input"><input name="<?= $name ?>" class="<?= $class ?>" placeholder="<?= $placeholder ?>" <?= $required ? "required" : "" ?> autocomplete="off" <?= isset($value) ? "value='" . $value . "'" : "" ?> <?= isset($pattern) ? "pattern='" . $pattern . "'" : "" ?> <?= isset($maxlength) ? "maxlength='" . $maxlength . "'" : "" ?> /></div>
+                <div class="input"><input id="<?= $name ?>" name="<?= $name ?>" class="<?= $class ?>" placeholder="<?= $placeholder ?>" <?= $required ? "required" : "" ?> autocomplete="off" <?= isset($value) ? "value='" . $value . "'" : "" ?> <?= isset($pattern) ? "pattern='" . $pattern . "'" : "" ?> <?= isset($maxlength) ? "maxlength='" . $maxlength . "'" : "" ?> /></div>
             </div>
             <div class="alert"></div>
         </div>

@@ -1,0 +1,139 @@
+/*
+* Setup variables de couleur
+*/
+:root {
+    --red-color: #d33c43;
+    --orange-color: #d3b73c;
+    --green-color: #3cd343;
+    --white-color: #f1f1f1;
+    --lightgrey: #888;
+    --darkgrey: #2a2a2a;
+}
+
+/*
+ * Texte justifié sur l'ensemble du composant et marge en dessous pour donner de la place au composant suivant.
+ */
+.flycheckbox {
+    text-align: justify;
+    margin: 6rem 0 -4rem;
+}
+
+/*
+ * Encadré en rouge d'erreur si un paramètre vital est manquant.
+ */
+.flycheckbox .error {
+    color: var(--red-color);
+    border-style: double;
+    border-width: 1rem;
+    border-color: var(--red-color);
+}
+
+/*
+ * Le conteneur correspondant à l'entièreté du slider.
+ */
+ .flycheckbox .checkbox .boxor {
+    position: relative;
+    width: 20rem;
+    padding: 2rem;
+    margin: 2rem auto;
+    display: block;
+    top: -7rem;
+    left: -32rem;
+}
+
+/*
+ * La checkbox est cachée.
+ */
+.flycheckbox .checkbox .boxor .input input[type="checkbox"] {
+    position: absolute;
+    left: -999.9rem;
+    visibility: hidden;
+}
+
+/*
+ *  Le texte est en gris clair pour le label.
+ */
+.flycheckbox .checkbox .boxor .input label {
+    color: var(--lightgrey);
+}
+
+/*
+ * Le text d'indication caché de la checkbox coché.
+ */
+.flycheckbox  .checkbox .boxor .input label span.yes {
+    position: absolute;
+    top: 1.7rem;
+    right: 5.5rem;
+    display: none;
+    color: var(--darkgrey);
+}
+
+/*
+ * Le text d'indication visible de la checkbox non coché.
+ */
+.flycheckbox  .checkbox .boxor .input label span.no {
+    position: absolute;
+    top: 1.7rem;
+    right: 2.8rem;
+    display: inline-block;
+    color: var(--darkgrey);
+}
+
+/*
+ * L'arriere plan du slider.
+ */
+.flycheckbox .checkbox .boxor .input label:before {
+    content: '';
+    background: var(--red-color);
+    width: 7.8rem;
+    height: 3.6rem;
+    position: absolute;
+    top: 1.4rem;
+    right: 2.0rem;
+    border-radius: 1rem;
+}
+
+/*
+ * Le toggle du slider.
+ */
+.flycheckbox .checkbox .boxor .input label:after {
+    content: '';
+    position: absolute;
+    right: 7rem;
+    top: 2.2rem;
+    width: 2rem;
+    height: 2rem;
+    background: var(--darkgrey);
+    transition: .1s ease-in;
+    border-radius: 0.5rem;
+}
+
+/*
+ * Transition du slider au cochage de la checkbox.
+ */
+.flycheckbox .checkbox .boxor .input input:checked+label:after {
+    opacity: 1;
+    transform: translateX(4.2rem);
+    background: var(--darkgrey);
+}
+
+/*
+ * Changement de couleur du background du slider.
+ */
+.flycheckbox .checkbox .boxor .input input:checked+label:before {
+    background: var(--green-color);
+}
+
+/*
+ * Affichage de l'indication que la checkbox est cochée.
+ */
+.flycheckbox  .checkbox .boxor .input input:checked+label span.yes {
+    display: inline-block;
+}
+
+/*
+ * Cache de l'indication que la checkbox n'est pas cochée.
+ */
+.flycheckbox  .checkbox .boxor .input input:checked+label span.no {
+    display: none;
+}
