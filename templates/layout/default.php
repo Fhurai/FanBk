@@ -15,7 +15,7 @@
  * @var \App\View\AppView $this
  */
 
-$cakeDescription = 'FanBk : Sauvegarde tes lectures';
+$cakeDescription = 'FanBk';
 ?>
 <!DOCTYPE html>
 <html>
