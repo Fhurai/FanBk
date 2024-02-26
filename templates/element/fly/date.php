@@ -24,7 +24,7 @@ $time = isset($time) ? $time : false;
     ?>
     <?php if (isset($name)) : ?>
 
-        <!-- Partie password -->
+        <!-- Partie date -->
         <div class="date">
             <!-- Label -->
             <?php // Si la date est requise, un petit text rouge est affiché. 
@@ -100,7 +100,7 @@ $time = isset($time) ? $time : false;
 
             <?php // Affichage du paramètre manquant dans le message d'erreur. 
             ?>
-            Missing parameter(s) for FlyText[name]
+            Missing parameter(s) for FlyDate[name]
         </div>
 
     <?php endif; ?>

@@ -27,14 +27,14 @@ const activateFlyMultiSelect = (container) => {
     window.addEventListener("click", function (event) {
 
         // Gestion du click en dehors du composant.
-        clickOutside(event, container);
+        clickOutsideMultiple(event, container);
     });
 
     // Focus dans l'input du champ de recherche.
     container.querySelector(".selector input").addEventListener("focusin", function (event) {
 
         // Affichage de la liste.
-        showList(container);
+        showListMultiple(container);
     });
 
     // Une touche du clavier est tapé dans l'input du champ de recherche.
@@ -42,7 +42,7 @@ const activateFlyMultiSelect = (container) => {
 
         // Recherche des options disponibles avec le contenu de la barre de recherche.
         container.querySelectorAll("li")
-            .forEach((li) => findOption(event, container, li));
+            .forEach((li) => findOptionMultiple(event, container, li));
     });
 
     //Pour l'ensemble des options de la liste de recherche.
@@ -52,7 +52,7 @@ const activateFlyMultiSelect = (container) => {
         li.addEventListener("click", function (event) {
 
             // Choix de l'option relevé.
-            clickOption(event, container)
+            clickOptionMultiple(event, container);
         });
     });
 }
@@ -62,25 +62,25 @@ const activateFlyMultiSelect = (container) => {
  * @param {Event} e L'évènement click
  * @param {Element} container Le composant.
  */
-const clickOutside = (e, container) => { if (!container.contains(e.target)) hideList(container); };
+const clickOutsideMultiple = (e, container) => { if (!container.contains(e.target)) hideListMultiple(container); };
 
 /**
  * Méthode pour cacher la liste d'options.
  * @param {Element} container Le composant.
  */
-const hideList = (container) => { container.querySelector("ul").classList.remove("visible") };
+const hideListMultiple = (container) => { container.querySelector("ul").classList.remove("visible") };
 
 /**
  * Méthode pour afficher la liste d'options.
  * @param {Element} container Le composant.
  */
-const showList = (container) => { container.querySelector("ul").classList.add("visible") };
+const showListMultiple = (container) => { container.querySelector("ul").classList.add("visible") };
 
 /**
  * Méthode qui enlève les attributs de validation du champ de recherche.
  * @param {Element} container Le composant.
  */
-const clickOption = (e, container) => {
+const clickOptionMultiple = (e, container) => {
     // Récupération des informations de l'option sous forme d'un tableau.
     let option = e.currentTarget.id.split("_");
 
@@ -88,13 +88,13 @@ const clickOption = (e, container) => {
     ajoutDisplay(container, e.currentTarget.innerText, option);
 
     // Ajout de la classe de validation sur le selecteur multiple.
-    document.querySelector(".flymultiselect .choices").classList.add("valid");
+    container.querySelector(".flymultiselect .choices").classList.add("valid");
 
     // L'option cliquée est cachée pour éviter la redondance.
     e.currentTarget.style.display = "none";
 
     // Cache de la liste des options.
-    hideList(container);
+    hideListMultiple(container);
 }
 
 /**
@@ -129,7 +129,7 @@ const ajoutDisplay = (container, libelle, option) => {
  * @param {Element} container Le composant.
  * @param {Element} li Element de la liste.
  */
-const findOption = (e, container, li) => {
+const findOptionMultiple = (e, container, li) => {
     // Récupération des informations de l'option sous forme de tableau.
     let option = li.id.split("_");
 
@@ -164,20 +164,6 @@ const findOption = (e, container, li) => {
             li.style.display = "none";
         else
             li.style.display = "";
-    }
-
-
-    // Si le contenu du champ de recherche correspond parfaitement à une option
-    if (li.innerText.toLowerCase() === e.currentTarget.value.toLowerCase()) {
-
-        // Validation d'une option trouvée avec le libellé complet.
-        validateOption(container, option);
-
-        // Liste cachée.
-        hideList(container);
-
-        // Le focus sur le champ de recherche est perdu.
-        if (li.classList.contains("option")) e.currentTarget.blur();
     }
 }
 
@@ -219,6 +205,6 @@ const removeOption = (e, container, option) => {
  * @param {string} name 
  * @param {string} value 
  */
-const setClickOption = (name, value) => {
+const setClickOptionMultiple = (name, value) => {
     document.querySelector(".flymultiselect .select .selector ul li#flymultiselect_option_" + name + "_" + value).click();
 }

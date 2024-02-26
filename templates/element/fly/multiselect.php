@@ -108,7 +108,7 @@ else
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             <?php foreach (array_column($value, "id") as $id) : ?>
-                setClickOption("<?= $name ?>", "<?= $id ?>");
+                setClickOptionMultiple("<?= $name ?>", "<?= $id ?>");
             <?php endforeach; ?>
         });
     </script>

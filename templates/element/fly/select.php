@@ -20,7 +20,7 @@ if (!is_array($options)) {
     $tempQuery = clone $options;
     $tempQuery = $tempQuery->first();
 } else
-    $tempQuery = array_shift($options);
+    $tempQuery = $options[0];
 
 if (is_array($tempQuery))
     $group = true;

@@ -194,6 +194,7 @@
     max-height: 29.5rem;
     position: absolute;
     width: 70%;
+    z-index: 10;
 }
 
 /*
