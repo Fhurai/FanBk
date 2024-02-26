@@ -27,12 +27,12 @@ $required = isset($required) ? $required : false;
             <!-- Label -->
             <?php // Si le textarea est requis, un petit text rouge est affiché. 
             ?>
-            <label><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
+            <label for="<?= $name ?>"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 
             <!-- Conteneur du textarea -->
             <div class="textor">
                 <div class="textarea">
-                    <textarea name="<?= $name ?>" class="<?= $class ?>" placeholder="<?= $placeholder ?>" <?= $required ? "required" : "" ?> autocomplete="off" <?= isset($pattern) ? "pattern='" . $pattern . "'" : "" ?>><?= isset($value) ? $value : "" ?></textarea>
+                    <textarea id="<?= $name ?>" name="<?= $name ?>" class="<?= $class ?>" placeholder="<?= $placeholder ?>" <?= $required ? "required" : "" ?> autocomplete="off" <?= isset($pattern) ? "pattern='" . $pattern . "'" : "" ?>><?= isset($value) ? $value : "" ?></textarea>
                 </div>
             </div>
         </div>

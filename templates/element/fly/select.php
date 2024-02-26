@@ -38,13 +38,13 @@ else
             <!-- Label -->
             <?php // Si le select multiple est requis, un petit text rouge est affiché. 
             ?>
-            <label><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
+            <label for="flyselect_input_<?= $name ?>"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 
             <!-- Selector -->
             <div class="selector">
 
                 <!-- Champ de recherche. -->
-                <div class="input"><input name="flyselect_input_<?= $name ?>" placeholder="Your choice here..." <?= $required ? "required" : "" ?> /></div>
+                <div class="input"><input id="flyselect_input_<?= $name ?>" name="flyselect_input_<?= $name ?>" placeholder="Your choice here..." <?= $required ? "required" : "" ?> /></div>
 
                 <!-- Liste des options -->
                 <ul>
