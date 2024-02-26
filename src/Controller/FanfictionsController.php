@@ -23,18 +23,18 @@ class FanfictionsController extends AppController
     public function initialize(): void
     {
         parent::initialize();
-        
+
         $params = $this->request->getSession()->check("fanfictions") ? $this->request->getSession()->read("fanfictions") : null;
-        
+
         if (is_null($params) || !is_array($params)) {
             $params = [];
             $params["inactive"] = !is_null($this->request->getParam("?")) ? $this->request->getParam("?")["inactive"] : '0';
         }
 
-        if(is_array($params)){
+        if (is_array($params)) {
             $params["inactive"] = (!is_null($this->request->getParam("?")) && array_key_exists("inactive", $this->request->getParam("?"))) ? $this->request->getParam("?")["inactive"] : '0';
         }
-        
+
         $this->writeSession("fanfictions", $params);
     }
 
@@ -47,14 +47,14 @@ class FanfictionsController extends AppController
     {
         $params = $this->request->getSession()->read("fanfictions");
 
-        if($this->request->is(["post", "put"])){
+        if ($this->request->is(["post", "put"])) {
             $data = $this->request->getData();
             $params = array_merge($params, $data);
             $this->writeSession("fanfictions", $params);
         }
 
         $fanfictions = $this->Fanfictions->find("search", $params);
-        
+
         $fanfictionCount = $fanfictions->count();
         $fanfictions = $this->paginate($fanfictions, ["limit" => 25]);
 
@@ -122,54 +122,19 @@ class FanfictionsController extends AppController
         $fandoms = $this->Fandoms->find("list")->order(["nom"]);
         $langages = $this->Langages->find("list")->order(["nom"]);
         $relations = $this->Relations->find("list")->order(["nom"]);
-        $personnages = $this->Personnages->find("all")->order(["nom"]);
-        $tags = $this->Tags->find("all")->order(["nom"]);
-
-        // Options pour lier les personnages à leurs fandoms.
-        $optionsPersonnages = $personnages->all()->map(function ($personnage, $key) {
-            return [
-                "value" => $personnage->id,
-                "text" => $personnage->nom,
-                "data-fandom" => $personnage->fandom
-            ];
-        });
-
-        // Options pour lier les relations à leurs fandoms.
-        $personnagesParNom = [];
-        foreach ($personnages as $personnage) {
-            $personnagesParNom[$personnage->nom] = $personnage;
-        }
-        $optionsRelations = $relations->all()->map(function ($relation, $key) use ($personnagesParNom) {
-            $personnagesArray = explode("/", $relation);
-            $fandoms = array_unique(array_map(function ($personnage) use ($personnagesParNom) {
-                return $personnagesParNom[trim($personnage)]->fandom;
-            }, $personnagesArray));
-            return [
-                "value" => $key,
-                "text" => $relation,
-                "data-fandoms" => json_encode($fandoms)
-            ];
-        });
-
-        //Options pour afficher la description des tags
-        $optionsTags = $tags->all()->map(function ($tag, $key) {
-            return [
-                "value" => $tag->id,
-                "text" => $tag->nom,
-                "title" => $tag->nom . " : " . $tag->description
-            ];
-        });
+        $personnages = $this->Personnages->find("list")->order(["nom"]);
+        $tags = $this->Tags->find("list")->order(["nom"]);
 
 
         $parametres = Configure::check("parametres") ? Configure::read("parametres") : [];
-
+        
         $nsfw = $this->request->getSession()->read("user.nsfw", false);
 
         if (!$nsfw) {
             $parametres["Classement"] = array_slice($parametres["Classement"], 0, 3, true);
         }
 
-        $this->set(compact("auteurs", "fandoms", "langages", "optionsRelations", "optionsPersonnages", "optionsTags", "parametres"));
+        $this->set(compact("auteurs", "fandoms", "langages", "relations", "personnages", "tags", "parametres"));
     }
 
     /**
@@ -237,7 +202,7 @@ class FanfictionsController extends AppController
             //Parcours des données de la fanfiction
             // SI donnée pas dans les données du formulaire, retirer la donnée
             foreach ($fanfiction->liens as $cle => $lien)
-                if (array_search($lien->id, $data["lien"]) === false)
+                if (array_search($lien->id, $data["liens"]) === false)
                     unset($fanfiction->liens[$cle]);
 
             // Fanfiction est informé de la modification de ses liens
@@ -246,8 +211,8 @@ class FanfictionsController extends AppController
             // Pas de tableau des liens existant, il est créé.
             $fanfiction->liens = [];
 
-            if (array_key_exists("lien", $data) && is_array($data["lien"])) {
-                foreach ($data["lien"] as $link) { // Parcours des données du formulaire pour les liens
+            if (array_key_exists("liens", $data) && is_array($data["liens"])) {
+                foreach ($data["liens"] as $link) { // Parcours des données du formulaire pour les liens
                     $lien = $this->Liens->newEmptyEntity();
 
                     // Remplissage du nouveau lien avec les données du formulaire et les date/heure de l'instant de création
@@ -282,9 +247,8 @@ class FanfictionsController extends AppController
         } else {
             // Pas de tableau des tags existant, il est créé.
             $fanfiction->fandoms = [];
-
-            if (array_key_exists("fandoms", $data) && is_array($data["fandoms"])) {
-                foreach ($data["fandoms"] as $id) // Parcours des données du formulaire pour les fandoms
+            if (array_key_exists("fandoms", $data) && is_array($data["fandoms"]["_ids"])) {
+                foreach ($data["fandoms"]["_ids"] as $id) // Parcours des données du formulaire pour les fandoms
                     $fanfiction->fandoms[] = $this->Fandoms->get($id); // Ajout des fandoms identifiés dans les données du formulaire.
             }
         }
@@ -321,9 +285,8 @@ class FanfictionsController extends AppController
         } else {
             // Pas de tableau des relations existant, il est créé.
             $fanfiction->relations = [];
-
-            if (array_key_exists("relations", $data) && is_array($data["relations"])) {
-                foreach ($data["relations"] as $id) // Parcours des données du formulaire pour les relations
+            if (array_key_exists("relations", $data) && is_array($data["relations"]["_ids"])) {
+                foreach ($data["relations"]["_ids"] as $id) // Parcours des données du formulaire pour les relations
                     $fanfiction->relations[] = $this->Relations->get($id); // Ajout des relations identifiées dans les données du formulaire.
             }
         }
@@ -361,8 +324,8 @@ class FanfictionsController extends AppController
             // Pas de tableau des personnages existant, il est créé.
             $fanfiction->personnages = [];
 
-            if (array_key_exists("personnages", $data) && is_array($data["personnages"])) {
-                foreach ($data["personnages"] as $id) // Parcours des données du formulaire pour les personnages
+            if (array_key_exists("personnages", $data) && is_array($data["personnages"]["_ids"])) {
+                foreach ($data["personnages"]["_ids"] as $id) // Parcours des données du formulaire pour les personnages
                     $fanfiction->personnages[] = $this->Personnages->get($id); // Ajout des personnages identifiés dans les données du formulaire.
             }
         }
@@ -402,8 +365,8 @@ class FanfictionsController extends AppController
             // Pas de tableau des tags existant, il est créé.
             $fanfiction->tags = [];
 
-            if (array_key_exists("tags", $data) && is_array($data["tags"])) {
-                foreach ($data["tags"] as $id) // Parcours des données du formulaire pour les tags
+            if (array_key_exists("tags", $data) && is_array($data["tags"]["_ids"])) {
+                foreach ($data["tags"]["_ids"] as $id) // Parcours des données du formulaire pour les tags
                     $fanfiction->tags[] = $this->Tags->get($id); // Ajout des tags identifiés dans les données du formulaire.
             }
         }
@@ -523,9 +486,21 @@ class FanfictionsController extends AppController
             $data = $this->request->getData();
 
             $lien = $this->Liens->find("all")->contain(["fanfictions"])->where(["FanfictionsLiens.lien" => $data["lien"]])->first();
-            if (!is_null($lien))
-                $this->redirect(["action" => "index", "?" => ["auteur" => $lien->fanfiction_obj->auteur]]);
-            else
+            if (!is_null($lien)) {
+
+                // Mise à vide de la session pour les fanfictions.
+                $this->request->getSession()->write("fanfictions");
+
+                // Ajout de l'auteur dans la session pour la recherche fanfictions.
+                $params = [];
+                $params["search"]["fields"]["auteurs"] = trim($this->Auteurs->get($lien->fanfiction_obj->auteur)->nom);
+                $params["search"]["not"]["auteurs"] = true;
+                $params["search"]["operator"]["auteurs"] = "AND";
+                $this->writeSession("fanfictions", $params);
+
+                // Redirection vers la page d'index des fanfictions.
+                $this->redirect(["action" => "index"]);
+            } else
                 $this->redirect(["action" => "add"]);
         }
         $this->redirect(["action" => "index"]);
@@ -550,7 +525,8 @@ class FanfictionsController extends AppController
     /**
      * Méthode pour réinitialiser la liste des fanfictions.
      */
-    public function reinitialize(){
+    public function reinitialize()
+    {
         $this->request->getSession()->write("fanfictions", null);
 
         $this->Flash->success("Réinitialisation des fanfictions disponibles.");

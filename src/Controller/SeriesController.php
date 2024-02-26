@@ -248,6 +248,7 @@ class SeriesController extends AppController
          */
         $series->nom = trim($data["nom"]);
         $series->description = trim($data["description"]);
+
         /**
          * PARTIE FANFICTIONS
          */
@@ -261,8 +262,9 @@ class SeriesController extends AppController
             //Parcours des données du formulaire
             // Si donnée pas dans la fanfiction, la rajouter.
             foreach ($data["fanfictions"] as $idFanfiction)
-                if (array_search($idFanfiction, array_column($series->fanfictions, "id")) === false)
-                    array_push($series->fanfictions, $this->Fanfictions->getWithAssociations($idFanfiction));
+                if (array_search($idFanfiction, array_column($series->fanfictions, "id")) === false) {
+                    if (!empty($idFanfiction)) array_push($series->fanfictions, $this->Fanfictions->getWithAssociations($idFanfiction));
+                }
 
             // Fanfiction est informé de la modification de ses fanfictions
             $series->setDirty("fanfictions");
@@ -271,13 +273,15 @@ class SeriesController extends AppController
             $series->fanfictions = [];
             if (array_key_exists("fanfictions", $data) && is_array($data["fanfictions"])) {
                 foreach ($data["fanfictions"] as $key => $id) {
-                    // Parcours des données du formulaire pour les fanfictions
-                    // Ajout des fanfictions identifiés dans les données du formulaire.
-                    $fanfiction = $this->Fanfictions->getWithAssociations($id);
-                    $fanfiction->_joinData = new Entity([
-                        "ordre" => $key
-                    ]);
-                    $series->fanfictions[] = $fanfiction;
+                    if (!empty($id)) {
+                        // Parcours des données du formulaire pour les fanfictions
+                        // Ajout des fanfictions identifiés dans les données du formulaire.
+                        $fanfiction = $this->Fanfictions->getWithAssociations($id);
+                        $fanfiction->_joinData = new Entity([
+                            "ordre" => $key
+                        ]);
+                        $series->fanfictions[] = $fanfiction;
+                    }
                 }
             }
         }

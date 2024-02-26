@@ -1,77 +1,64 @@
 <?php
-/**
- * @var \App\Model\Entity\Fanfiction $fanfiction
- * @var string $action
- * @var array $parametres
- */
+
 use Cake\I18n\FrozenTime;
 
+/**
+ * @var \App\Model\Entity\Fanfiction $fanfiction La fanfiction à modifier.
+ * @var string $action L'action du formulaire (add/edit)
+ * @var array $parametres Les paramètres nécessaires à la fanfiction.
+ */
+
 ?>
+
+<!-- Formulaire de la fanfiction -->
 <?= $this->Form->create($fanfiction) ?>
-    <fieldset>
-        <legend><?= __('Ajouter une fanfiction') ?></legend>
-        <?php
-            echo $this->Form->control('nom', ["required" => true]);
-            
-            echo "<div class='allow-new-closed'>" . $this->Form->control('auteur', ["div" => ["class" => "allow-new"], "label" => "Auteur ➕"]) . 
-            $this->Form->control("auteur-new", ["label" => "*New", "placeholder" => "Nouvel auteur"]) . "</div>";
-            
-            echo $this->Form->control('classement', ["options" => $parametres["Classement"], "required" => true]);
-            
-            echo $this->Form->control('description', ["required" => true]);
-            
-            echo "<div class='allow-new-closed'>".$this->Form->control('fandoms', ["multiple" => true, "label" => "Fandom(s) ➕", "value" => !is_null($fanfiction->fandoms) ? array_column($fanfiction->fandoms, "id") : []]) . 
-            $this->Form->control("fandoms-new", ["label" => "*New", "placeholder" => "Nouveau fandom"]) . "</div>";
-            
-            echo "<div class='allow-new-closed'>". $this->Form->control('langage', ["label" => "Langage ➕"]) . 
-            $this->Form->control("langage-new", ["label" => "*New", "placeholder" => "Nouveau langage"]) . "</div>";
-            
-        ?>
 
-        <table class="flylist">
-            <thead>
-                <tr>
-                    <th colspan="3">
-                        <label>Liens</label>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if(!empty($fanfiction->liens)): ?>
-                    <?php foreach($fanfiction->liens as $keyDonnee => $lien): ?>
-                        <tr>
-                            <th><?= $keyDonnee + 1 ?></th>
-                            <td><?= $this->Form->text("lien[" . ($keyDonnee+1) . "]", [
-                                'value' => $lien->lien
-                                ]) ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                <tr>
-                    <td colspan="3">
-                        <div class="addButton" title="lien">➕</div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+<!-- Groupe de champs -->
+<fieldset>
 
-        <?php            
-            echo "<div class='allow-new-closed'>" . $this->Form->control('relations', ["options" => $optionsRelations, "multiple" => true, "label" => "Relation(s) ➕", "value" => !is_null($fanfiction->relations) ? array_column($fanfiction->relations, "id") : []]) . 
-            $this->Form->control("relations-new", ["label" => "*New", "placeholder" => "Nouvelle relation"]) .  "</div>";
-            
-            
-            echo "<div class='allow-new-closed'>" . $this->Form->control('personnages', ["options" => $optionsPersonnages, "multiple" => true, "label" => "Personnage(s) ➕", "value" => !is_null($fanfiction->personnages) ? array_column($fanfiction->personnages, "id") : []]) . 
-            $this->Form->control("personnages-new", ["label" => "*New", "placeholder" => "Nouveau personnage"]) . "</div>";
-            
-            echo "<div class='allow-new-closed'>" . $this->Form->control('tags', ["options" => $optionsTags, "multiple" => true, "label" => "Tag(s) ➕", "value" => !is_null($fanfiction->tags) ? array_column($fanfiction->tags, "id") : []]) . 
-            "<div>" . $this->Form->control("tags-new", ["label" => "*New", "placeholder" => "Nouveau tag"]) . 
-            $this->Form->control("tags-desc-new", ["label" => false, "type" => "textarea", "placeholder" => "Description du nouveau tag"])
-             . "</div></div>";
-            
-            echo $this->Form->control('update_date', ['type' => 'hidden', 'value' => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
-        ?>
-    </fieldset>
+    <!-- Légende du formulaire -->
+    <legend><?= __('Ajouter une fanfiction') ?></legend>
+
+    <?php
+    // Champ nom de la fanfiction (l'utilisateur doit définir le nom de la fanfiction => requis.)
+    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $fanfiction->nom, "required" => true, "placeholder" => "Nom de la fanfiction", "maxlength" => 50]);
+
+    // Selecteur simple pour choisir l'auteur de la fanfiction.
+    echo $this->element("fly/select", ["options" => $auteurs, "name" => "auteur", "label" => "Auteur", "value" => $fanfiction->auteur, "required" => true]);
+
+    // Selecteur simple pour choisir le classement de la fanfiction.
+    echo $this->element("fly/select", ["options" => $parametres["Classement"], "name" => "classement", "label" => "Classement", "value" => $fanfiction->classement, "required" => true]);
+
+    // Champ description (l'utilisateur doit définir la description de la fanfiction => requis.)
+    echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => $fanfiction->description, "required" => true, "placeholder" => "Description de la fanfiction"]);
+
+    // Selecteur multiple pour choisir le fandom de la fanfiction.
+    echo $this->element("fly/multiselect", ["options" => $fandoms, "name" => "fandoms", "label" => "Fandom(s) de la fanfiction", "value" => $fanfiction->fandoms, "required" => true]);
+
+    // Selecteur simple pour choisir le langage de la fanfiction.
+    echo $this->element("fly/select", ["options" => $langages, "name" => "langage", "label" => "Langage", "value" => $fanfiction->langage, "required" => true]);
+
+    // Liste à la volée des liens de la fanfiction (avec un lien obligatoire).
+    echo $this->element("fly/list", ["name" => "liens", "label" => "Liens de la fanfiction", "value" => $fanfiction->liens, "required" => true]);
+
+    // Selecteur multiple pour choisir la relation de la fanfiction.
+    echo $this->element("fly/multiselect", ["options" => $relations, "name" => "relations", "label" => "Relation(s) de la fanfiction", "value" => $fanfiction->relations]);
+
+    // Selecteur multiple pour choisir le personnage de la fanfiction.
+    echo $this->element("fly/multiselect", ["options" => $personnages, "name" => "personnages", "label" => "Personnage(s) de la fanfiction", "value" => $fanfiction->personnages]);
+
+    // Selecteur multiple pour choisir la relation de la fanfiction.
+    echo $this->element("fly/multiselect", ["options" => $tags, "name" => "tags", "label" => "Tag(s) de la fanfiction", "value" => $fanfiction->tags]);
+
+    // Date de modification changé par le système pour le système. L'utilisateur n'a pas a voir ce champ.
+    echo $this->Form->control('update_date', ['type' => 'hidden', 'value' => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
+    ?>
+
+    <!-- Fin du groupe de champs -->
+</fieldset>
+
+<!-- Bouton de soumission du formulaire -->
 <?= $this->Form->button(__('Submit')) ?>
+
+<!-- Fin du formulaire. -->
 <?= $this->Form->end() ?>
-<?= $this->Html->script(['form/fanfiction']) ?>

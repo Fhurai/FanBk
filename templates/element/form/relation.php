@@ -22,7 +22,7 @@ use Cake\I18n\FrozenTime;
     if ($action === "edit")
         echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $relation->nom, "required" => true, "placeholder" => "Nom du personnage", "maxlength" => 50]);
 
-    // Selecteur simple pour choisir le fandom auquel appartient le personnage.
+    // Selecteur multiple pour choisir les personnages de la relation.
     echo $this->element("fly/multiselect", ["options" => $personnages, "name" => "personnages", "label" => "Personnages", "value" => $relation->personnages, "required" => true]);
 
     // Date de modification changé par le système pour le système. L'utilisateur n'a pas a voir ce champ.
