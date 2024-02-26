@@ -14,7 +14,7 @@
                 <table>
                     <?php foreach($data as $keyDonnee => $donnee): ?>
                         <tr>
-                            <th><?= $keyDonnee ?></th>
+                            <th><?= $keyDonnee + 1 ?></th>
                             <td><?= $donnee ?></td>
                         </tr>
                     <?php endforeach ?>
@@ -23,10 +23,8 @@
             <?php endforeach; ?>
 
             <div>
-                <h4>Link check</h4>
-                <p>Teste si un lien de fanfiction est déjà enregistré.</p>
                 <?= $this->Form->create(null, ['url' => ["controller" => "fanfictions", "action" => "checkLien"]]) ?>
-                <?= $this->Form->control("lien") ?>
+                <?= $this->element("fly/text", ["name" => "lien", "label" => "Lien à check", "placeholder" => "Lien de fanfiction à check"]); ?>
                 <?= $this->Form->end() ?>
             </div>
         </div>
