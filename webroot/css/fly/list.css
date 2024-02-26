@@ -1,0 +1,215 @@
+/*
+* Setup variables de couleur
+*/
+:root {
+    --red-color: #d33c43;
+    --orange-color: #d3b73c;
+    --green-color: #3cd343;
+    --white-color: #f1f1f1;
+    --lightgrey: #888;
+    --darkgrey: #2a2a2a;
+    --black: #101010;
+}
+
+/*
+ * Texte justifié sur l'ensemble du composant et marge en dessous pour donner de la place au composant suivant.
+ */
+.flylist {
+    text-align: justify;
+    margin-bottom: 2rem;
+}
+
+/*
+ * Indication de composant rempli requis en rouge à coté du label.
+ */
+.flylist .required::before {
+    content: "required";
+    color: var(--red-color);
+    font-size: 10px;
+    vertical-align: top;
+}
+
+/*
+ * Encadré en rouge d'erreur si un paramètre vital est manquant.
+ */
+.flylist .error {
+    color: var(--red-color);
+    border-style: double;
+    border-width: 1rem;
+    border-color: var(--red-color);
+}
+
+/*
+ * Liste
+ */
+.flylist .listor {
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: transparent;
+    width: 100%;
+    border-radius: 1rem;
+    padding: 2rem;
+}
+
+/*
+ * Ligne de drop
+ */
+.flylist .listor .drop {
+    text-align: center;
+    height: 5rem;
+    margin: 1rem -1rem;
+    flex-direction: row;
+}
+
+/*
+ * Ligne de drag
+ */
+.flylist .listor .drop .drag {
+    display: flex;
+}
+
+/*
+ * Conteneur dans une ligne draggable (mais pas ligne de bouton).
+ */
+.flylist .listor .drop .drag:not(.add)>div {
+    background-color: var(--darkgrey);
+}
+
+/*
+ * Champ de la liste
+ */
+.flylist .listor .drop .drag:not(.add) div.input {
+    border-style: solid;
+    border-width: 5px;
+    border-color: var(--lightgrey);
+    border-radius: 4px;
+}
+
+/*
+ * Contour champ de recherche vide.
+ */
+.flylist .listor .drop .drag:not(.add) div.input:has(input[required]:empty) {
+    border-color: var(--red-color);
+}
+
+/*
+ * Contour champ de recherche contient une valeur correcte.
+ */
+.flylist .listor .drop .drag.valid:not(.add) div.input:has(input[required]:not(:placeholder-shown)) {
+    border-color: var(--green-color);
+}
+
+/*
+ * Contour champ de recherche rempli avec information incorrecte.
+ */
+.flylist .listor .drop .drag:not(.add) div.input:has(input[required]:not(:placeholder-shown)) {
+    border-color: var(--orange-color);
+}
+
+/*
+ * Premier enfant dans une ligne draggable
+ */
+.flylist .listor .drop .drag:not(.add)>div:first-child {
+    background-color: var(--darkgrey);
+    border-radius: 5rem 0 0 5rem;
+    border-color: var(--darkgrey);
+    border-style: solid;
+    cursor: grab;
+    border-right: 4px dotted var(--black);
+}
+
+/*
+ * Dernier enfant dans une ligne draggable
+ */
+.flylist .listor .drop .drag:not(.add)>div:last-child {
+    background-color: var(--darkgrey);
+    border-radius: 0 5rem 5rem 0;
+    border-color: var(--darkgrey);
+    border-style: solid;
+    padding-right: 3.5rem;
+    cursor: pointer;
+}
+
+/*
+ * Enfant non input dans une ligne draggable.
+ */
+.flylist .listor .drop .drag div:not(.field) {
+    padding: 1rem;
+    width: 5%;
+}
+
+/*
+ * Enfant field dans une ligne draggable.
+ */
+.flylist .listor .drop .drag div.field {
+    width: 90%;
+}
+
+/*
+ * Enfant input dans une ligne draggable.
+ */
+ .flylist .listor .drop .drag div.field .input {
+    width: 100%;
+    padding: unset;
+}
+
+/*
+ * Champ dans la ligne
+ */
+.flylist .listor .drop .drag div.field .input input {
+    padding: 1rem;
+    color: var(--lightgrey);
+    margin-bottom: unset;
+    border: unset;
+    height: 4rem;
+    vertical-align: text-top;
+}
+
+.flylist .listor .drop .drag div.field ul{
+    list-style: none;
+    text-align: justify;
+    padding: 1rem;
+    display: none;
+    overflow: scroll;
+    max-height: 29.5rem;
+    position: absolute;
+    width: 70%;
+    z-index: 10;
+}
+
+.flylist .listor .drop .drag div.field ul.visible{
+    display: block;
+    background-color: var(--darkgrey);
+    width: 60%;
+}
+
+.flylist .listor .drop .drag div.field ul li.option {
+    padding: 1rem;
+    border-style: solid;
+    border-width: 1px;
+    border-left-width: 4px;
+    border-color: var(--lightgrey);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--white-color);
+}
+
+/*
+ * Enfant de la ligne de bouton.
+ */
+.flylist .listor .drop.add div {
+    border: unset;
+    padding: 0.25rem;
+}
+
+/*
+ * Bouton d'ajout.
+ */
+.flylist .listor .drop div.field span {
+    padding: 1rem;
+    background-color: var(--red-color);
+    border: 0.1rem solid var(--red-color);
+    border-radius: 0.4rem;
+    color: var(--white-color);
+    cursor: pointer;
+}
