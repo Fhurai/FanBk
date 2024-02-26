@@ -32,7 +32,7 @@ $cakeDescription = 'FanBk';
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'fonts', 'cake']) ?>
 
     <!-- #region -->
-    <?= $this->Html->script(['paginator', 'flylist', 'allow-new']) ?>
+    <?= $this->Html->script(['paginator', 'allow-new']) ?>
     <!-- #endregion -->
 
     <?= $this->fetch('meta') ?>
