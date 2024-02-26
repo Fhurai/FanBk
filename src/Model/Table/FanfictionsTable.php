@@ -154,8 +154,8 @@ class FanfictionsTable extends Table
     {
         $fandom = new Fanfiction();
         $fandom->id = null;
-        $fandom->nom = "Nouvelle fanfiction";
-        $fandom->description = "N/A";
+        $fandom->nom = "";
+        $fandom->description = "";
         $fandom->creation_date = new FrozenTime("Europe/Paris");
         $fandom->update_date = new FrozenTime("Europe/Paris");
         return $fandom;

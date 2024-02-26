@@ -117,8 +117,8 @@ class SeriesTable extends Table
     {
         $series = new Series();
         $series->id = null;
-        $series->nom = "Nouvelle série";
-        $series->description = "N/A";
+        $series->nom = "";
+        $series->description = "";
         $series->creation_date = new FrozenTime("Europe/Paris");
         $series->update_date = new FrozenTime("Europe/Paris");
         return $series;
