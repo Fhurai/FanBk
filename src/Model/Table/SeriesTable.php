@@ -136,7 +136,7 @@ class SeriesTable extends Table
             ->select(["id", "nom", "description", "max_classement" => "MAX(classement)", "note", "evaluation", "fanfiction", "auteur"])
             ->group("id");
 
-        $condition =  array_key_exists("nsfw", $options["user"]) && !$options["user"]["nsfw"] ? ["series.suppression_date IS" => null, "max_classement <=" => 3] : ["series.suppression_date IS" => null];
+        $condition =  array_key_exists("nsfw", $options) && !$options["nsfw"] ? ["series.suppression_date IS" => null, "max_classement <=" => 3] : ["series.suppression_date IS" => null];
 
         return $this->find()
             ->join([

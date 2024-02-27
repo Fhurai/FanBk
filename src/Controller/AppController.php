@@ -37,6 +37,7 @@ use Cake\Controller\Controller;
  * @property \App\Model\Table\LiensTable $Liens
  * @property \App\Model\Table\TagsTable $Tags
  * @property \App\Model\Table\UsersTable $Users
+ * @property \App\Model\Table\SeriesTable $Series
  */
 class AppController extends Controller
 {
@@ -68,6 +69,7 @@ class AppController extends Controller
         $this->Relations = $this->fetchModel("Relations");
         $this->Tags = $this->fetchModel("Tags");
         $this->Users = $this->fetchModel("Users");
+        $this->Series = $this->fetchModel("Series");
     }
 
     /**
