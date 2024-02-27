@@ -39,7 +39,7 @@ use Cake\I18n\FrozenTime;
     echo $this->element("fly/select", ["options" => $langages, "name" => "langage", "label" => "Langage", "value" => $fanfiction->langage, "required" => true]);
 
     // Liste à la volée des liens de la fanfiction (avec un lien obligatoire).
-    echo $this->element("fly/list", ["name" => "liens", "label" => "Liens de la fanfiction", "value" => array_column($fanfiction->liens, "lien"), "required" => true]);
+    echo $this->element("fly/list", ["name" => "liens", "label" => "Liens de la fanfiction", "value" => is_array($fanfiction->liens) ? array_column($fanfiction->liens, "lien") : $fanfiction->liens, "required" => true]);
 
     // Selecteur multiple pour choisir la relation de la fanfiction.
     echo $this->element("fly/multiselect", ["options" => $relations, "name" => "relations", "label" => "Relation(s) de la fanfiction", "value" => $fanfiction->relations]);
