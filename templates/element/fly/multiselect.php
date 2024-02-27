@@ -64,7 +64,7 @@ else
 
                         <!-- Affichage de toutes les options. -->
                         <?php foreach ($options as $key => $option) : ?>
-                            <li class="option" id="flyselect_option_<?= $name ?>_<?= $key ?>"><?= $option ?></li>
+                            <li class="option" id="flymultiselect_option_<?= $name ?>_<?= $key ?>"><?= $option ?></li>
                         <?php endforeach; ?>
 
                         <?php // Options groupées 

@@ -76,7 +76,7 @@ class FanfictionsController extends AppController
                 return $this->editFanfictionDataAssociation($this->request->getData());
             });
             if ($this->Fanfictions->save($fanfiction, ["associated" => true])) {
-                $this->Flash->success("Fanfiction ajoutée avec succès.");
+                $this->Flash->success(__("Fanfiction \"{0}\" ajoutée avec succès.", $fanfiction->nom));
                 $this->redirect(["action" => "index"]);
             } else
                 $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la fanfiction. Veuillez réessayer.");
@@ -103,7 +103,7 @@ class FanfictionsController extends AppController
             });
 
             if ($this->Fanfictions->save($fanfiction, ["associated" => true])) {
-                $this->Flash->success("Fanfiction éditée avec succès.");
+                $this->Flash->success(__("Fanfiction \"{0}\" éditée avec succès.", $fanfiction->nom));
                 $this->redirect(["action" => "index"]);
             } else
                 $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la fanfiction. Veuillez réessayer.");
@@ -235,10 +235,10 @@ class FanfictionsController extends AppController
             foreach ($fanfiction->fandoms as $cle => $fandom)
                 if (array_search($fandom->id, $data["fandoms"]) === false)
                     unset($fanfiction->fandoms[$cle]);
-
+            
             //Parcours des données du formulaire
             // Si donnée pas dans la fanfiction, la rajouter.
-            foreach ($data["fandoms"] as $idFandom)
+            foreach ($data["fandoms"]["_ids"] as $idFandom)
                 if (array_search($idFandom, array_column($fanfiction->fandoms, "id")) === false)
                     array_push($fanfiction->fandoms, $this->Fandoms->get($idFandom));
 
@@ -276,7 +276,7 @@ class FanfictionsController extends AppController
 
             //Parcours des données du formulaire
             // Si donnée pas dans la fanfiction, la rajouter.
-            foreach ($data["relations"] as $idRelation)
+            foreach ($data["relations"]["_ids"] as $idRelation)
                 if (array_search($idRelation, array_column($fanfiction->relations, "id")) === false)
                     array_push($fanfiction->relations, $this->Relations->get($idRelation));
 
@@ -314,7 +314,7 @@ class FanfictionsController extends AppController
 
             //Parcours des données du formulaire
             // Si donnée pas dans la fanfiction, la rajouter.
-            foreach ($data["personnages"] as $idPersonnage)
+            foreach ($data["personnages"]["_ids"] as $idPersonnage)
                 if (array_search($idPersonnage, array_column($fanfiction->personnages, "id")) === false)
                     array_push($fanfiction->personnages, $this->Personnages->get($idPersonnage));
 
@@ -355,7 +355,7 @@ class FanfictionsController extends AppController
 
             //Parcours des données du formulaire
             // Si donnée pas dans la fanfiction, la rajouter.
-            foreach ($data["tags"] as $idTag)
+            foreach ($data["tags"]["_ids"] as $idTag)
                 if (array_search($idTag, array_column($fanfiction->tags, "id")) === false)
                     array_push($fanfiction->tags, $this->Tags->get($idTag));
 
