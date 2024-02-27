@@ -9,7 +9,7 @@ use Cake\I18n\FrozenTime;
  */
 ?>
 <!-- Formulaire auteur. -->
-<?= $this->Form->create($series) ?>
+<?= ($this->getRequest()->getParam("controller") === "Series") ? $this->Form->create($series) : "" ?>
 
 <!-- Groupe de champs -->
 <fieldset>
@@ -37,4 +37,4 @@ use Cake\I18n\FrozenTime;
 <?= $this->Form->button(__('Submit')) ?>
 
 <!-- Fin du formulaire. -->
-<?= $this->Form->end() ?>
+<?= ($this->getRequest()->getParam("controller") === "Series") ? $this->Form->end() : "" ?>

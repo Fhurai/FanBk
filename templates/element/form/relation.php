@@ -10,7 +10,7 @@ use Cake\I18n\FrozenTime;
  */
 ?>
 <!-- Formulaire relation. -->
-<?= $this->Form->create($relation) ?>
+<?= ($this->getRequest()->getParam("controller") === "Relations") ? $this->Form->create($relation) : "" ?>
 
 <!-- Groupe de champs -->
 <fieldset>
@@ -34,4 +34,4 @@ use Cake\I18n\FrozenTime;
 <?= $this->Form->button(__('Submit')) ?>
 
 <!-- Fin du formulaire. -->
-<?= $this->Form->end() ?>
+<?= ($this->getRequest()->getParam("controller") === "Relations") ? $this->Form->end() : "" ?>

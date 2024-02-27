@@ -9,7 +9,7 @@ use Cake\I18n\FrozenTime;
  */
 ?>
 <!-- Formulaire Langage. -->
-<?= $this->Form->create($langage) ?>
+<?= ($this->getRequest()->getParam("controller") === "Langages") ? $this->Form->create($langage) : "" ?>
 
 <!-- Groupe de champs -->
 <fieldset>
@@ -33,4 +33,4 @@ use Cake\I18n\FrozenTime;
 <?= $this->Form->button(__('Submit')) ?>
 
 <!-- Fin du formulaire. -->
-<?= $this->Form->end() ?>
+<?= ($this->getRequest()->getParam("controller") === "Langages") ? $this->Form->end() : "" ?>

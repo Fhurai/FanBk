@@ -10,7 +10,7 @@ use Cake\I18n\FrozenTime;
  */
 ?>
 <!-- Formulaire auteur. -->
-<?= $this->Form->create($user) ?>
+<?= ($this->getRequest()->getParam("controller") === "Users") ? $this->Form->create($user) : "" ?>
 
 <fieldset>
 
@@ -43,4 +43,4 @@ use Cake\I18n\FrozenTime;
 <?= $this->Form->button(__('Submit')) ?>
 
 <!-- Fin du formulaire. -->
-<?= $this->Form->end() ?>
+<?= ($this->getRequest()->getParam("controller") === "Users") ? $this->Form->end() : "" ?>

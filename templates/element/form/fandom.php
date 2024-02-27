@@ -9,7 +9,7 @@ use Cake\I18n\FrozenTime;
  */
 ?>
 <!-- Formulaire fandom. -->
-<?= $this->Form->create($fandom) ?>
+<?= ($this->getRequest()->getParam("controller") === "Fandoms") ? $this->Form->create($fandom) : "" ?>
 
 <!-- Groupe de champs -->
 <fieldset>
@@ -30,4 +30,4 @@ use Cake\I18n\FrozenTime;
 <?= $this->Form->button(__('Submit')) ?>
 
 <!-- Fin du formulaire. -->
-<?= $this->Form->end() ?>
+<?= ($this->getRequest()->getParam("controller") === "Fandoms") ? $this->Form->end() : "" ?>
