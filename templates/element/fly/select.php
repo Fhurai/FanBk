@@ -38,7 +38,7 @@ else
             <!-- Label -->
             <?php // Si le select multiple est requis, un petit text rouge est affiché. 
             ?>
-            <label for="flyselect_input_<?= $name ?>"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
+            <label for="<?= $name ?>"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 
             <!-- Selector -->
             <div class="selector">
@@ -75,6 +75,7 @@ else
             </div>
 
             <!-- Select -->
+            <label for="<?= $name ?>" hidden><?= $label ?></label>
             <select name="<?= $name ?>" <?= $class ?> <?= $required ? "required" : "" ?>>
 
                 <!-- Option vide par défaut -->

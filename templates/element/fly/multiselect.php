@@ -39,7 +39,7 @@ else
             <!-- Label -->
             <?php // Si le select multiple est requis, un petit text rouge est affiché. 
             ?>
-            <label for="<?= $name ?>[_ids]"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
+            <label for="<?= $name ?>[]"><?= $label ?><?= $required ? "<span class='required'></span>" : "" ?></label>
 
             <!-- Affichage des options sélectionnés par le selecteur multiple. -->
             <div class="choices">
@@ -47,7 +47,7 @@ else
                 <?php // Display : zone vide pour afficher les options sélectionnés. Input pour conserver le requis du css. 
                 ?>
                 <div class="display"></div>
-                <input id="<?= $name ?>[_ids]" name="<?= $name ?>[_ids]" <?= $required ? "required" : "" ?> />
+                <input id="<?= $name ?>[]" name="<?= $name ?>[]" <?= $required ? "required" : "" ?> />
             </div>
 
             <!-- Select -->

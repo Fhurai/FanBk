@@ -84,17 +84,18 @@ const clickOptionMultiple = (e, container) => {
     // Récupération des informations de l'option sous forme d'un tableau.
     let option = e.currentTarget.id.split("_");
 
-    // Ajout de l'option cliquée dans le container d'affichage.
-    ajoutDisplay(container, e.currentTarget.innerText, option);
+    // Si aucune option n'a été selectionné pour le sélecteur multiple.
+    if (container.querySelectorAll(".display input[value='" + option[3] + "']").length === 0) {
 
-    // Ajout de la classe de validation sur le selecteur multiple.
-    container.querySelector(".flymultiselect .choices").classList.add("valid");
+        // Ajout de l'option cliquée dans le container d'affichage.
+        ajoutDisplay(container, e.currentTarget.innerText, option);
 
-    // L'option cliquée est cachée pour éviter la redondance.
-    e.currentTarget.style.display = "none";
+        // Ajout de la classe de validation sur le selecteur multiple.
+        container.querySelector(".flymultiselect .choices").classList.add("valid");
 
-    // Cache de la liste des options.
-    hideListMultiple(container);
+        // L'option cliquée est cachée pour éviter la redondance.
+        e.currentTarget.classList.add("chosen");
+    }
 }
 
 /**
@@ -105,16 +106,17 @@ const clickOptionMultiple = (e, container) => {
  */
 const ajoutDisplay = (container, libelle, option) => {
     // Si l'input dummy est présent dans le container d'affichage, il est supprimé.
-    if (container.querySelectorAll(".choices > input[name='" + option[2] + "[_ids]']").length > 0)
-        container.querySelector(".choices > input[name='" + option[2] + "[_ids]']").remove();
+    if (container.querySelectorAll(".choices > input[name='" + option[2] + "[]']").length > 0)
+        container.querySelector(".choices > input[name='" + option[2] + "[]']").remove();
 
     // Création de l'option à afficher dans le conteneur d'affichage.
     let div = document.createElement("div");
     div.classList = "option";
-    div.innerHTML = libelle + `<input name="` + option[2] + `[_ids][]" value=` + option[3] + `  required/>`;
+    div.innerHTML = libelle + `<input name="` + option[2] + `[]" value=` + option[3] + `  required/>`;
 
     // Le bouton de suppression de l'option est cliqué
     div.addEventListener("click", function (event) {
+
         // Suppression de l'option affichée.
         removeOption(event, container, option);
     });
@@ -133,11 +135,14 @@ const findOptionMultiple = (e, container, li) => {
     // Récupération des informations de l'option sous forme de tableau.
     let option = li.id.split("_");
 
+    // Construction de l'expression régulière à utiliser pour la comparaison.
+    let regex = new RegExp("(?:.*\\b(" + e.currentTarget.value.toLowerCase().split(" ").join("))(?:.*\\b(") + "))", "gi");
+
     // Si l'option est un choix simple (sans groupe)
     if (!li.hasAttribute("optgroup") && li.classList.contains("option")) {
 
         // Vérification que l'option n'inclut pas le contenu du champ, auquel cas l'option est cachée.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
@@ -147,20 +152,20 @@ const findOptionMultiple = (e, container, li) => {
     if (li.hasAttribute("optgroup")) {
 
         // Si l'option est un choix dans un groupe et qu'il n'inclut pas le contenu du champ, elle est cachée.
-        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else {
 
             // l'option contient le contenu du champ, elle est affichée et son groupe aussi.
             li.style.display = "";
-            container.querySelector(`ul li.optgroup[optgroup="` + li.getAttribute("optgroup") + `"]`).style.display = "";
+            if (container.querySelectorAll(`ul li.optgroup`).length > 0) container.querySelector(`ul li.optgroup[optgroup="` + li.getAttribute("optgroup") + `"]`).style.display = "";
         }
 
         // Si l'option est un groupe.
     } else if (li.classList.contains("optgroup")) {
 
         // Si le label du groupe ne contient pas le contenu du champ de recherche, il est caché.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
@@ -182,17 +187,17 @@ const removeOption = (e, container, option) => {
     displayedItem.remove();
 
     // Réaffichage de l'option dans liste des options.
-    container.querySelector(".selector ul li.option#" + option.join("_")).style = "";
+    container.querySelector(".selector ul li.option#" + option.join("_")).classList.remove("chosen");
 
     // Si le nombre d'options à afficher dans le conteneur est 0
     if (container.querySelector(".choices .display").childElementCount === 0) {
-        
+
         // Plus d'option donc plus de validation.
         container.querySelector(".choices").classList.remove("valid")
 
         // Création d'un nouveau input dummy pour le requiert.
         let dummyInput = document.createElement("input");
-        dummyInput.name = option[2] + "[_ids]";
+        dummyInput.name = option[2] + "[]";
         dummyInput.required = "required";
 
         // Ajout de l'input dummy dans la partie choix multiple.

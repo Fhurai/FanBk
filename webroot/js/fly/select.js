@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Si la page contient au moins un selecteur FLY.
     if (hasFlySelect()) {
-        
+
         // Parcours de tous les sélecteurs FLY pour les activer.
         Array.from(document.querySelectorAll(".flyselect"))
             .forEach(activateFlySelect);
@@ -39,7 +39,7 @@ const activateFlySelect = (container) => {
 
     // Une touche du clavier est tapé dans l'input du champ de recherche.
     container.querySelector("input").addEventListener("input", function (event) {
-        
+
         // Désactivation de la précedente option.
         refuseOption(container);
 
@@ -148,11 +148,14 @@ const findOption = (e, container, li) => {
     // Récupération des informations de l'option sous forme de tableau.
     let option = li.id.split("_");
 
+    // Construction de l'expression régulière à utiliser pour la comparaison.
+    let regex = new RegExp("(?:.*\\b(" + e.currentTarget.value.toLowerCase().split(" ").join("))(?:.*\\b(") + "))", "gi");
+
     // Si l'option est un choix simple (sans groupe)
     if (!li.hasAttribute("optgroup") && li.classList.contains("option")) {
 
         // Vérification que l'option n'inclut pas le contenu du champ, auquel cas l'option est cachée.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
@@ -162,20 +165,20 @@ const findOption = (e, container, li) => {
     if (li.hasAttribute("optgroup")) {
 
         // Si l'option est un choix dans un groupe et qu'il n'inclut pas le contenu du champ, elle est cachée.
-        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else {
-            
+
             // l'option contient le contenu du champ, elle est affichée et son groupe aussi.
             li.style.display = "";
-            container.querySelector(`ul li.optgroup[optgroup="` + li.getAttribute("optgroup") + `"]`).style.display = "";
+            if (container.querySelectorAll(`ul li.optgroup`).length > 0) container.querySelector(`ul li.optgroup[optgroup="` + li.getAttribute("optgroup") + `"]`).style.display = "";
         }
 
         // Si l'option est un groupe.
     } else if (li.classList.contains("optgroup")) {
 
         // Si le label du groupe ne contient pas le contenu du champ de recherche, il est caché.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
@@ -184,7 +187,7 @@ const findOption = (e, container, li) => {
 
     // Si le contenu du champ de recherche correspond parfaitement à une option
     if (li.innerText.toLowerCase() === e.currentTarget.value.toLowerCase()) {
-        
+
         // Validation d'une option trouvée avec le libellé complet.
         validateOption(container, option);
 

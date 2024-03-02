@@ -93,7 +93,7 @@
 .flymultiselect .select .choices div {
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-content: center;
     justify-content: flex-start;
     align-items: flex-start;
@@ -143,10 +143,13 @@
  * Bouton de suppression de l'élement de la sélection.
  */
 .flymultiselect .select .choices .display .option::after {
-    content: "🗑️";
+    content: "x";
     padding: 0 0.5rem;
     cursor: pointer;
     pointer-events: all;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-family: cursive;
 }
 
 /*
@@ -226,4 +229,15 @@
 .flymultiselect .select .selector ul li.option:hover {
     background-color: var(--lightgrey);
     color: var(--darkgrey);
+}
+
+/*
+ * L'option sélectionnée est cachée 
+ * (autrement que display:none qui est déjà utilisée pour cacher les options qui ne matchent pas la recherche).
+ */
+.flymultiselect .select .selector ul li.chosen {
+    visibility: hidden;
+    height: 0;
+    padding: 0;
+    margin: 0;
 }

@@ -46,16 +46,18 @@ if ($type === "select") {
             <!-- Liste -->
             <div class="listor">
 
+                <?php // Si liste de sélecteurs, ajout d'un champ dummy qui sera utilisé comme champ vide. 
+                ?>
+                <?php if ($type === "select") : ?>
+                    <input name="<?= $name . "[]" ?>" value="" hidden />
+                <?php endif; ?>
+
                 <?php // Si la valeur est un tableau 
                 ?>
                 <?php if (is_array($value)) : ?>
 
                     <?php // Parcours des valeurs du tableau. 
                     ?>
-
-                    <?php if ($type === "select") : ?>
-                        <input name="<?= $name . "[]" ?>" value="" hidden />
-                    <?php endif; ?>
 
                     <?php foreach ($value as $key => $data) : ?>
                         <!-- Ligne de drop -->

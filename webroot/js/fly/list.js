@@ -165,7 +165,7 @@ const addRow = (container) => {
     drag.classList = "drag";
     drag.draggable = true;
     drag.innerHTML = "<div>" + container.querySelectorAll(".drop").length + "</div><div class='field'><div class='input'></div></div>" + (container.querySelectorAll(".listor .drop").length === 1 ? "<div></div></div>" : "<div>🗑️</div>");
-    drag.querySelector(".input").innerHTML = "<input id='" + id + "' name='" + name + "' required placeholder='New value here...' autocomplete='off' maxlength='255' />";
+    drag.querySelector(".input").innerHTML = "<input " + (container.querySelector("#type").innerHTML === "text" ? "name='" + name + "'" : "") + " id='" + id + "' required placeholder='New value here...' autocomplete='off' maxlength='255' />";
     row.appendChild(drag);
 
     // Ajout des evenements à gérer.
@@ -229,7 +229,7 @@ const addRow = (container) => {
 
                 // Valorisation des attributs du list-item.
                 option.classList = "option";
-                option.setAttribute("optgroup", group[0]);
+                option.setAttribute("optgroup", opt[0]);
                 option.id = "flylist_option_" + name.replace("[]", "") + "_" + opt[0];
                 option.innerHTML = opt[1];
 
@@ -277,6 +277,32 @@ const addRow = (container) => {
             // Recherche des options disponibles avec le contenu de la barre de recherche.
             input.parentElement.nextElementSibling.querySelectorAll("li")
                 .forEach((li) => findOptionFlylist(event, input, li));
+        });
+    }
+
+    if (container.querySelector("#type").innerHTML === "text") {
+
+        // Récupération de l'input de l'élément déplaçable pour faciliter l'ajout d'évènement.
+        let input = drag.querySelector("input");
+
+        // Une touche du clavier est tapé dans l'input du champ de recherche.
+        input.addEventListener("input", function (event) {
+
+            // La classe de validation est enlevée.
+            input
+                .parentElement
+                .parentElement
+                .parentElement
+                .classList.remove("valid");
+
+            // Le champ n'est pas vide.
+            if (input.value !== null && input.value !== undefined && input.value !== "")
+                // La classe de validation est ajoutée.
+                input
+                    .parentElement
+                    .parentElement
+                    .parentElement
+                    .classList.add("valid");
         });
     }
 }
@@ -465,6 +491,7 @@ const validateOptionFlylist = (input, option) => {
     input.value = option.innerText;
     input.setAttribute("option", option.id.split("_")[3]);
 
+
     // Ajout de la classe montrant que le choix est valide.
     input
         .parentElement
@@ -487,11 +514,14 @@ const findOptionFlylist = (e, input, li) => {
     // Récupération des informations de l'option sous forme de tableau.
     let option = li.id.split("_");
 
+    // Construction de l'expression régulière à utiliser pour la comparaison.
+    let regex = new RegExp("(?:.*\\b(" + e.currentTarget.value.toLowerCase().split(" ").join("))(?:.*\\b(") + "))", "gi");
+
     // Si l'option est un choix simple (sans groupe)
     if (!li.hasAttribute("optgroup") && li.classList.contains("option")) {
 
         // Vérification que l'option n'inclut pas le contenu du champ, auquel cas l'option est cachée.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
@@ -501,13 +531,12 @@ const findOptionFlylist = (e, input, li) => {
     if (li.hasAttribute("optgroup")) {
 
         // Si l'option est un choix dans un groupe et qu'il n'inclut pas le contenu du champ, elle est cachée.
-        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!li.getAttribute("optgroup").toLowerCase().includes(e.currentTarget.value.toLowerCase()) && !regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else {
 
             // l'option contient le contenu du champ, elle est affichée et son groupe aussi.
             li.style.display = "";
-            console.log();
             input.parentElement.nextElementSibling.querySelector(`ul li.optgroup[optgroup="` + li.getAttribute("optgroup") + `"]`).style.display = "";
         }
 
@@ -515,7 +544,7 @@ const findOptionFlylist = (e, input, li) => {
     } else if (li.classList.contains("optgroup")) {
 
         // Si le label du groupe ne contient pas le contenu du champ de recherche, il est caché.
-        if (!li.innerText.toLowerCase().includes(e.currentTarget.value.toLowerCase()))
+        if (!regex.test(li.innerText.toLowerCase()))
             li.style.display = "none";
         else
             li.style.display = "";
