@@ -21,12 +21,6 @@
                 </table>
                 <hr>
             <?php endforeach; ?>
-
-            <div>
-                <?= $this->Form->create(null, ['url' => ["controller" => "fanfictions", "action" => "checkLien"]]) ?>
-                <?= $this->element("fly/text", ["name" => "lien", "label" => "Lien à check", "placeholder" => "Lien de fanfiction à check"]); ?>
-                <?= $this->Form->end() ?>
-            </div>
         </div>
     </div>
 </div>

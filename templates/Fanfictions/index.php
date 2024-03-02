@@ -29,4 +29,4 @@
 <?= $this->element("filters", ["filtres" => array_key_exists("filters", $params) ? $params["filters"] : ["fields" => [], "operator" => [], "not" => []]]) ?>
 <?= $this->element("search", ["recherche" => array_key_exists("search", $params) ? $params["search"] : ["fields" => [], "not" => []], "type" => "fanfiction"]) ?>
 <?= $this->element("sort", ["tri" => array_key_exists("sort", $params) ? $params["sort"] : []]) ?>
-<?= $this->Html->script(['descriptif/descriptif', 'modal', 'form/fanfiction']) ?>
+<?= $this->Html->script(['descriptif/descriptif', 'modal']) ?>
