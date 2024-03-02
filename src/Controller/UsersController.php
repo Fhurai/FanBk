@@ -78,8 +78,6 @@ class UsersController extends AppController
         $user = $this->Users->newEmptyEntity();
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
-            // La date envoyée par l'input est en UTC et non en Europe/Paris. Obligé de faire la conversion.
-            $user->birthday = FrozenTime::createFromFormat("Y-m-d H:i:s", $this->request->getData("birthday"), "Europe/Paris");
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 

@@ -28,6 +28,7 @@ class SeriesController extends AppController
             $params["user"] = [];
             $params["user"]["nsfw"] = $this->request->getSession()->read("user.nsfw", false);
             $params["inactive"] = !is_null($this->request->getParam("?")) ? $this->request->getParam("?")["inactive"] : '0';
+            $params["sort"]["creation_date"] = "DESC";
         } else {
             $params["user"]["nsfw"] = $this->request->getSession()->read("user.nsfw", false);
             $params["inactive"] = (!is_null($this->request->getParam("?")) && array_key_exists("inactive", $this->request->getParam("?"))) ? $this->request->getParam("?")["inactive"] : '0';

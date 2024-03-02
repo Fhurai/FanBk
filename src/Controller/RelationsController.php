@@ -69,6 +69,9 @@ class RelationsController extends AppController
             // Données du formulaire utilisées dans la relation.
             $relation = $this->Relations->patchEntity($relation, $this->request->getData());
 
+            // Pour chaque personnage dans les données du formulaire, récupération de toutes ses informations à partir de son identifiant.
+            foreach ($this->request->getData("personnages") as $id) $relation->personnages[] = $this->Personnages->get($id);
+
             // Tri des personnages par ordre alphabétique dans la relation.
             usort($relation->personnages, function ($perso1, $perso2) {
                 return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
@@ -180,13 +183,11 @@ class RelationsController extends AppController
 
             // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
             $this->Flash->success(__('La relation {0} a été supprimée avec succès.', $relation->nom));
-
         } else {
 
             // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être supprimé.
             $this->log("La relation n'a pas pu être supprimée.", LogLevel::ALERT, $relation);
             $this->Flash->error(__('La relation {0} n\'a pu être supprimée. Veuillez réessayer.', $relation->nom));
-
         }
 
         // Redirection vers l'index des relations.

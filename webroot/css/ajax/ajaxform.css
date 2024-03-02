@@ -1,0 +1,260 @@
+/*
+ * Setup des couleurs
+ */
+:root {
+    --addform-red-color: #d33c43;
+    --addform-orange-color: #d3b73c;
+    --addform-green-color: #3cd343;
+    --addform-white-color: #f1f1f1;
+    --addform-lightgrey: #888;
+    --addform-darkgrey: #2a2a2a;
+    --addform-black: #1a1a1a;
+    --addform-amoled: #101010;
+}
+
+/**
+ * La checkbox servant de base est cachée.
+ */
+.ajax.form input[type="checkbox"] {
+    display: none;
+}
+
+/**
+ * Bouton pour afficher modal
+ */
+.ajax.form .btn {
+    position: absolute;
+    left: 19%;
+    margin: -1rem;
+    padding: 2rem;
+    border-radius: 10px;
+    line-height: 1rem;
+    cursor: pointer;
+    background-color: var(--addform-black);
+}
+
+/**
+ * Le background et la modal sont affichés quand la checkbox est cochée.
+ */
+.ajax.form input[type="checkbox"]:checked~.modal,
+.ajax.form input[type="checkbox"]:checked~.back {
+    display: block;
+}
+
+/**
+ * L'arriere plan de la modale.
+ */
+.ajax.form .back {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    z-index: 100;
+}
+
+/**
+ * La modale en elle meme.
+ */
+.ajax.form .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: none;
+    max-width: 40%;
+    max-height: 60rem;
+    background-color: var(--addform-amoled);
+    box-sizing: border-box;
+    z-index: 150;
+    border-radius: 4px;
+    padding: 1rem;
+    border: 1px solid var(--addform-darkgrey);
+}
+
+/**
+ * L'entete de la modale.
+ */
+.ajax.form .head {
+    background-color: var(--addform-darkgrey);
+    border-bottom: 1px solid var(--addform-darkgrey);
+    box-sizing: border-box;
+    height: 50px;
+    border-radius: 4px;
+}
+
+/**
+ * L'entete de la modale quand il caché.
+ */
+.ajax.form .head.hidden {
+    background-color: transparent;
+    border-bottom: unset;
+}
+
+/**
+ * Le titre de l'entete.
+ */
+.ajax.form .head h3 {
+    margin: 0;
+    box-sizing: border-box;
+    padding-left: 15px;
+    line-height: 50px;
+    color: var(--addform-lightgrey);
+    font-size: 16px;
+    display: inline-block;
+    font-size: 2.0rem;
+    font-weight: 700;
+}
+
+/**
+ * Le titre de l'entete quand l'entete est caché.
+ */
+.ajax.form .head.hidden h3 {
+    visibility: hidden;
+    display: inline-block;
+}
+
+/**
+ * le bouton de fermeture dans l'entete.
+ */
+.ajax.form .head label {
+    background-color: var(--addform-darkgrey);
+    box-sizing: border-box;
+    border-left: 1px solid var(--addform-darkgrey);
+    float: right;
+    line-height: 50px;
+    padding: 0 15px 0 15px;
+    cursor: pointer;
+    color: var(--addform-lightgrey);
+}
+
+/**
+ * Le bouton de fermeture dans l'entete quand l'entete est caché.
+ */
+.ajax.form .head.hidden label {
+    border-radius: 5px;
+}
+
+/**
+ * Le corps de la modale.
+ */
+.ajax.form .modal fieldset {
+    margin: 0.5rem 0rem;
+    width: 100%;
+    height: 45rem;
+    overflow: scroll;
+    background-color: var(--addform-black);
+    padding: 0.5rem;
+}
+
+/**
+ * Titre du corps de la modale.
+ */
+.ajax.form .modal fieldset legend {
+    visibility: hidden;
+}
+
+/**
+ * Message d'alerte de la modale.
+ */
+.ajax.form .modal .form.alert {
+    display: inline-block;
+    color: var(--addform-red-color);
+    font-size: large;
+    padding: 0.5rem;
+    -webkit-animation: flash 1000ms infinite;
+    animation: flash 1000ms infinite;
+}
+
+/**
+ * Arriere plan de l'icone de chargement de la modale.
+ */
+#spinner:not([hidden]) {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    opacity: 75%;
+    width: unset;
+}
+
+/**
+ * Icone de chargement de la modale.
+ */
+#spinner::after {
+    content: "";
+    width: 80px;
+    height: 80px;
+    border: 2px solid #f3f3f3;
+    border-top: 3px solid #222222;
+    border-radius: 100%;
+    will-change: transform;
+    animation: spin 1s infinite linear
+}
+
+/*
+ * Si écran smartphone
+ */
+@media screen and (max-width: 640px) {
+
+    .ajax.form .btn {
+        left: 0%;
+    }
+
+    .ajax.form .modal {
+        max-width: 90%;
+    }
+}
+
+/**
+ * Animation flash
+ */
+@-webkit-keyframes flash {
+    50% {
+        opacity: 50%;
+    }
+}
+
+/**
+ * Animation flash
+ */
+@keyframes flash {
+    50% {
+        opacity: 50%;
+    }
+}
+
+/**
+ * Animation rotation
+ */
+@-webkit-keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/**
+ * Animation rotation
+ */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

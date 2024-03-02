@@ -16,13 +16,13 @@ use Cake\I18n\FrozenTime;
 <fieldset>
 
     <!-- Légende du formulaire -->
-    <legend><?= __('Ajouter une fanfiction') ?></legend>
+    <legend><?= __(ucfirst($action) . ' une fanfiction') ?></legend>
 
     <?php
     // Champ nom de la fanfiction (l'utilisateur doit définir le nom de la fanfiction => requis.)
     echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $fanfiction->nom, "required" => true, "placeholder" => "Nom de la fanfiction", "maxlength" => 50]);
 
-    echo $this->element("ajax/addForm", ["type" => "auteurs"]);
+    echo $this->element("ajax/ajaxform", ["type" => "auteurs"]);
     // Selecteur simple pour choisir l'auteur de la fanfiction.
     echo $this->element("fly/select", ["options" => $auteurs, "name" => "auteur", "label" => "Auteur", "value" => $fanfiction->auteur, "required" => true]);
 
@@ -32,26 +32,26 @@ use Cake\I18n\FrozenTime;
     // Champ description (l'utilisateur doit définir la description de la fanfiction => requis.)
     echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => $fanfiction->description, "required" => true, "placeholder" => "Description de la fanfiction"]);
 
-    echo $this->element("ajax/addForm", ["type" => "fandoms"]);
+    echo $this->element("ajax/ajaxform", ["type" => "fandoms"]);
     // Selecteur multiple pour choisir le fandom de la fanfiction.
     echo $this->element("fly/multiselect", ["options" => $fandoms, "name" => "fandoms", "label" => "Fandom(s)", "value" => $fanfiction->fandoms, "required" => true]);
 
-    echo $this->element("ajax/addForm", ["type" => "langages"]);
+    echo $this->element("ajax/ajaxform", ["type" => "langages"]);
     // Selecteur simple pour choisir le langage de la fanfiction.
     echo $this->element("fly/select", ["options" => $langages, "name" => "langage", "label" => "Langage", "value" => $fanfiction->langage, "required" => true]);
 
     // Liste à la volée des liens de la fanfiction (avec un lien obligatoire).
     echo $this->element("fly/list", ["name" => "liens", "label" => "Liens de la fanfiction", "value" => is_array($fanfiction->liens) ? array_column($fanfiction->liens, "lien") : $fanfiction->liens, "required" => true]);
 
-    echo $this->element("ajax/addForm", ["type" => "relations"]);
+    echo $this->element("ajax/ajaxform", ["type" => "relations"]);
     // Selecteur multiple pour choisir la relation de la fanfiction.
     echo $this->element("fly/multiselect", ["options" => $relations, "name" => "relations", "label" => "Relation(s)", "value" => $fanfiction->relations]);
 
-    echo $this->element("ajax/addForm", ["type" => "personnages"]);
+    echo $this->element("ajax/ajaxform", ["type" => "personnages"]);
     // Selecteur multiple pour choisir le personnage de la fanfiction.
     echo $this->element("fly/multiselect", ["options" => $personnages, "name" => "personnages", "label" => "Personnage(s)", "value" => $fanfiction->personnages]);
 
-    echo $this->element("ajax/addForm", ["type" => "tags"]);
+    echo $this->element("ajax/ajaxform", ["type" => "tags"]);
     // Selecteur multiple pour choisir la relation de la fanfiction.
     echo $this->element("fly/multiselect", ["options" => $tags, "name" => "tags", "label" => "Tag(s)", "value" => $fanfiction->tags]);
 
