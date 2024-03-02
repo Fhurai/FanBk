@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
 
 /**
@@ -36,4 +38,40 @@ class Personnage extends Entity
         'suppression_date' => true,
         'relations' => true,
     ];
+
+    /**
+     * Setter personnalisé pour le nom
+     * @return string Le nom sans espace avant ou après, et avec la première lettre en majuscule.
+     */
+    protected function _setNom(string $name): ?string
+    {
+        return trim(ucfirst($name));
+    }
+
+    /**
+     * Setter personnalisé pour la date de création
+     * @return FrozenTime|null La date de création à l'horaire de Paris.
+     */
+    protected function _setCreationDate(FrozenTime|string $creation_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($creation_date) ? $creation_date : $creation_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour la date de modification
+     * @return FrozenTime|null La date de modification à l'horaire de Paris.
+     */
+    protected function _setUpdateDate(FrozenTime|string $update_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($update_date) ? $update_date : $update_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour la date de suppression
+     * @return FrozenTime|null La date de suppression à l'horaire de Paris.
+     */
+    protected function _setSuppressionDate(FrozenTime|string $suppression_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($suppression_date) ? $suppression_date : $suppression_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
 }

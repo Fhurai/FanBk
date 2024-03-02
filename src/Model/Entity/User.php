@@ -43,8 +43,10 @@ class User extends Entity
         'suppression_date' => true,
     ];
 
+    // Propriétés virtuelles, calculées à partir des données de l'utilisateur déjà connues.
     protected $_virtual = ["age", "nsfw"];
 
+    // Cache des propriétés virtuelles pour éviter de recalculer les propriétés virtuelles chaque fois qu'elles sont utilisées.
     protected $_cache = ["_age", "_nsfw"];
 
     /**
@@ -56,33 +58,106 @@ class User extends Entity
         'password',
     ];
 
-    // Add this method
+    /**
+     * Setter personnalisé pour le nom d'utilisateur
+     * @return string Le nom d'utilisateur sans espace avant ou après, et avec la première lettre en majuscule.
+     */
+    protected function _setUsername(string $username): ?string
+    {
+        return trim(ucfirst($username));
+    }
+
+    /**
+     * Setter personnalisé pour l'anniversaire
+     * @return FrozenTime|null L'anniversaire à l'horaire de Paris.
+     */
+    protected function _setBirthday(FrozenTime|string $birthday): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($birthday) ? $birthday : $birthday->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour la date de création
+     * @return FrozenTime|null La date de création à l'horaire de Paris.
+     */
+    protected function _setCreationDate(FrozenTime|string $creation_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($creation_date) ? $creation_date : $creation_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour la date de modification
+     * @return FrozenTime|null La date de modification à l'horaire de Paris.
+     */
+    protected function _setUpdateDate(FrozenTime|string $update_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($update_date) ? $update_date : $update_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour la date de suppression
+     * @return FrozenTime|null La date de suppression à l'horaire de Paris.
+     */
+    protected function _setSuppressionDate(FrozenTime|string $suppression_date): ?FrozenTime
+    {
+        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($suppression_date) ? $suppression_date : $suppression_date->format("Y-m-d H:i:s"), "Europe/Paris");
+    }
+
+    /**
+     * Setter personnalisé pour le mot de passe.
+     * @return string Le mot de passe crypté.
+     */
     protected function _setPassword(string $password): ?string
     {
+        // Si le mot de passe envoyée par l'utilisateur fait au moins un caractère.
         if (strlen($password) > 0) {
+
+            // Retourne le mot de passe crypté.
             return (new DefaultPasswordHasher())->hash($password);
         }
     }
 
-    protected function _getAge()
+    /**
+     * Getter pour la propriété virtuelle de l'age.
+     * @return int|null l'âge de l'utilisateur.
+     */
+    protected function _getAge(): ?int
     {
-        if (!array_key_exists("_age", $this->_cache)) {
+        // SI la clé _age existe dans le tableau du cache et que la valeur est vide
+        if (!array_key_exists("_age", $this->_cache) && empty($this->_cache["_age"])) {
+
             if (!is_null($this->birthday)) {
+                // Si la date d'anniversaire n'est pas nulle, on fait la comparaison avec la date d'aujourd'hui.
+                // Le nombre d'année est utilisé dans la valorisation de l'âge.
                 $this->_cache["_age"] = $this->birthday->diff(FrozenTime::now("Europe/Paris"))->y;
             } else
+                // Pas de date d'anniversaire, pas de comparaison possible.
+                // L'âge est nul dans le cache.
                 $this->_cache["_age"] = null;
         }
-        return $this->_cache["_age"];
+        // Retourne l'âge enregistré dans le cache.
+        return !empty($this->_cache["_age"]) ? intval($this->_cache["_age"]) : null;
     }
 
-    protected function _getNsfw()
+    /**
+     * Getter pour la propriété virtuelle de l'autorisation nsfw.
+     * @return bool l'indication si l'utilisateur peut voir du NSFW ou non.
+     */
+    protected function _getNsfw(): ?bool
     {
-        if (!array_key_exists("_nsfw", $this->_cache)) {
+        // SI la clé _nsfw existe dans le tableau du cache et que la valeur est vide
+        if (!array_key_exists("_nsfw", $this->_cache)  && empty($this->_cache["_nsfw"])) {
+
             if (!is_null($this->birthday)) {
+                // Si la date d'anniversaire n'est pas nulle, on fait la comparaison avec la date d'aujourd'hui.
+                // Le nombre d'année de la comparaison sert à valoriser l'indication que l'utilisateur peut voir du NSFW ou non.
                 $this->_cache["_nsfw"] = $this->birthday->diff(FrozenTime::now("Europe/Paris"))->y > 18;
             } else
-                $this->_cache["_nsfw"] = null;
+                // Pas de date d'anniversaire, pas de comparaison possible.
+                // L'indication est mise à faux dans le cache.
+                $this->_cache["_nsfw"] = false;
         }
-        return $this->_cache["_nsfw"];
+        // Retourne l'indication enregistrée dans le cache.
+        return boolval($this->_cache["_nsfw"]);
     }
 }
