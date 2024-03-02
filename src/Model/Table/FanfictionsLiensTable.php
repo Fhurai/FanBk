@@ -43,7 +43,7 @@ class FanfictionsLiensTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsTo('fanfictions', [
-            'foreignKey' => 'id',
+            'foreignKey' => 'fanfiction',
             'bindingKey' => 'id',
             'className' => 'Fanfictions',
             'propertyName' => 'fanfiction_obj'

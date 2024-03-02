@@ -90,9 +90,10 @@ class RelationsTable extends Table
     {
         $relation = new Relation();
         $relation->id = null;
-        $relation->nom = "Nouveau relation";
+        $relation->nom = "";
         $relation->creation_date = new FrozenTime("Europe/Paris");
         $relation->update_date = new FrozenTime("Europe/Paris");
+        $relation->personnages = [];
         return $relation;
     }
 

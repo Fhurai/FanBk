@@ -118,7 +118,7 @@ class UsersTable extends Table
         $user->id = null;
         $user->username = "";
         $user->email = "";
-        $user->birthday = FrozenTime::now("Europe/Paris");
+        $user->birthday = "";
         $user->creation_date = new FrozenTime("Europe/Paris");
         $user->update_date = new FrozenTime("Europe/Paris");
         return $user;
