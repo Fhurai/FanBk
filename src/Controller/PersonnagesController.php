@@ -13,8 +13,19 @@ use Psr\Log\LogLevel;
  * @property \App\Model\Table\PersonnagesTable $Personnages
  * @method \App\Model\Entity\Personnage[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class PersonnagesController extends AppController
+class PersonnagesController extends AppController implements ObjectControllerInterface
 {
+    /**
+     * Méthode qui va vérifier que l'entité en cours de création/édition n'existe pas déjà.
+     *
+     * @param array $data Les données du formulaire.
+     * @return boolean Indication que le personnage existe déjà ou non.
+     */
+    public function exist(array $data): bool
+    {
+        return $this->Personnages->find()->where(["nom LIKE" => "%" . $data["nom"] . "%", "fandom" => $data["fandom"]])->count() > 0;
+    }
+
     /**
      * Index method
      *
@@ -67,21 +78,28 @@ class PersonnagesController extends AppController
     {
         // Création d'un personnage vide.
         $personnage = $this->Personnages->newEmptyEntity();
-        
+
         // Données envoyées depuis le formulaire de la page.
         if ($this->request->is('post')) {
 
-            // Données du formulaire utilisées dans le personnage.
-            $personnage = $this->Personnages->patchEntity($personnage, $this->request->getData());
+            // Si le personnage fourni n'existe pas déjà.
+            if (!$this->exist($this->request->getData())) {
 
-            // Sauvegarde du personnage
-            if ($this->Personnages->save($personnage)) {
+                // Valorisation du fandom avec les données du formulaire.
+                $personnage = $this->Personnages->patchEntity($personnage, $this->request->getData());
 
-                // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                $this->Flash->success(__('Le personnage {0} a été sauvegardé avec succès.', $personnage->nom));
+                // Sauvegarde du personnage
+                if ($this->Personnages->save($personnage)) {
 
-                // Redirection vers l'index des personnages.
-                return $this->redirect(['action' => 'index']);
+                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
+                    $this->Flash->success(__('Le personnage {0} a été sauvegardé avec succès.', $personnage->nom));
+
+                    // Redirection vers l'index des personnages.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Avertissement de l'utilisateur connecté que le personnage existe déjà
+                $this->Flash->warning(_("le personnage existe déjà"));
             }
 
             // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
@@ -113,17 +131,24 @@ class PersonnagesController extends AppController
         // Données envoyées depuis le formulaire de la page.
         if ($this->request->is(['patch', 'post', 'put'])) {
 
-            // Données du formulaire utilisées dans le personnage.
-            $personnage = $this->Personnages->patchEntity($personnage, $this->request->getData());
+            // Si le personnage fourni n'existe pas déjà.
+            if (!$this->exist($this->request->getData())) {
 
-            // Sauvegarde du personnage
-            if ($this->Personnages->save($personnage)) {
+                // Données du formulaire utilisées dans le personnage.
+                $personnage = $this->Personnages->patchEntity($personnage, $this->request->getData());
 
-                // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                $this->Flash->success(__('Le personnage {0} a été sauvegardé avec succès.', $personnage->nom));
+                // Sauvegarde du personnage
+                if ($this->Personnages->save($personnage)) {
 
-                // Redirection vers l'index des personnages.
-                return $this->redirect(['action' => 'index']);
+                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
+                    $this->Flash->success(__('Le personnage {0} a été sauvegardé avec succès.', $personnage->nom));
+
+                    // Redirection vers l'index des personnages.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Avertissement de l'utilisateur connecté que le personnage existe déjà
+                $this->Flash->warning(_("le personnage existe déjà"));
             }
 
             // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
@@ -160,12 +185,11 @@ class PersonnagesController extends AppController
         ]);
 
         // Sauvegarde du personnage
-        if ($this->Personnages->save($personnage)) {
+        if ($this->Personnages->save($personnage))
 
             // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
             $this->Flash->success(__('Le personnage {0} a été supprimé avec succès.', $personnage->nom));
-
-        } else {
+        else {
 
             // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être supprimé.
             $this->log("Le personnage n'a pas pu être supprimé.", LogLevel::ALERT, $personnage);
@@ -183,7 +207,8 @@ class PersonnagesController extends AppController
      * @return \Cake\Http\Response|null|void Redirects to Fanfictions index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function filterRedirect($id = null){
+    public function filterRedirect($id = null)
+    {
         //Nettoyage à vide du champ fanfictions dans la session.
         $this->request->getSession()->write("fanfictions");
 
@@ -192,7 +217,7 @@ class PersonnagesController extends AppController
         $params["filters"]["fields"]["personnages"] = $id;
         $params["filters"]["not"]["personnages"] = true;
         $params["filters"]["operator"]["personnages"] = "AND";
-        
+
         // Paramètres enregistrés dans la session.
         $this->writeSession("fanfictions", $params);
 

@@ -20,8 +20,19 @@ use Cake\Routing\Router;
  * 
  * @property \App\Controller\Component\UrlComponent $Url
  */
-class FanfictionsController extends AppController
+class FanfictionsController extends AppController implements ObjectControllerInterface
 {
+
+    /**
+     * Méthode qui définit si une fanfiction existe avec nom et auteur.
+     *
+     * @param array $data Les données du formulaire.
+     * @return bool Indication si la fanfiction existe.
+     */
+    public function exist(array $data): bool
+    {
+        return $this->Fanfictions->find()->where(["nom LIKE " => "%" . $data["nom"] . "%", "auteur" => intval($data["auteur"])])->count() > 0;
+    }
 
     /**
      * @inheritDoc
@@ -112,7 +123,7 @@ class FanfictionsController extends AppController
         if ($this->request->is("post")) {
 
             // Si la fanfiction n'existe pas déjà
-            if (!$this->exists($this->request->getData())) {
+            if (!$this->exist($this->request->getData())) {
 
                 // Transaction lancée (qui retourne si elle a été commit ou non).
                 $committed = $this->Fanfictions->getConnection()->transactional(function () {
@@ -120,7 +131,7 @@ class FanfictionsController extends AppController
                     // Edition de la fanfiction avec les données du formulaire et son identifiant.
                     $fanfiction = $this->editFanfictionDataAssociation($this->request->getData());
 
-                    // Sauvegarde de la fanfiction avec ses associationsS.
+                    // Sauvegarde de la fanfiction avec ses associations.
                     if ($this->Fanfictions->save($fanfiction, ["associated" => true])) {
 
                         // Succès de la sauvegarde, avertissement de l'utilisateur et de la méthode.
@@ -411,17 +422,6 @@ class FanfictionsController extends AppController
     }
 
     /**
-     * Méthode qui définit si une fanfiction existe avec nom et auteur.
-     *
-     * @param array $data Les données du formulaire.
-     * @return bool Indication si la fanfiction existe.
-     */
-    private function exists(array $data)
-    {
-        return $this->Fanfictions->find()->where(["nom LIKE " => "%" . $data["nom"] . "%", "auteur" => intval($data["auteur"])])->count() > 0;
-    }
-
-    /**
      * Delete method
      *
      * @param string|null $id Fanfiction id.
@@ -479,15 +479,15 @@ class FanfictionsController extends AppController
         ]);
 
         // Sauvegarde de la fanfiction.
-        if ($this->Fanfictions->save($fanfiction)) {
+        if ($this->Fanfictions->save($fanfiction))
 
             // Succès de la sauvegarde, avertissement de l'utilisateur.
             $this->Flash->success(__('La fanfiction {0} a été restaurée avec succès.', $fanfiction->nom));
-        } else {
+        else
 
             // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
             $this->Flash->error(__('La fanfiction {0} n\'a pu être restaurée. Veuillez réessayer.', $fanfiction->nom));
-        }
+
 
         // Redirection vers la page d'index des fanfictions.
         return $this->redirect(['action' => 'index']);
@@ -516,6 +516,7 @@ class FanfictionsController extends AppController
                 // Succès de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
                 $this->Flash->success(__("La fanfiction {0} a été noté et évaluée avec succès.", $fanfiction->nom));
             else
+            
                 // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
                 $this->Flash->error(__("La fanfiction {0} n'a pu être notée. Veuillez réessayer.", $fanfiction->nom));
         }

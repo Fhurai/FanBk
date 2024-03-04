@@ -13,8 +13,31 @@ use Psr\Log\LogLevel;
  * @property \App\Model\Table\RelationsTable $Relations
  * @method \App\Model\Entity\Relation[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class RelationsController extends AppController
+class RelationsController extends AppController implements ObjectControllerInterface
 {
+
+    /**
+     * Méthode qui définit si une relation existe avec les personnages.
+     *
+     * @param array $data Les données du formulaire.
+     * @return bool Indication si la relation existe.
+     */
+    public function exist(array $data): bool
+    {
+        // Récupération du tableau des noms de personnages de la relation à vérifier.
+        $personnages = array_map(function ($id) {
+            return $this->Personnages->get($id)->nom;
+        }, $data["personnages"]);
+
+        // Tri des personnages par ordre alphabétique dans la relation.
+        usort($personnages, function ($perso1, $perso2) {
+            return strcmp(strtolower($perso1), strtolower($perso2));
+        });
+
+        // Retourne si une relation existe avec le noom de tous ces personnages.
+        return $this->Relations->find()->where(["nom" => implode(" / ", $personnages)])->count() > 0;
+    }
+
     /**
      * Index method
      *
@@ -66,33 +89,39 @@ class RelationsController extends AppController
         // Données envoyées depuis le formulaire de la page.
         if ($this->request->is('post')) {
 
-            // Données du formulaire utilisées dans la relation.
-            $relation = $this->Relations->patchEntity($relation, $this->request->getData());
+            if (!$this->exist($this->request->getData())) {
 
-            // Pour chaque personnage dans les données du formulaire, récupération de toutes ses informations à partir de son identifiant.
-            foreach ($this->request->getData("personnages") as $id) $relation->personnages[] = $this->Personnages->get($id);
+                // Données du formulaire utilisées dans la relation.
+                $relation = $this->Relations->patchEntity($relation, $this->request->getData());
 
-            // Tri des personnages par ordre alphabétique dans la relation.
-            usort($relation->personnages, function ($perso1, $perso2) {
-                return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
-            });
+                // Pour chaque personnage dans les données du formulaire, récupération de toutes ses informations à partir de son identifiant.
+                foreach ($this->request->getData("personnages") as $id) $relation->personnages[] = $this->Personnages->get($id);
 
-            // Automatisation du nom de la relation avec le nom des personnages.
-            $relation->nom = implode(" / ", array_column($relation->personnages, "nom"));
+                // Tri des personnages par ordre alphabétique dans la relation.
+                usort($relation->personnages, function ($perso1, $perso2) {
+                    return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
+                });
 
-            // Sauvegarde de la relation.
-            if ($this->Relations->save($relation)) {
+                // Automatisation du nom de la relation avec le nom des personnages.
+                $relation->nom = implode(" / ", array_column($relation->personnages, "nom"));
 
-                // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                $this->Flash->success(__('La relation {0} a été sauvegardée avec succès.', $relation->nom));
+                // Sauvegarde de la relation.
+                if ($this->Relations->save($relation)) {
 
-                // Redirection vers l'index des personnages.
-                return $this->redirect(['action' => 'index']);
+                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
+                    $this->Flash->success(__('La relation {0} a été sauvegardée avec succès.', $relation->nom));
+
+                    // Redirection vers l'index des personnages.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
+                $this->log("La relation n'a pas pu être sauvegardé", LogLevel::ALERT, $relation);
+                $this->Flash->error(__('La relation {0} n\'a pas pu être sauvegardée. Veuillez réessayer.', $relation->nom));
             }
 
-            // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
-            $this->log("La relation n'a pas pu être sauvegardé", LogLevel::ALERT, $relation);
-            $this->Flash->error(__('La relation {0} n\'a pas pu être sauvegardée. Veuillez réessayer.', $relation->nom));
+            // Avertissement de l'utilisateur connecté que la relation existe déjà
+            $this->Flash->warning(_("La relation existe déjà"));
         }
 
         // Récupération des personnages sous forme de query, groupés par nom de fandom.
@@ -123,27 +152,33 @@ class RelationsController extends AppController
         // Données envoyées depuis le formulaire de la page.
         if ($this->request->is(['patch', 'post', 'put'])) {
 
-            // Données du formulaire utilisées dans la relation.
-            $relation = $this->Relations->patchEntity($relation, $this->request->getData());
+            if (!$this->exist($this->request->getData())) {
 
-            // Tri des personnages par ordre alphabétique dans la relation.
-            usort($relation->personnages, function ($perso1, $perso2) {
-                return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
-            });
+                // Données du formulaire utilisées dans la relation.
+                $relation = $this->Relations->patchEntity($relation, $this->request->getData());
 
-            // Sauvegarde de la relation
-            if ($this->Relations->save($relation)) {
+                // Tri des personnages par ordre alphabétique dans la relation.
+                usort($relation->personnages, function ($perso1, $perso2) {
+                    return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
+                });
 
-                // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                $this->Flash->success(__('La relation {0} a été sauvegardée avec succès.', $relation->nom));
+                // Sauvegarde de la relation
+                if ($this->Relations->save($relation)) {
 
-                // Redirection vers l'index des relations.
-                return $this->redirect(['action' => 'index']);
+                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
+                    $this->Flash->success(__('La relation {0} a été sauvegardée avec succès.', $relation->nom));
+
+                    // Redirection vers l'index des relations.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
+                $this->log("La relation n\'a pas pu être sauvegardée", LogLevel::ALERT, $relation);
+                $this->Flash->error(__('La relation {0} n\'a pas pu être sauvegardée. Veuillez réessayer.', $relation->nom));
             }
 
-            // Avertissement du développeur et de l'utilisateur que le personnage n'a pas pu être sauvegardé.
-            $this->log("La relation n\'a pas pu être sauvegardée", LogLevel::ALERT, $relation);
-            $this->Flash->error(__('La relation {0} n\'a pas pu être sauvegardée. Veuillez réessayer.', $relation->nom));
+            // Avertissement de l'utilisateur connecté que la relation existe déjà
+            $this->Flash->warning(_("La relation existe déjà"));
         }
 
         // Récupération des personnages sous forme de query, groupés par nom de fandom.

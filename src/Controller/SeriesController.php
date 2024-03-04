@@ -8,32 +8,53 @@ use Cake\ORM\Entity;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use App\Controller\AppController;
-use App\Model\Table\SeriesTable;
 
 /**
  * Series Controller
  *
  * @property \App\Model\Table\SeriesTable $Series
  */
-class SeriesController extends AppController
+class SeriesController extends AppController implements ObjectControllerInterface
 {
+    /**
+     * Méthode qui va vérifier que l'entité en cours de création/édition n'existe pas déjà.
+     *
+     * @param array $data Les données du formulaire.
+     * @return boolean Indication que le fandom existe déjà ou non.
+     */
+    public function exist(array $data): bool
+    {
+        return $this->Series->find()->where(["nom LIKE" => "%" . $data["nom"] . "%"])->count() > 0;
+    }
+
     public function initialize(): void
     {
+        // Appel à l'initialisation du parent.
         parent::initialize();
 
+        // Récupération des paramètres.
         $params = $this->request->getSession()->check("series") ? $this->request->getSession()->read("series") : null;
 
+        // Si les paramètres ne sont pas initialisés ou sous un mauvais format.
         if (is_null($params) || !is_array($params)) {
+
+            // Initialisation du tableau des paramètres avec les séries actives par défaut, ainsi que le tri par date de création en ordre descendants.
             $params = [];
             $params["user"] = [];
             $params["user"]["nsfw"] = $this->request->getSession()->read("user.nsfw", false);
             $params["inactive"] = !is_null($this->request->getParam("?")) ? $this->request->getParam("?")["inactive"] : '0';
             $params["sort"]["creation_date"] = "DESC";
-        } else {
+        }
+
+        if (is_array($params)) {
+            // Si les paramètres sont initialisés sous le bon format.
+
+            // Initialisation du paramètre nsfw et du paramètre avec les séries actives par défaut.
             $params["user"]["nsfw"] = $this->request->getSession()->read("user.nsfw", false);
             $params["inactive"] = (!is_null($this->request->getParam("?")) && array_key_exists("inactive", $this->request->getParam("?"))) ? $this->request->getParam("?")["inactive"] : '0';
         }
 
+        // Paramètres de séries écrits dans la session.
         $this->writeSession("series", $params);
     }
 
@@ -44,22 +65,34 @@ class SeriesController extends AppController
      */
     public function index()
     {
-
+        // Récupération des paramètres de fanfictions depuis la session
         $params = $this->request->getSession()->read("series");
 
+        // Si les filtres/la recherche/le tri, ont été modifiés
         if ($this->request->is(["post", "put"])) {
+
+            // Récupération des données du formulaire.
             $data = $this->request->getData();
+
+            // Les paramètres existants sont merge avec les nouveaux paramètres.
             $params = array_merge($params, $data);
+
+            // Paramètres de fanfictions écrits dans la session.
             $this->writeSession("series", $params);
         }
 
+        // Récupération des fanfictions correspondantes aux paramètres.
         $series = $this->Series->find("search", $params);
+
+        // Décompte des fanfictions correspondantes aux paramètres.
         $seriesCount = $series->count();
+
+        // Pagination des fanfictions correspondantes en pages de 25 fanfictions affichées.
         $series = $this->paginate($series, ["limit" => 25]);
 
-        $seriesTemp = [];
-        foreach ($series as $serie) {
-            $seriesTemp[] = $this->Series->loadInto($serie, [
+        // Le finder search ne chargeant pas forcément toutes les associations de la série, on force le chargement.
+        $series = array_map(function ($serie) {
+            return $this->Series->loadInto($serie, [
                 "fanfictions" => [
                     'auteurs',
                     'langages',
@@ -70,18 +103,25 @@ class SeriesController extends AppController
                     'liens',
                 ]
             ]);
-        }
+        }, $series->toArray());
 
-        $series = $seriesTemp;
-
+        // Envoi des données complémentaires pour les formulaires filtres.
         $this->setFormVariables();
+
+        // Envoie des données complémentaires pour le descriptif des séries.
         $this->getAssociationsLists();
+
+        // Envoi des données au template.
         $this->set(compact('series', 'params', 'seriesCount'));
     }
 
+    /**
+     * Envoi des données complémentaires du descriptif
+     *
+     * @return void
+     */
     private function getAssociationsLists()
     {
-
         $auteurs = $this->Auteurs->find("list")->toArray();
         $fandoms = $this->Fandoms->find("list")->toArray();
         $langages = $this->Langages->find("list")->toArray();
@@ -101,17 +141,25 @@ class SeriesController extends AppController
      */
     public function view($id = null)
     {
+        // Récupération de la série avec ses associations.
         $series = $this->Series->getWithAssociations($id);
 
+        // Récupération de l'indication si l'utilisateur connecté peut voir du contenu NSFW.
         $nsfw = $this->request->getSession()->read("user.nsfw");
 
+        // Si l'utilisateur n'a pas le droit au contenu NSFW et que le classement de la série est NSFW
         if (!$nsfw && $series->classement > 3)
+
+            // Redirection de l'utilisateur.
             $this->redirect(["action" => "index"]);
 
+        // Récupération des paramètres (Classement / Note)
         $parametres = Configure::check("parametres") ? Configure::read("parametres") : [];
 
+        // Envoi des données complémentaires au template.
         $this->getAssociationsLists();
 
+        // Envoi des données au template.
         $this->set(compact("series", "parametres"));
     }
 
@@ -122,19 +170,45 @@ class SeriesController extends AppController
      */
     public function add()
     {
+        // Création d'une nouvelle série.
         $series = $this->Series->newEmptyEntity();
 
+        // Des données sont envoyées depuis un formulaire.
         if ($this->request->is("post")) {
-            $series = $this->Series->getConnection()->transactional(function () {
-                return $this->editSeriesDataAssociation($this->request->getData());
-            });
-            if ($this->Series->save($series, ["associated" => true])) {
-                $this->Flash->success("Série ajoutée avec succès.");
-                $this->redirect(["action" => "index"]);
+
+            // Si la série n'existe pas déjà
+            if (!$this->exist($this->request->getData())) {
+
+                // Transaction lancée (qui retourne si elle a été commit ou non).
+                $commited = $this->Series->getConnection()->transactional(function () {
+
+                    // Edition de la série avec les données du formulaire et son identifiant.
+                    $series = $this->editSeriesDataAssociation($this->request->getData());
+
+                    // Sauvegarde de la série avec ses associations.
+                    if ($this->Series->save($series, ["associated" => true])) {
+
+                        // Succès de la sauvegarde, avertissement de l'utilisateur et de la méthode.
+                        $this->Flash->success("Série ajoutée avec succès.");
+                        return true;
+                    } else {
+
+                        // Erreur lors de la sauvegarde, avertissement de l'utilisateur et de la méthode.
+                        $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la série. Veuillez réessayer.");
+                        return false;
+                    }
+                });
+
+                // Si la transaction a été commit, redirection vers la page d'index des fanfictions.
+                if ($commited)
+                    $this->redirect(["action" => "index"]);
             } else
-                $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la série. Veuillez réessayer.");
+
+                // La série existe déjà, avertissement de l'utilisateur.
+                $this->Flash->warning("Cette série existe déjà.");
         }
 
+        // Envoi de la série et des variables de formulaires vers le template.
         $this->set(compact("series"));
         $this->setFormVariables();
     }
@@ -148,25 +222,52 @@ class SeriesController extends AppController
      */
     public function edit($id = null)
     {
+        // Récupération de la fanfiction avec toutes ses associations.
         $series = $this->Series->getWithAssociations($id);
 
-        if ($this->request->is(["post", "put"])) {
-            $series = $this->Series->getConnection()->transactional(function () use ($id) {
-                return $this->editSeriesDataAssociation($this->request->getData(), (int) $id);
-            });
-            if ($this->Series->save($series, ["associated" => true])) {
-                $this->Flash->success("Série ajoutée avec succès.");
-                $this->redirect(["action" => "index"]);
+        // Des données sont envoyées depuis un formulaire.
+        if ($this->request->is("post")) {
+
+            // Si la série n'existe pas déjà
+            if (!$this->exist($this->request->getData())) {
+
+                // Transaction lancée (qui retourne si elle a été commit ou non).
+                $commited = $this->Series->getConnection()->transactional(function () use ($id) {
+
+                    // Edition de la série avec les données du formulaire et son identifiant.
+                    $series = $this->editSeriesDataAssociation($this->request->getData(), (int) $id);
+
+                    // Sauvegarde de la série avec ses associations.
+                    if ($this->Series->save($series, ["associated" => true])) {
+
+                        // Succès de la sauvegarde, avertissement de l'utilisateur et de la méthode.
+                        $this->Flash->success("Série éditée avec succès.");
+                        return true;
+                    } else {
+
+                        // Erreur lors de la sauvegarde, avertissement de l'utilisateur et de la méthode.
+                        $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la série. Veuillez réessayer.");
+                        return false;
+                    }
+                });
+
+                // Si la transaction a été commit, redirection vers la page d'index des fanfictions.
+                if ($commited)
+                    $this->redirect(["action" => "index"]);
             } else
-                $this->Flash->error("Une erreur a été rencontrée lors de la sauvegarde de la série. Veuillez réessayer.");
+
+                // La série existe déjà, avertissement de l'utilisateur.
+                $this->Flash->warning("Cette série existe déjà.");
         }
 
+        // Envoi de la série et des variables de formulaires vers le template.
         $this->set(compact("series"));
         $this->setFormVariables();
     }
 
     /**
      * Méthode qui envoie toutes les données nécessaires au formulaire de series.
+     * TODO: Refaire avec l'introduction de la Flytable.
      */
     private function setFormVariables()
     {
@@ -237,7 +338,7 @@ class SeriesController extends AppController
      * 
      * @var array $data Données envoyées par le formulaire de série.
      * @var int $idFanfiction L'identifiant de la série à modifier.
-     * @return Fanfiction La série crée/modifiée.
+     * @return Series La série crée/modifiée.
      */
     private function editSeriesDataAssociation(array $data, int $idSeries = 0)
     {
@@ -267,7 +368,7 @@ class SeriesController extends AppController
                     if (!empty($idFanfiction)) array_push($series->fanfictions, $this->Fanfictions->getWithAssociations($idFanfiction));
                 }
 
-            // Fanfiction est informé de la modification de ses fanfictions
+            // Series est informé de la modification de ses fanfictions
             $series->setDirty("fanfictions");
         } else {
             // Pas de tableau des tags existant, il est créé.
@@ -299,18 +400,29 @@ class SeriesController extends AppController
      */
     public function delete($id = null)
     {
+        // Verification de la méthode d'acces à la page avec redirection auto si les conditions ne sont pas satisfaites.
         $this->request->allowMethod(['post', 'delete']);
+
+        // Récupération de la série à partir de son identifiant.
         $series = $this->Series->get($id);
+
+        // Valorisation de la série avec la date de suppression et la date d'update.
         $series = $this->Series->patchEntity($series, [
             "suppression_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s'),
             "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
         ]);
-        if ($this->Series->save($series)) {
-            $this->Flash->success(__('La série {0} a été supprimée avec succès.', $series->nom));
-        } else {
-            $this->Flash->error(__('La série {0} n\'a pu être supprimée. Veuillez réessayer.', $series->nom));
-        }
 
+        // Sauvegarde de la série.
+        if ($this->Series->save($series))
+
+            // Succès de la sauvegarde, avertissement de l'utilisateur.
+            $this->Flash->success(__('La série {0} a été supprimée avec succès.', $series->nom));
+        else
+
+            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+            $this->Flash->error(__('La série {0} n\'a pu être supprimée. Veuillez réessayer.', $series->nom));
+
+        // Redirection vers la page d'index des séries.
         return $this->redirect(['action' => 'index']);
     }
 
@@ -323,18 +435,30 @@ class SeriesController extends AppController
      */
     public function restore($id = null)
     {
+        // Verification de la méthode d'acces à la page avec redirection auto si la condition n'est pas satisfaite.
         $this->request->allowMethod(['post']);
+
+        // Récupération de la série à partir de son identifiant.
         $series = $this->Series->get($id);
+
+        // Valorisation de la série avec la date de suppression à vide et la date d'update.
         $series = $this->Series->patchEntity($series, [
             "suppression_date" => null,
             "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
         ]);
+
+        // Sauvegarde de la série.
         if ($this->Series->save($series)) {
+
+            // Succès de la sauvegarde, avertissement de l'utilisateur.
             $this->Flash->success(__('La série {0} a été restaurée avec succès.', $series->nom));
         } else {
+
+            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
             $this->Flash->error(__('La série {0} n\'a pu être restaurée. Veuillez réessayer.', $series->nom));
         }
 
+        // Redirection vers la page d'index des séries.
         return $this->redirect(['action' => 'index']);
     }
 
@@ -346,15 +470,26 @@ class SeriesController extends AppController
      */
     public function note($id = null)
     {
+        // Des données sont fournies par un formulaire.
         if ($this->request->is(["post", "put"])) {
+
+            // Récupération de la série avec ses associations.
             $series = $this->Series->getWithAssociations($id);
+
+            // Valorisation de la série avec les données du formulaire.
             $series = $this->Series->patchEntity($series, $this->request->getData());
 
+            // Sauvegarde de la série
             if ($this->Series->save($series))
+
+                // Succès de la sauvegarde de la série, avertissement de l'utilisateur connecté.
                 $this->Flash->success(__("La série {0} a été noté et évaluée avec succès.", $series->nom));
             else
+
+                // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
                 $this->Flash->error(__("La série {0} n'a pu être notée. Veuillez réessayer.", $series->nom));
 
+            // Redirection vers l'index des fanfictions.
             $this->redirect(["action" => "index"]);
         }
     }
@@ -367,15 +502,26 @@ class SeriesController extends AppController
      */
     public function denote($id = null)
     {
+        // Des données sont fournies par un formulaire.
         if ($this->request->is(["post", "put"])) {
+
+            // Récupération de la série avec ses associations.
             $series = $this->Series->getWithAssociations($id);
+
+            // Valorisation de la série avec les données du formulaire + les données dévalorisées et la date d'update.
             $series = $this->Series->patchEntity($series, ["note" => null, "evaluation" => null, "update_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
 
+            // Sauvegarde de la série
             if ($this->Series->save($series))
+
+                // Succès de la sauvegarde de la série, avertissement de l'utilisateur connecté.
                 $this->Flash->success(__("La série {0} a été noté et évaluée avec succès.", $series->nom));
             else
+
+                // Erreur lors de la sauvegarde de la série, avertissement de l'utilisateur connecté.
                 $this->Flash->error(__("La série {0} n'a pu être notée. Veuillez réessayer.", $series->nom));
 
+            // Redirection vers l'index des séries.
             $this->redirect(["action" => "index"]);
         }
     }
@@ -385,10 +531,13 @@ class SeriesController extends AppController
      */
     public function reinitialize()
     {
+        // Les paramètres de séries sont réduits à null.
         $this->request->getSession()->write("series", null);
 
+        // Avertissement de l'utilisateur de la réinitialisation.
         $this->Flash->success("Réinitialisation des séries disponibles.");
 
+        // Redirection vers la page d'index des séries.
         $this->redirect(["action" => "index"]);
     }
 }
