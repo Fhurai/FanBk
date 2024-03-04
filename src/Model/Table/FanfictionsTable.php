@@ -13,7 +13,7 @@ use Cake\Validation\Validator;
 /**
  * Fanfictions Model
  *
- * @property \App\Model\Table\FandomsTable&\Cake\ORM\Association\HasMany $Liens
+ * @property \App\Model\Table\FanfictionsLiensTable&\Cake\ORM\Association\HasMany $Liens
  * @property \App\Model\Table\FandomsTable&\Cake\ORM\Association\BelongsToMany $Fandoms
  * @property \App\Model\Table\PersonnagesTable&\Cake\ORM\Association\BelongsToMany $Personnages
  * @property \App\Model\Table\RelationsTable&\Cake\ORM\Association\BelongsToMany $Relations

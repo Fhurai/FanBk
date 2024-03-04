@@ -24,9 +24,9 @@
  */
 .ajax.form .btn {
     position: absolute;
-    left: 19%;
+    left: -7%;
     margin: -1rem;
-    padding: 2rem;
+    padding: 2rem 2.5rem;
     border-radius: 10px;
     line-height: 1rem;
     cursor: pointer;
