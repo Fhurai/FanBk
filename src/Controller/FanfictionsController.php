@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Cake\Core\Configure;
 use App\Controller\AppController;
+use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\Routing\Router;
 
@@ -22,16 +23,18 @@ use Cake\Routing\Router;
  */
 class FanfictionsController extends AppController implements ObjectControllerInterface
 {
-
     /**
-     * Méthode qui définit si une fanfiction existe avec nom et auteur.
-     *
-     * @param array $data Les données du formulaire.
-     * @return bool Indication si la fanfiction existe.
+     * @inheritDoc
+     * 
+     * @return void
      */
-    public function exist(array $data): bool
+    public function beforeRender(EventInterface $event)
     {
-        return $this->Fanfictions->find()->where(["nom LIKE " => "%" . $data["nom"] . "%", "auteur" => intval($data["auteur"])])->count() > 0;
+        // Appel méthode parente.
+        parent::beforeRender($event);
+
+        // Injection d'un nouvel helper FlyPanel dans la vue.
+        $this->viewBuilder()->setHelpers(['FlyPanel']);
     }
 
     /**
@@ -57,6 +60,7 @@ class FanfictionsController extends AppController implements ObjectControllerInt
             $params = [];
             $params["inactive"] = !is_null($this->request->getParam("?")) ? $this->request->getParam("?")["inactive"] : '0';
             $params["sort"]["creation_date"] = "DESC";
+            $params["panels"] = ["lien" => true, "fanfiction" => false];
         }
 
         if (is_array($params)) {
@@ -68,6 +72,18 @@ class FanfictionsController extends AppController implements ObjectControllerInt
 
         // Paramètres de fanfictions écrits dans la session.
         $this->writeSession("fanfictions", $params);
+    }
+
+
+    /**
+     * Méthode qui définit si une fanfiction existe avec nom et auteur.
+     *
+     * @param array $data Les données du formulaire.
+     * @return bool Indication si la fanfiction existe.
+     */
+    public function exist(array $data): bool
+    {
+        return $this->Fanfictions->find()->where(["nom LIKE " => "%" . $data["nom"] . "%", "auteur" => intval($data["auteur"])])->count() > 0;
     }
 
     /**
@@ -154,8 +170,23 @@ class FanfictionsController extends AppController implements ObjectControllerInt
                 $this->Flash->warning("Cette fanfiction existe déjà.");
         }
 
+        // Récupération de l'état de deux panneaux, avec le panneau check de lien ouvert uniquement.
+        $panels = $this->getRequest()->getSession()->read("fanfictions.panels", ["lien" => true, "fanfiction" => false]);
+
+        // Si une url de fanfiction se trouve dans la session.
+        if ($this->getRequest()->getSession()->check("fanfictions.url")) {
+
+            // Création de cette url.
+            $url = $this->Fanfictions->liens->newEmptyEntity();
+            $url->lien = $this->getRequest()->getSession()->read("fanfictions.url", "");
+
+            // Ajout dans la fanfiction en cours de création
+            $fanfiction->liens = [];
+            $fanfiction->liens[] = $url;
+        }
+
         // Envoi de la fanfiction et des variables de formulaires vers le template.
-        $this->set(compact("fanfiction"));
+        $this->set(compact("fanfiction", "panels"));
         $this->setFormVariables();
     }
 
@@ -516,7 +547,7 @@ class FanfictionsController extends AppController implements ObjectControllerInt
                 // Succès de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
                 $this->Flash->success(__("La fanfiction {0} a été noté et évaluée avec succès.", $fanfiction->nom));
             else
-            
+
                 // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
                 $this->Flash->error(__("La fanfiction {0} n'a pu être notée. Veuillez réessayer.", $fanfiction->nom));
         }
@@ -586,14 +617,25 @@ class FanfictionsController extends AppController implements ObjectControllerInt
 
                 // Redirection vers la page d'index des fanfictions.
                 $this->redirect(["action" => "index"]);
-            } else
+            } else {
+                // Mise à vide de la session pour les fanfictions.
+                $this->request->getSession()->write("fanfictions");
+
+                // Ajout du de l'état des panneaux et du lien dans la session.
+                $params = [];
+                $params["panels"] = ["lien" => false, "fanfiction" => true];
+                $params["url"] = $data["lien"];
+                $this->writeSession("fanfictions", $params);
+
                 // Aucun lien trouvé
                 $this->redirect(["action" => "add"]);
-        }
+            }
+        } else
 
-        // Aucune donné de formulaire, c'est un accès direct à la page.
-        // Avertissement de l'utilisateur que des données sont manquantes.
-        $this->Flash->warning(__("Aucun lien fourni pour le check."));
+            // Aucune donné de formulaire, c'est un accès direct à la page.
+            // Avertissement de l'utilisateur que des données sont manquantes.
+            $this->Flash->warning(__("Aucun lien fourni pour le check."));
+
 
         // Redirection vers l'index des fanfictions.
         $this->redirect(["action" => "index"]);

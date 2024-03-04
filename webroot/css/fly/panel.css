@@ -1,0 +1,128 @@
+/*
+* Setup variables de couleur
+*/
+:root {
+    --panel-red-color: #d33c43;
+    --panel-orange-color: #d3b73c;
+    --panel-green-color: #3cd343;
+    --panel-white-color: #f1f1f1;
+    --panel-lightgrey: #888;
+    --panel-darkgrey: #2a2a2a;
+    --panel-black: #1a1a1a;
+    --panel-amoled: #101010;
+}
+
+/* Les deux états */
+
+/*
+ * Le panneau.
+ */
+.flypanel {
+    padding: 1rem;
+}
+
+/*
+ * Le bouton d'ouverture du panneau
+ */
+.flypanel .flybtn {
+    text-align: center;
+    margin-bottom: 5rem;
+}
+
+/*
+ * La boite qui fait office de bouton du panneau
+ */
+.flypanel .flybtn input[type='checkbox'] {
+    display: none;
+}
+
+/*
+ * La partie panneau de l'élément
+ */
+.flypanel .panel {
+    position: relative;
+}
+
+/*
+ * Ligne complète du panneau.
+ */
+.flypanel hr {
+    position: relative;
+}
+
+/* PANEL FERME */
+
+/*
+ * Le panneau fermé.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]) {
+    border: unset;
+    position: relative;
+}
+
+/*
+ * Contenu du bouton de fermeture lors du panneau fermé.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]) .flybtn label {
+    content: "+";
+    cursor: pointer;
+    border: 1px solid var(--panel-lightgrey);
+    padding: 1.5rem;
+    border-radius: 0 0 1rem 1rem;
+    display: inline;
+}
+
+/*
+ * La partie panneau de l'élément fermé
+ */
+.flypanel:has(.flybtn input[type="checkbox"]) .panel {
+    display: none;
+}
+
+/*
+ * Ligne complète visible du panneau.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]) hr {
+    display: block;
+    border: 1px solid var(--panel-lightgrey);
+    margin: 1rem;
+}
+
+/* PANEL OUVERT */
+
+/*
+ * Le panneau ouvert.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]:checked) {
+    border: 1px solid var(--panel-lightgrey);
+    position: relative;
+    animation: bottom-opening 3s;
+}
+
+/*
+ * La partie panneau de l'élément ouvert.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]:checked) .panel {
+    display: block;
+    text-align: center;
+}
+
+/*
+ * Ligne complète invisible du panneau.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]:checked) hr {
+    display: none;
+}
+
+/*
+ * Contenu du bouton de fermeture lors du panneau ouvert.
+ */
+.flypanel:has(.flybtn input[type="checkbox"]:checked) .flybtn label {
+    content: "+";
+    cursor: pointer;
+    border: 1px solid var(--panel-lightgrey);
+    padding: 1.5rem;
+    border-radius: 0 0 1rem 1rem;
+    color: var(--panel-black);
+    background-color: var(--panel-lightgrey);
+}
