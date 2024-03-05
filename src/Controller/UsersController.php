@@ -112,6 +112,18 @@ class UsersController extends AppController implements ObjectControllerInterface
     }
 
     /**
+     * Restore method
+     *
+     * @param string|null $id User id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function restore($id = null)
+    {
+        parent::restore($id);
+    }
+
+    /**
      * Login Method
      * @return \Cake\Http\Response|null|void Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.

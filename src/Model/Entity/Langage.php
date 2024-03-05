@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Entity;
@@ -64,10 +65,11 @@ class Langage extends Entity
 
     /**
      * Setter personnalisé pour la date de suppression
+     * @var FrozenTime|string|null $suppression_date La nouvelle date.
      * @return FrozenTime|null La date de suppression à l'horaire de Paris.
      */
-    protected function _setSuppressionDate(FrozenTime|string $suppression_date): ?FrozenTime
+    protected function _setSuppressionDate(FrozenTime|string|null $suppression_date): ?FrozenTime
     {
-        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($suppression_date) ? $suppression_date : $suppression_date->format("Y-m-d H:i:s"), "Europe/Paris");
+        return !empty($suppression_date) ? FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($suppression_date) ? $suppression_date : $suppression_date->format("Y-m-d H:i:s"), "Europe/Paris") : null;
     }
 }

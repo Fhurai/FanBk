@@ -80,6 +80,18 @@ class TagsController extends AppController implements ObjectControllerInterface
     }
 
     /**
+     * Restore method
+     *
+     * @param string|null $id Tag id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function restore($id = null)
+    {
+        parent::restore($id);
+    }
+
+    /**
      * Méthode pour rediriger l'utilisateur vers les fanfictions du tag cliqué.
      * @param string|null $id Tag id.
      * @return \Cake\Http\Response|null|void Redirects to Fanfictions index.

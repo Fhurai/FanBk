@@ -98,6 +98,18 @@ class PersonnagesController extends AppController implements ObjectControllerInt
     }
 
     /**
+     * Restore method
+     *
+     * @param string|null $id Personnage id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function restore($id = null)
+    {
+        parent::restore($id);
+    }
+
+    /**
      * Méthode pour rediriger l'utilisateur vers les fanfictions du personnage cliqué.
      * 
      * @param string|null $id Personnage id.

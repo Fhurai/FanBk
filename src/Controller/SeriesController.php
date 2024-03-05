@@ -400,30 +400,7 @@ class SeriesController extends AppController implements ObjectControllerInterfac
      */
     public function delete($id = null)
     {
-        // Verification de la méthode d'acces à la page avec redirection auto si les conditions ne sont pas satisfaites.
-        $this->request->allowMethod(['post', 'delete']);
-
-        // Récupération de la série à partir de son identifiant.
-        $series = $this->Series->get($id);
-
-        // Valorisation de la série avec la date de suppression et la date d'update.
-        $series = $this->Series->patchEntity($series, [
-            "suppression_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s'),
-            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
-        ]);
-
-        // Sauvegarde de la série.
-        if ($this->Series->save($series))
-
-            // Succès de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->success(__('La série {0} a été supprimée avec succès.', $series->nom));
-        else
-
-            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->error(__('La série {0} n\'a pu être supprimée. Veuillez réessayer.', $series->nom));
-
-        // Redirection vers la page d'index des séries.
-        return $this->redirect(['action' => 'index']);
+        parent::delete($id);
     }
 
     /**
@@ -435,31 +412,7 @@ class SeriesController extends AppController implements ObjectControllerInterfac
      */
     public function restore($id = null)
     {
-        // Verification de la méthode d'acces à la page avec redirection auto si la condition n'est pas satisfaite.
-        $this->request->allowMethod(['post']);
-
-        // Récupération de la série à partir de son identifiant.
-        $series = $this->Series->get($id);
-
-        // Valorisation de la série avec la date de suppression à vide et la date d'update.
-        $series = $this->Series->patchEntity($series, [
-            "suppression_date" => null,
-            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
-        ]);
-
-        // Sauvegarde de la série.
-        if ($this->Series->save($series)) {
-
-            // Succès de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->success(__('La série {0} a été restaurée avec succès.', $series->nom));
-        } else {
-
-            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->error(__('La série {0} n\'a pu être restaurée. Veuillez réessayer.', $series->nom));
-        }
-
-        // Redirection vers la page d'index des séries.
-        return $this->redirect(['action' => 'index']);
+        parent::restore($id);
     }
 
     /**
@@ -470,28 +423,7 @@ class SeriesController extends AppController implements ObjectControllerInterfac
      */
     public function note($id = null)
     {
-        // Des données sont fournies par un formulaire.
-        if ($this->request->is(["post", "put"])) {
-
-            // Récupération de la série avec ses associations.
-            $series = $this->Series->getWithAssociations($id);
-
-            // Valorisation de la série avec les données du formulaire.
-            $series = $this->Series->patchEntity($series, $this->request->getData());
-
-            // Sauvegarde de la série
-            if ($this->Series->save($series))
-
-                // Succès de la sauvegarde de la série, avertissement de l'utilisateur connecté.
-                $this->Flash->success(__("La série {0} a été noté et évaluée avec succès.", $series->nom));
-            else
-
-                // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
-                $this->Flash->error(__("La série {0} n'a pu être notée. Veuillez réessayer.", $series->nom));
-
-            // Redirection vers l'index des fanfictions.
-            $this->redirect(["action" => "index"]);
-        }
+        parent::note($id);
     }
 
     /**
@@ -502,42 +434,16 @@ class SeriesController extends AppController implements ObjectControllerInterfac
      */
     public function denote($id = null)
     {
-        // Des données sont fournies par un formulaire.
-        if ($this->request->is(["post", "put"])) {
-
-            // Récupération de la série avec ses associations.
-            $series = $this->Series->getWithAssociations($id);
-
-            // Valorisation de la série avec les données du formulaire + les données dévalorisées et la date d'update.
-            $series = $this->Series->patchEntity($series, ["note" => null, "evaluation" => null, "update_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
-
-            // Sauvegarde de la série
-            if ($this->Series->save($series))
-
-                // Succès de la sauvegarde de la série, avertissement de l'utilisateur connecté.
-                $this->Flash->success(__("La série {0} a été noté et évaluée avec succès.", $series->nom));
-            else
-
-                // Erreur lors de la sauvegarde de la série, avertissement de l'utilisateur connecté.
-                $this->Flash->error(__("La série {0} n'a pu être notée. Veuillez réessayer.", $series->nom));
-
-            // Redirection vers l'index des séries.
-            $this->redirect(["action" => "index"]);
-        }
+        parent::denote($id);
     }
 
     /**
      * Méthode pour réinitialiser la liste des séries.
+     *
+     * @return \Cake\Http\Response Redirects to series index page.
      */
     public function reinitialize()
     {
-        // Les paramètres de séries sont réduits à null.
-        $this->request->getSession()->write("series", null);
-
-        // Avertissement de l'utilisateur de la réinitialisation.
-        $this->Flash->success("Réinitialisation des séries disponibles.");
-
-        // Redirection vers la page d'index des séries.
-        $this->redirect(["action" => "index"]);
+        parent::reinitialize();
     }
 }

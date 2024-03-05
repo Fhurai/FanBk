@@ -461,31 +461,7 @@ class FanfictionsController extends AppController implements ObjectControllerInt
      */
     public function delete($id = null)
     {
-        // Verification de la méthode d'acces à la page avec redirection auto si les conditions ne sont pas satisfaites.
-        $this->request->allowMethod(['post', 'delete']);
-
-        // Récupération de la fanfiction à partir de son identifiant.
-        $fanfiction = $this->Fanfictions->get($id);
-
-        // Valorisation de la fanfiction avec la date de suppression et la date d'update.
-        $fanfiction = $this->Fanfictions->patchEntity($fanfiction, [
-            "suppression_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s'),
-            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
-        ]);
-
-        // Sauvegarde de la fanfiction.
-        if ($this->Fanfictions->save($fanfiction)) {
-
-            // Succès de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->success(__('La fanfiction {0} a été supprimée avec succès.', $fanfiction->nom));
-        } else {
-
-            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->error(__('La fanfiction {0} n\'a pu être supprimée. Veuillez réessayer.', $fanfiction->nom));
-        }
-
-        // Redirection vers la page d'index des fanfictions.
-        return $this->redirect(['action' => 'index']);
+        parent::delete($id);
     }
 
     /**
@@ -497,31 +473,7 @@ class FanfictionsController extends AppController implements ObjectControllerInt
      */
     public function restore($id = null)
     {
-        // Verification de la méthode d'acces à la page avec redirection auto si la condition n'est pas satisfaite.
-        $this->request->allowMethod(['post']);
-
-        // Récupération de la fanfiction à partir de son identifiant.
-        $fanfiction = $this->Fanfictions->get($id);
-
-        // Valorisation de la fanfiction avec la date de suppression à vide et la date d'update.
-        $fanfiction = $this->Fanfictions->patchEntity($fanfiction, [
-            "suppression_date" => null,
-            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
-        ]);
-
-        // Sauvegarde de la fanfiction.
-        if ($this->Fanfictions->save($fanfiction))
-
-            // Succès de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->success(__('La fanfiction {0} a été restaurée avec succès.', $fanfiction->nom));
-        else
-
-            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-            $this->Flash->error(__('La fanfiction {0} n\'a pu être restaurée. Veuillez réessayer.', $fanfiction->nom));
-
-
-        // Redirection vers la page d'index des fanfictions.
-        return $this->redirect(['action' => 'index']);
+        parent::restore($id);
     }
 
     /**
@@ -532,28 +484,7 @@ class FanfictionsController extends AppController implements ObjectControllerInt
      */
     public function note($id = null)
     {
-        // Des données sont fournies par un formulaire.
-        if ($this->request->is(["post", "put"])) {
-
-            // Récupération de la fanfiction avec ses associations.
-            $fanfiction = $this->Fanfictions->getWithAssociations($id);
-
-            // Valorisation de la fanfiction avec les données du formulaire.
-            $fanfiction = $this->Fanfictions->patchEntity($fanfiction, $this->request->getData());
-
-            // Sauvegarde de la fanfiction
-            if ($this->Fanfictions->save($fanfiction))
-
-                // Succès de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
-                $this->Flash->success(__("La fanfiction {0} a été noté et évaluée avec succès.", $fanfiction->nom));
-            else
-
-                // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
-                $this->Flash->error(__("La fanfiction {0} n'a pu être notée. Veuillez réessayer.", $fanfiction->nom));
-        }
-
-        // Redirection vers l'index des fanfictions.
-        $this->redirect(["action" => "index"]);
+        parent::note($id);
     }
 
     /**
@@ -564,27 +495,17 @@ class FanfictionsController extends AppController implements ObjectControllerInt
      */
     public function denote($id = null)
     {
-        // Des données sont fournies par un formulaire.
-        if ($this->request->is(["post", "put"])) {
+        parent::denote($id);
+    }
 
-            // Récupération de la fanfiction avec ses associations.
-            $fanfiction = $this->Fanfictions->getWithAssociations($id);
-
-            // Valorisation de la fanfiction avec les données du formulaire + les données dévalorisées et la date d'update.
-            $fanfiction = $this->Fanfictions->patchEntity($fanfiction, ["note" => null, "evaluation" => null, "update_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
-
-            // Sauvegarde de la fanfiction
-            if ($this->Fanfictions->save($fanfiction))
-
-                // Succès de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
-                $this->Flash->success(__("La fanfiction {0} a été noté et évaluée avec succès.", $fanfiction->nom));
-            else
-                // Erreur lors de la sauvegarde de la fanfiction, avertissement de l'utilisateur connecté.
-                $this->Flash->error(__("La fanfiction {0} n'a pu être notée. Veuillez réessayer.", $fanfiction->nom));
-        }
-
-        // Redirection vers l'index des fanfictions.
-        $this->redirect(["action" => "index"]);
+    /**
+     * Méthode pour réinitialiser la liste des fanfictions.
+     *
+     * @return \Cake\Http\Response Redirects to fanfictions index page.
+     */
+    public function reinitialize()
+    {
+        parent::reinitialize();
     }
 
     /**
@@ -638,23 +559,6 @@ class FanfictionsController extends AppController implements ObjectControllerInt
 
 
         // Redirection vers l'index des fanfictions.
-        $this->redirect(["action" => "index"]);
-    }
-
-    /**
-     * Méthode pour réinitialiser la liste des fanfictions.
-     *
-     * @return \Cake\Http\Response Redirects to fanfictions index page.
-     */
-    public function reinitialize()
-    {
-        // Les paramètres de fanfictions sont réduits à null.
-        $this->request->getSession()->write("fanfictions", null);
-
-        // Avertissement de l'utilisateur de la réinitialisation.
-        $this->Flash->success("Réinitialisation des fanfictions disponibles.");
-
-        // Redirection vers la page d'index des fanfictions.
         $this->redirect(["action" => "index"]);
     }
 }

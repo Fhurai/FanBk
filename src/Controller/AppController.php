@@ -175,7 +175,7 @@ class AppController extends Controller implements ObjectControllerInterface
                 if ($this->$name->save($$entity)) {
 
                     // Succès de la sauvegarde, avertissement de l'utilisateur.
-                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
                     $args = ($entity === "user" ? $$entity->username : $$entity->nom);
                     $this->Flash->success(__($avertissement, $args));
                     $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
@@ -185,14 +185,14 @@ class AppController extends Controller implements ObjectControllerInterface
                 }
 
                 // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
                 $args = ($entity === "user" ? $$entity->username : $$entity->nom);
                 $this->Flash->error(__($avertissement, $args));
                 $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
             }
 
             // Avertissement de l'utilisateur connecté que l'auteur existe déjà
-            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
             $this->Flash->warning(__($avertissement));
             $this->log(__($avertissement));
         }
@@ -230,7 +230,7 @@ class AppController extends Controller implements ObjectControllerInterface
                 if ($this->$name->save($$entity)) {
 
                     // Succès de la sauvegarde, avertissement de l'utilisateur.
-                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
                     $args = ($entity === "user" ? $$entity->username : $$entity->nom);
                     $this->Flash->success(__($avertissement, $args));
                     $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
@@ -240,14 +240,14 @@ class AppController extends Controller implements ObjectControllerInterface
                 }
 
                 // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
                 $args = ($entity === "user" ? $$entity->username : $$entity->nom);
                 $this->Flash->error(__($avertissement, $args));
                 $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
             }
 
             // Avertissement de l'utilisateur connecté que l'auteur existe déjà
-            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
             $this->Flash->warning(__($avertissement));
             $this->log(__(__($avertissement)));
         }
@@ -284,20 +284,66 @@ class AppController extends Controller implements ObjectControllerInterface
         if ($this->$name->save($$entity)) {
 
             // Succès de la sauvegarde, avertissement de l'utilisateur.
-            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été supprimé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été supprimé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
             $args = ($entity === "user" ? $$entity->username : $$entity->nom);
             $this->Flash->success(__($avertissement, $args));
             $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
         } else {
 
             // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être supprimé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être supprimé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
             $args = ($entity === "user" ? $$entity->username : $$entity->nom);
             $this->Flash->error(__($avertissement, $args));
             $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
         }
 
         // Redirection vers la page d'index des auteurs.
+        return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Restore method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function restore(?string $id = null)
+    {
+        // Verification de la méthode d'acces à la page avec redirection auto si la condition n'est pas satisfaite.
+        $this->request->allowMethod(['post']);
+
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération de l'entité supprimée.
+        $entity = substr(strtolower($name), 0, -1);
+        $$entity = $this->$name->get($id);
+
+        // Valorisation de la série avec la date de suppression à vide et la date d'update.
+        $$entity = $this->Series->patchEntity($$entity, [
+            "suppression_date" => null,
+            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
+        ]);
+
+        // Sauvegarde de la série.
+        if ($this->$name->save($$entity)) {
+
+            // Succès de la sauvegarde, avertissement de l'utilisateur.
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été restauré' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
+            $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+            $this->Flash->success(__($avertissement, $args));
+            $this->log(__($avertissement, $args));
+        } else {
+
+            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être restauré' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
+            $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+            $this->Flash->error(__($avertissement, $args));
+            $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
+        }
+
+        // Redirection vers la page d'index des séries.
         return $this->redirect(['action' => 'index']);
     }
 
@@ -326,5 +372,108 @@ class AppController extends Controller implements ObjectControllerInterface
 
         // Redirection vers l'index des fanfictions.
         $this->redirect(["plugin" => false, "prefix" => false, "controller" => "Fanfictions", "action" => "index"]);
+    }
+
+    /**
+     * Note method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     */
+    public function note(?string $id = null)
+    {
+        // Des données sont fournies par un formulaire.
+        if ($this->request->is(["post", "put"])) {
+            // Récupération du nom de l'entité manipulé
+            $name = $this->name;
+
+            // Récupération de l'entité supprimée.
+            $entity = substr(strtolower($name), 0, -1);
+            $$entity = $this->$name->get($id);
+
+            // Valorisation de l'entité avec les données du formulaire.
+            $$entity = $this->$name->patchEntity($$entity, $this->request->getData());
+
+            // Sauvegarde de l'entité
+            if ($this->$name->save($$entity)) {
+
+                // Succès de la sauvegarde de l'entité, avertissement de l'utilisateur connecté.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "series" ? "a" : "e")) . ' ' . $entity . ' {0} a été noté' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' et évalué' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->success(__($avertissement, $args));
+                $this->log(__($avertissement, $args));
+            } else {
+                // Erreur lors de la sauvegarde de l'entité, avertissement de l'utilisateur connecté.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "series" ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être noté' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->success(__($avertissement, $args));
+                $this->log(__($avertissement, $args));
+            }
+        }
+
+        // Redirection vers l'index des fanfictions.
+        $this->redirect(["action" => "index"]);
+    }
+
+    /**
+     * Denote method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     */
+    public function denote($id = null)
+    {
+        // Des données sont fournies par un formulaire.
+        if ($this->request->is(["post", "put"])) {
+
+            // Récupération du nom de l'entité manipulé
+            $name = $this->name;
+
+            // Récupération de l'entité supprimée.
+            $entity = substr(strtolower($name), 0, -1);
+            $$entity = $this->$name->get($id);
+
+            // Valorisation de l'entité avec les données du formulaire + les données dévalorisées et la date d'update.
+            $$entity = $this->$name->patchEntity($$entity, ["note" => null, "evaluation" => null, "update_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s')]);
+
+            // Sauvegarde de l'entité
+            if ($this->$name->save($$entity)) {
+
+                // Succès de la sauvegarde de l'entité, avertissement de l'utilisateur connecté.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "series" ? "a" : "e")) . ' ' . $entity . ' {0} a été dénoté' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' et désévalué' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->success(__($avertissement, $args));
+                $this->log(__($avertissement, $args));
+            } else {
+                // Erreur lors de la sauvegarde de l'entité, avertissement de l'utilisateur connecté.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "series" ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être dénoté' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->success(__($avertissement, $args));
+                $this->log(__($avertissement, $args));
+            }
+        }
+
+        // Redirection vers l'index des fanfictions.
+        $this->redirect(["action" => "index"]);
+    }
+
+    /**
+     * Méthode pour réinitialiser la liste des entités.
+     *
+     * @return \Cake\Http\Response Redirects to entities index page.
+     */
+    public function reinitialize()
+    {
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Les paramètres de séries sont réduits à null.
+        $this->request->getSession()->write(strtolower($name), null);
+
+        // Avertissement de l'utilisateur de la réinitialisation.
+        $this->Flash->success("Réinitialisation des " . $name . " disponibles.");
+
+        // Redirection vers la page d'index des séries.
+        $this->redirect(["action" => "index"]);
     }
 }
