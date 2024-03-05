@@ -113,4 +113,14 @@ class LangagesTable extends Table
     {
         return $this->find()->where(["suppression_date IS NOT" => null]);
     }
+
+    /**
+     * Retourne le langage avec toutes ses associations.
+     * 
+     * @return Query La requête du langage avec ses associations.
+     */
+    public function getWithAssociations($primaryKey): Langage
+    {
+        return $this->get($primaryKey);
+    }
 }

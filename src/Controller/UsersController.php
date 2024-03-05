@@ -52,7 +52,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function exist(array $data): bool
     {
-        return $this->Fandoms->find()->where(["LOWER(username)" => strtolower($data["nom"])])->count() > 0;
+        return $this->Users->find()->where(["LOWER(username)" => strtolower($data["username"])])->count() > 0;
     }
 
     /**
@@ -62,17 +62,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function index()
     {
-        // Récupération des paramètres si présents dans l'url (?inactive=1).
-        $params = $this->getRequest()->getParam("?") ?? [];
-
-        // Récupération des utilisateurs en fonction des paramètres.
-        $users = is_null($params) || !array_key_exists("inactive", $params) ? $this->Users->find('active') : $this->Users->find('inactive');
-
-        // Décompte des utilisateurs pour afficher le nombre sur la page d'index.
-        $usersCount = $users->count();
-
-        //  Envoi des données au template.
-        $this->set(compact('users', 'usersCount', 'params'));
+        parent::index();
     }
 
     /**
@@ -84,13 +74,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function view($id = null)
     {
-        // Récupération de l'utilisateur avec toutes ses associations
-        $user = $this->Users->get($id, [
-            'contain' => [],
-        ]);
-
-        // Envoi de l'utilisateur vers le template.
-        $this->set(compact('user'));
+        parent::view($id);
     }
 
     /**
@@ -100,38 +84,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function add()
     {
-        // Création d'un utilisateur vide.
-        $user = $this->Users->newEmptyEntity();
-
-        // Données envoyées depuis le formulaire de la page.
-        if ($this->request->is('post')) {
-
-            // Si l'utilisateur fourni n'existe pas déjà.
-            if (!$this->exist($this->request->getData())) {
-
-                // Données du formulaire utilisées dans l'utilisateur.
-                $user = $this->Users->patchEntity($user, $this->request->getData());
-
-                // Sauvegarde de l'utilisateur
-                if ($this->Users->save($user)) {
-
-                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                    $this->Flash->success(__('The user has been saved.'));
-
-                    // Redirection vers l'index des utilisateurs.
-                    return $this->redirect(['action' => 'index']);
-                }
-
-                // Avertissement de l'utilisateur connecté que l'utilisateur existe déjà
-                $this->Flash->warning(_("l'utilisateur existe déjà"));
-            }
-
-            // Avertissement de l'utilisateur que l'utilisateur n'a pas pu être sauvegardé.
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
-        }
-
-        //  Envoi des données au template.
-        $this->set(compact('user'));
+        parent::add();
     }
 
     /**
@@ -143,40 +96,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function edit($id = null)
     {
-        // Récupération de l'utilisateur avec toutes ses associations
-        $user = $this->Users->get($id, [
-            'contain' => [],
-        ]);
-
-        // Données envoyées depuis le formulaire de la page.
-        if ($this->request->is(['patch', 'post', 'put'])) {
-
-            // Si l'utilisateur fourni n'existe pas déjà.
-            if (!$this->exist($this->request->getData())) {
-
-                // Données du formulaire utilisées dans l'utilisateur.
-                $user = $this->Users->patchEntity($user, $this->request->getData());
-
-                // Sauvegarde de l'utilisateur
-                if ($this->Users->save($user)) {
-
-                    // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-                    $this->Flash->success(__('The user has been saved.'));
-
-                    // Redirection vers l'index des utilisateurs.
-                    return $this->redirect(['action' => 'index']);
-                }
-
-                // Avertissement de l'utilisateur connecté que l'utilisateur existe déjà
-                $this->Flash->warning(_("l'utilisateur existe déjà"));
-            }
-
-            // Avertissement de l'utilisateur que l'utilisateur n'a pas pu être sauvegardé.
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
-        }
-
-        //  Envoi des données au template.
-        $this->set(compact('user'));
+        parent::edit($id);
     }
 
     /**
@@ -188,30 +108,7 @@ class UsersController extends AppController implements ObjectControllerInterface
      */
     public function delete($id = null)
     {
-        // Vérification que la page est appelé depuis un formulaire ou un bouton de suppression.
-        $this->request->allowMethod(['post', 'delete']);
-
-        // Récupération de l'utilisateur à supprimer.
-        $user = $this->Users->get($id);
-
-        // Suppression logique (date de suppression valorisée).
-        $user = $this->Users->patchEntity($user, [
-            "suppression_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s'),
-            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
-        ]);
-
-        // Sauvegarde de l'utilisateur
-        if ($this->Users->save($user))
-
-            // Aucune erreur de sauvegarde, avertissement de l'utilisateur de ce succes.
-            $this->Flash->success(__('The user has been deleted.'));
-        else
-
-            // Avertissement du développeur et de l'utilisateur que l'utilisateur n'a pas pu être supprimé.
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
-
-        // Redirection vers l'index des utilisateurs.
-        return $this->redirect(['action' => 'index']);
+        parent::delete($id);
     }
 
     /**

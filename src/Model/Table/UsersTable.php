@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Table;
@@ -142,5 +143,15 @@ class UsersTable extends Table
     public function findInactive(Query $query, $options)
     {
         return $this->find()->where(["suppression_date IS NOT" => null]);
+    }
+
+    /**
+     * Retourne l'utilisateur avec toutes ses associations.
+     * 
+     * @return Query La requête de l'utilisateur avec ses associations.
+     */
+    public function getWithAssociations($primaryKey): User
+    {
+        return $this->get($primaryKey);
     }
 }

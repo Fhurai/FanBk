@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Table;
@@ -77,7 +78,8 @@ class AuteursTable extends Table
      * 
      * @return Auteur
      */
-    public function newEmptyEntity(): Auteur{
+    public function newEmptyEntity(): Auteur
+    {
         $fandom = new Auteur();
         $fandom->id = null;
         $fandom->nom = "";
@@ -91,7 +93,8 @@ class AuteursTable extends Table
      * 
      * @return Query La requete des auteurs actifs.
      */
-    public function findActive(Query $query, $options){
+    public function findActive(Query $query, $options)
+    {
         return $this->find()->where(["suppression_date IS" => null]);
     }
 
@@ -100,7 +103,18 @@ class AuteursTable extends Table
      * 
      * @return Query La requête des auteurs inactifs.
      */
-    public function findInactive(Query $query, $options){
+    public function findInactive(Query $query, $options)
+    {
         return $this->find()->where(["suppression_date IS NOT" => null]);
+    }
+
+    /**
+     * Retourne l'auteur avec toutes ses associations.
+     * 
+     * @return Query La requête de l'auteur avec ses associations.
+     */
+    public function getWithAssociations($primaryKey): Auteur
+    {
+        return $this->get($primaryKey);
     }
 }

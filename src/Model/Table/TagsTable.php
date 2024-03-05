@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Table;
@@ -110,5 +111,15 @@ class TagsTable extends Table
     public function findInactive(Query $query, $options)
     {
         return $this->find()->where(["suppression_date IS NOT" => null]);
+    }
+
+    /**
+     * Retourne le tag avec toutes ses associations.
+     * 
+     * @return Query La requête du tag avec ses associations.
+     */
+    public function getWithAssociations($primaryKey): Tag
+    {
+        return $this->get($primaryKey);
     }
 }

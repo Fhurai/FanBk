@@ -19,6 +19,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\I18n\FrozenTime;
+use Psr\Log\LogLevel;
 
 /**
  * Application Controller
@@ -39,7 +41,7 @@ use Cake\Controller\Controller;
  * @property \App\Model\Table\UsersTable $Users
  * @property \App\Model\Table\SeriesTable $Series
  */
-class AppController extends Controller
+class AppController extends Controller implements ObjectControllerInterface
 {
     /**
      * Initialization hook method.
@@ -86,5 +88,243 @@ class AppController extends Controller
                 $this->request->getSession()->write($cle . ".$key", $value);
             }
         }
+    }
+
+    /**
+     * Retourne si une entité existe ou non.
+     *
+     * @param array $data
+     * @return boolean
+     */
+    public function exist(array $data): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @return void
+     */
+    public function index()
+    {
+        // Récupération des paramètres depuis l'url.
+        $params = $this->getRequest()->getParam("?") ?? [];
+
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération des entités en fonction des paramètres.
+        $entities = strtolower($name);
+        $$entities = is_null($params) || !array_key_exists("inactive", $params) ? $this->$name->find('active') : $this->$name->find('inactive');
+
+        // Récupération du décompte des entités.
+        $entitiesCount = strtolower($name) . "Count";
+        $$entitiesCount = $$entities->count();
+
+        // Envoi de la liste des entités, leur décompte et les paramètres au template.
+        $this->set($entities, $$entities);
+        $this->set($entitiesCount, $$entitiesCount);
+        $this->set(compact("params"));
+    }
+
+    /**
+     * View method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Renders view
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function view(?string $id = null)
+    {
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération de l'entité avec tous ses associations.
+        $entity = substr(strtolower($name), 0, -1);
+        $$entity = $this->$name->getWithAssociations($id);
+
+        // Envoi de l'entité au template.
+        $this->set($entity, $$entity);
+    }
+
+    /**
+     * Add method
+     *
+     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     */
+    public function add()
+    {
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération de l'entité vide.
+        $entity = substr(strtolower($name), 0, -1);
+        $$entity = $this->$name->newEmptyEntity();
+
+        // Si des données sont envoyées par le formulaire de la page.
+        if ($this->request->is("post")) {
+
+            // Si l'entité fournie n'existe pas déjà.
+            if (!$this->exist($this->request->getData())) {
+
+                // Valorisation de l'entité avec les données du formulaire.
+                $$entity = $this->$name->patchEntity($$entity, $this->request->getData());
+
+                // Sauvegarde de l'entité
+                if ($this->$name->save($$entity)) {
+
+                    // Succès de la sauvegarde, avertissement de l'utilisateur.
+                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+                    $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                    $this->Flash->success(__($avertissement, $args));
+                    $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
+
+                    // Redirection de l'utilisateur vers l'index des auteurs.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->error(__($avertissement, $args));
+                $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
+            }
+
+            // Avertissement de l'utilisateur connecté que l'auteur existe déjà
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
+            $this->Flash->warning(__($avertissement));
+            $this->log(__($avertissement));
+        }
+
+        // Envoi de l'entité vide au template.
+        $this->set($entity, $$entity);
+    }
+
+    /**
+     * Delete method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function edit(?string $id)
+    {
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération de l'entité avec tous ses associations.
+        $entity = substr(strtolower($name), 0, -1);
+        $$entity = $this->$name->getWithAssociations($id);
+
+        // Si des données sont envoyées par le formulaire de la page.
+        if ($this->request->is(["post", "put"])) {
+
+            // Si l'entité fournie n'existe pas déjà.
+            if (!$this->exist($this->request->getData())) {
+
+                // Valorisation de l'entité avec les données du formulaire.
+                $$entity = $this->$name->patchEntity($$entity, $this->request->getData());
+
+                // Sauvegarde de l'entité
+                if ($this->$name->save($$entity)) {
+
+                    // Succès de la sauvegarde, avertissement de l'utilisateur.
+                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+                    $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                    $this->Flash->success(__($avertissement, $args));
+                    $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
+
+                    // Redirection de l'utilisateur vers l'index des auteurs.
+                    return $this->redirect(['action' => 'index']);
+                }
+
+                // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+                $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+                $this->Flash->error(__($avertissement, $args));
+                $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
+            }
+
+            // Avertissement de l'utilisateur connecté que l'auteur existe déjà
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
+            $this->Flash->warning(__($avertissement));
+            $this->log(__(__($avertissement)));
+        }
+
+        // Envoi de l'entité à éditer au template.
+        $this->set($entity, $$entity);
+    }
+
+    /**
+     * Delete method
+     *
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function delete(?string $id = null)
+    {
+        // Vérification que la page de suppression est accédée correctement.
+        $this->request->allowMethod(['post', 'delete']);
+
+        // Récupération du nom de l'entité manipulé
+        $name = $this->name;
+
+        // Récupération de l'entité à supprimer.
+        $entity = substr(strtolower($name), 0, -1);
+        $$entity = $this->$name->get($id);
+
+        // Valorisation des dates de modification et de suppression (suppression logique).
+        $$entity = $this->$name->patchEntity($$entity, [
+            "suppression_date" => FrozenTime::now("Europe/Paris")->format('Y-m-d H:i:s'),
+            "update_date" => FrozenTime::now("Europe/Paris")->format("Y-m-d H:i:s"),
+        ]);
+
+        if ($this->$name->save($$entity)) {
+
+            // Succès de la sauvegarde, avertissement de l'utilisateur.
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} a été supprimé' . ($entity === "relation" ? "e" : "") . ' avec succès.';
+            $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+            $this->Flash->success(__($avertissement, $args));
+            $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
+        } else {
+
+            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "relation" ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être supprimé' . ($entity === "relation" ? "e" : "") . '. Veuillez réessayer.';
+            $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+            $this->Flash->error(__($avertissement, $args));
+            $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
+        }
+
+        // Redirection vers la page d'index des auteurs.
+        return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Méthode pour rediriger l'utilisateur vers les fanfictions de l'entité cliqué.
+     * @param string|null $id Entity id.
+     * @return \Cake\Http\Response|null|void Redirects to Fanfictions index.
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function filterRedirect(?string $id = null)
+    {
+        //Nettoyage à vide du champ fanfictions dans la session.
+        $this->request->getSession()->write("fanfictions");
+
+        // Récupération du nom de l'entité manipulé
+        $name = strtolower($this->name);
+
+        // Paramètres set avec les données du tag.
+        $params = [];
+        $params["filters"]["fields"][$name] = $id;
+        $params["filters"]["not"][$name] = true;
+        $params["filters"]["operator"][$name] = "AND";
+
+        // Paramètres enregistrés dans la session.
+        $this->writeSession("fanfictions", $params);
+
+        // Redirection vers l'index des fanfictions.
+        $this->redirect(["plugin" => false, "prefix" => false, "controller" => "Fanfictions", "action" => "index"]);
     }
 }

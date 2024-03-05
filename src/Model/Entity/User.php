@@ -73,7 +73,7 @@ class User extends Entity
      */
     protected function _setBirthday(FrozenTime|string $birthday): ?FrozenTime
     {
-        return FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($birthday) ? $birthday : $birthday->format("Y-m-d H:i:s"), "Europe/Paris");
+        return !empty($birthday) ? FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($birthday) ? $birthday : $birthday->format("Y-m-d H:i:s"), "Europe/Paris") : null;
     }
 
     /**
