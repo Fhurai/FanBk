@@ -358,8 +358,8 @@ class AppController extends Controller implements ObjectControllerInterface
         //Nettoyage à vide du champ fanfictions dans la session.
         $this->request->getSession()->write("fanfictions");
 
-        // Récupération du nom de l'entité manipulé
-        $name = strtolower($this->name);
+        // Récupération du nom de l'entité manipulé (cas particulier, un auteur par fanfiction).
+        $name = in_array($this->name, ["Auteurs"]) ? strtolower(substr($this->name, 0, -1)) : strtolower($this->name);
 
         // Paramètres set avec les données du tag.
         $params = [];
