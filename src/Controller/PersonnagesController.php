@@ -31,12 +31,6 @@ class PersonnagesController extends AppController implements ObjectControllerInt
     public function index()
     {
         parent::index();
-
-        // Récupération des fandoms sous forme de query.
-        $fandoms = $this->Personnages->fandoms->find('list');
-
-        //  Envoi des données au template.
-        $this->set(compact('fandoms'));
     }
 
     /**
