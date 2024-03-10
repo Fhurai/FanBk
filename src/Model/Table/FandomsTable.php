@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Model\Table;
@@ -43,6 +44,12 @@ class FandomsTable extends Table
         $this->setDisplayField('nom');
         $this->setPrimaryKey('id');
 
+        $this->belongsToMany('fanfictions', [
+            'foreignKey' => 'fandom',
+            'targetForeignKey' => 'fanfiction',
+            'joinTable' => 'fanfictions_fandoms',
+        ]);
+
         $this->hasMany('personnages')
             ->setForeignKey('fandom')
             ->setDependent(true);
@@ -81,7 +88,8 @@ class FandomsTable extends Table
      * 
      * @return Fandom
      */
-    public function newEmptyEntity(): Fandom{
+    public function newEmptyEntity(): Fandom
+    {
         $fandom = new Fandom();
         $fandom->id = null;
         $fandom->nom = "";
@@ -95,8 +103,9 @@ class FandomsTable extends Table
      * 
      * @return Query La requete des fandoms actifs.
      */
-    public function findActive(Query $query, $options){
-        return $this->find()->where(["suppression_date IS" => null]);
+    public function findActive(Query $query, $options)
+    {
+        return $query->find("all")->contain(["fanfictions"])->where(["suppression_date IS" => null]);
     }
 
     /**
@@ -104,8 +113,9 @@ class FandomsTable extends Table
      * 
      * @return Query La requête des fandoms inactifs.
      */
-    public function findInactive(Query $query, $options){
-        return $this->find()->where(["suppression_date IS NOT" => null]);
+    public function findInactive(Query $query, $options)
+    {
+        return $query->find("all")->contain(["fanfictions"])->where(["suppression_date IS NOT" => null]);
     }
 
     /**
@@ -113,10 +123,12 @@ class FandomsTable extends Table
      * 
      * @return Query La requête du fandom avec ses associations.
      */
-    public function getWithAssociations($primaryKey): Fandom {
+    public function getWithAssociations($primaryKey): Fandom
+    {
         return $this->get($primaryKey, [
             'contain' => [
-                'personnages'
+                'personnages',
+                'fanfictions'
             ]
         ]);
     }

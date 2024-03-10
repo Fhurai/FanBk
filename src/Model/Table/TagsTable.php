@@ -43,6 +43,12 @@ class TagsTable extends Table
         $this->setTable('tags');
         $this->setDisplayField('nom');
         $this->setPrimaryKey('id');
+
+        $this->belongsToMany('fanfictions', [
+            'foreignKey' => 'tag',
+            'targetForeignKey' => 'fanfiction',
+            'joinTable' => 'fanfictions_tags',
+        ]);
     }
 
     /**
@@ -100,7 +106,7 @@ class TagsTable extends Table
      */
     public function findActive(Query $query, $options)
     {
-        return $this->find()->where(["suppression_date IS" => null]);
+        return $this->find()->contain(["fanfictions"])->where(["suppression_date IS" => null]);
     }
 
     /**
@@ -110,7 +116,7 @@ class TagsTable extends Table
      */
     public function findInactive(Query $query, $options)
     {
-        return $this->find()->where(["suppression_date IS NOT" => null]);
+        return $this->find()->contain(["fanfictions"])->where(["suppression_date IS NOT" => null]);
     }
 
     /**
@@ -120,6 +126,10 @@ class TagsTable extends Table
      */
     public function getWithAssociations($primaryKey): Tag
     {
-        return $this->get($primaryKey);
+        return $this->get($primaryKey, [
+            "contain" =>  [
+                "fanfictions"
+            ]
+        ]);
     }
 }

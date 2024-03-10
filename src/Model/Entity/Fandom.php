@@ -10,11 +10,13 @@ use Cake\ORM\Entity;
 /**
  * Fandom Entity
  *
- * @property int $id
- * @property string $nom
- * @property \Cake\I18n\FrozenTime $creation_date
- * @property \Cake\I18n\FrozenTime $update_date
- * @property \Cake\I18n\FrozenTime|null $suppression_date
+ * @property int $id Identifiant
+ * @property string $nom Nom du fandom
+ * @property \Cake\I18n\FrozenTime $creation_date Date de création
+ * @property \Cake\I18n\FrozenTime $update_date Date de dernière update
+ * @property \Cake\I18n\FrozenTime|null $suppression_date Date de suppression
+ * 
+ * @property \App\Model\Entity\Fanfiction[] $fanfictions Fanfictions du fandom.
  */
 class Fandom extends Entity
 {
@@ -32,6 +34,7 @@ class Fandom extends Entity
         'creation_date' => true,
         'update_date' => true,
         'suppression_date' => true,
+        'fanfictions' => true
     ];
 
     /**

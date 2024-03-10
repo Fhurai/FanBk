@@ -51,6 +51,12 @@ class PersonnagesTable extends Table
             'propertyName' => 'fandom_obj'
         ]);
 
+        $this->belongsToMany('fanfictions', [
+            'foreignKey' => 'personnage',
+            'targetForeignKey' => 'fanfiction',
+            'joinTable' => 'fanfictions_personnages',
+        ]);
+
         $this->belongsToMany('relations', [
             'foreignKey' => 'personnage',
             'targetForeignKey' => 'relation',
@@ -111,7 +117,7 @@ class PersonnagesTable extends Table
      * @return Query La requete des personnages actifs.
      */
     public function findActive(Query $query, $options){
-        return $this->find()->where(["suppression_date IS" => null]);
+        return $this->find()->contain(["fanfictions"])->where(["suppression_date IS" => null]);
     }
 
     /**
@@ -120,7 +126,7 @@ class PersonnagesTable extends Table
      * @return Query La requête des personnages inactifs.
      */
     public function findInactive(Query $query, $options){
-        return $this->find()->where(["suppression_date IS NOT" => null]);
+        return $this->find()->contain(["fanfictions"])->where(["suppression_date IS NOT" => null]);
     }
 
     /**
@@ -132,7 +138,8 @@ class PersonnagesTable extends Table
         return $this->get($primaryKey, [
             'contain' => [
                 'fandoms',
-                'relations'
+                'relations',
+                'fanfictions'
             ]
         ]);
     }

@@ -10,14 +10,15 @@ use Cake\ORM\Entity;
 /**
  * Personnage Entity
  *
- * @property int $id
- * @property string $nom
- * @property int $fandom
- * @property \Cake\I18n\FrozenTime $creation_date
- * @property \Cake\I18n\FrozenTime $update_date
- * @property \Cake\I18n\FrozenTime|null $suppression_date
+ * @property int $id Identifiant.
+ * @property string $nom Nom du personnage.
+ * @property int $fandom Fandom du personnage.
+ * @property \Cake\I18n\FrozenTime $creation_date Date de création.
+ * @property \Cake\I18n\FrozenTime $update_date Date de dernière update.
+ * @property \Cake\I18n\FrozenTime|null $suppression_date Date de suppression.
  *
- * @property \App\Model\Entity\Relation[] $relations
+ * @property \App\Model\Entity\Relation[] $relations Relations du personnage.
+ * @property \App\Model\Entity\Fanfiction[] $fanfictions Fanfictions comportant le personnage.
  */
 class Personnage extends Entity
 {
@@ -37,6 +38,7 @@ class Personnage extends Entity
         'update_date' => true,
         'suppression_date' => true,
         'relations' => true,
+        'fanfictions' => true,
     ];
 
     /**

@@ -43,6 +43,12 @@ class AuteursTable extends Table
         $this->setTable('auteurs');
         $this->setDisplayField('nom');
         $this->setPrimaryKey('id');
+
+        $this->hasMany('fanfictions', [
+            'foreignKey' => 'auteur',
+            'bindingKey' => 'id',
+            'className' => 'Fanfictions',
+        ]);
     }
 
     /**
@@ -95,7 +101,7 @@ class AuteursTable extends Table
      */
     public function findActive(Query $query, $options)
     {
-        return $this->find()->where(["suppression_date IS" => null]);
+        return $this->find()->contain(['fanfictions'])->where(["suppression_date IS" => null]);
     }
 
     /**
@@ -105,7 +111,7 @@ class AuteursTable extends Table
      */
     public function findInactive(Query $query, $options)
     {
-        return $this->find()->where(["suppression_date IS NOT" => null]);
+        return $this->find()->contain(['fanfictions'])->where(["suppression_date IS NOT" => null]);
     }
 
     /**
@@ -115,6 +121,10 @@ class AuteursTable extends Table
      */
     public function getWithAssociations($primaryKey): Auteur
     {
-        return $this->get($primaryKey);
+        return $this->get($primaryKey, [
+            "contains" => [
+                "fanfictions"
+            ]
+        ]);
     }
 }
