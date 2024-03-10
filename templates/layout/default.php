@@ -32,7 +32,7 @@ $cakeDescription = 'FanBk';
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'fonts', 'cake']) ?>
 
     <!-- #region -->
-    <?= $this->Html->script(['paginator']) ?>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <!-- #endregion -->
 
     <?= $this->fetch('meta') ?>

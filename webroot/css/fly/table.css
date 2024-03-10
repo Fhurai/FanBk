@@ -1,0 +1,252 @@
+/*
+* Setup variables de couleur
+*/
+:root {
+    --table-red: #d33c43;
+    --table-orange: #d3b73c;
+    --table-green: #3cd343;
+    --table-white: #f1f1f1;
+    --table-lightgrey: #888;
+    --table-grey: #4b4b4b;
+    --table-darkgrey: #2a2a2a;
+    --table-black: #1a1a1a;
+    --table-amoled: #101010;
+}
+
+.flytable {
+    display: block;
+    width: calc(100% + 2rem);
+    -webkit-overflow-scrolling: touch;
+    background-color: var(--table-black);
+}
+
+/**
+ * Tête & Pied de l'élément.
+ */
+.flytable .upperBar,
+.flytable .lowerBar {
+    display: block;
+}
+
+.flytable .upperBar>*,
+.flytable .lowerBar>* {
+    display: inline-block;
+}
+
+.flytable .upperBar .header {
+    font-weight: bold;
+    font-size: 36px;
+    padding: 0 1rem;
+}
+
+.flytable .lowerBar .footer {
+    font-weight: bold;
+    padding: 1.5rem 1rem;
+}
+
+.flytable .upperBar .menu,
+.flytable .lowerBar .menu {
+    background-color: var(--table-amoled);
+    float: right;
+
+    padding: 1rem;
+}
+
+.flytable .upperBar .menu {
+    border-radius: 0 0 0 1rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.flytable .lowerBar .menu {
+    border-radius: 1rem 0 0 0;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.flytable .upperBar .menu>*,
+.flytable .lowerBar .menu>* {
+    display: table-cell;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.flytable .upperBar .menu>*:not(:last-child),
+.flytable .lowerBar .menu>*:not(:last-child) {
+    border-right: 0.1px solid var(--table-darkgrey);
+}
+
+.flytable .upperBar .menu>*:hover,
+.flytable .lowerBar .menu>*:hover {
+    color: var(--table-lightgrey);
+}
+
+/**
+ * Tableau
+ */
+
+.flytable .table {
+    border-collapse: separate;
+    border-spacing: 0 0.5em;
+    width: 100%;
+    margin-bottom: 0;
+    overflow-x: scroll;
+}
+
+.flytable .table .head,
+.flytable .table .body {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+
+.flytable .table .head .columns,
+.flytable .table .head .filters,
+.flytable .table .body .row {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+    margin: 0.5rem 0;
+}
+
+.flytable .table .body .row:hover {
+    filter: brightness(125%);
+}
+
+.flytable .table .head .columns div:first-child,
+.flytable .table .head .filters div:first-child {
+    visibility: hidden;
+    width: 5%;
+}
+
+.flytable .table .head .columns div:nth-child(2) {
+    border-radius: 1rem 0 0 1rem;
+}
+
+.flytable .table .body .row div:first-child {
+    border-radius: 2.5rem 0 0 2.5rem;
+    text-align: end;
+}
+
+.flytable .table .head .columns .column:not(.action) {
+    cursor: pointer;
+}
+
+.flytable .table .head .columns .column::before {
+    content: "	";
+    padding: 0 0.5rem;
+    font-size: 12px;
+    color: var(--table-orange);
+    position: absolute;
+    bottom: -0.5rem;
+    left: 1rem;
+}
+
+.flytable .table .head .columns .column[sort='ASC']:before {
+    content: "ASC." attr(sort-order);
+}
+
+.flytable .table .head .columns .column[sort='DESC']:before {
+    content: "DESC." attr(sort-order);
+}
+
+.flytable .table .head .columns>* {
+    background-color: var(--table-grey);
+    color: var(--table-black);
+    border-right: 0.1px solid var(--table-black);
+}
+
+.flytable .table .body .row>* {
+    background-color: var(--table-darkgrey);
+    color: var(--table-lightgrey);
+    border-right: 0.1px solid var(--table-black);
+}
+
+.flytable .table .body .row a,
+.flytable .table .body .row a>* {
+    background-color: var(--table-darkgrey);
+    color: var(--table-lightgrey);
+    margin: 0 0.5rem;
+}
+
+.flytable .table .head .columns .column,
+.flytable .table .head .filters .filter,
+.flytable .table .body .row .cell {
+    display: table-cell;
+    vertical-align: inherit;
+    padding: 1.2rem 1.5rem;
+    text-align: left;
+    position: relative;
+}
+
+.flytable .table .head .columns .column:first-child,
+.flytable .table .head .filters .filter:first-child,
+.flytable .table .body .row .cell:first-child {
+    padding-left: 0;
+}
+
+.flytable .table .head .columns .column:last-child,
+.flytable .table .head .filters .filter:last-child,
+.flytable .table .body .row .cell:last-child {
+    border-radius: 0 1rem 1rem 0;
+    display: grid;
+    text-align: end;
+}
+
+.flytable .table .head .filters .filter input {
+    border: unset;
+    border-radius: unset;
+    background-color: var(--table-black);
+    color: var(--table-lightgrey);
+    border-bottom: 0.1px solid var(--table-lightgrey);
+}
+
+.flytable .table .head .filters .filter select {
+    border: unset;
+    border-radius: unset;
+    background-color: var(--table-black);
+    color: var(--table-lightgrey);
+    border-bottom: 0.1px solid var(--table-lightgrey);
+}
+
+.flytable .table .head .filters .filter:last-child input {
+    visibility: hidden;
+}
+
+.flytable .table .head .columns .column:last-child {
+    text-align: center;
+    display: table-cell;
+}
+
+/*
+ * Tooltip
+ */
+
+.flytable [data-tooltip]:after {
+    content: attr(data-tooltip);
+    background-color: var(--table-black);
+    border: 1px solid var(--table-red);
+    color: var(--table-lightgrey);
+    padding: 1rem;
+    border-radius: 1rem;
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translate(-50%);
+    width: max-content;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.flytable [data-tooltip][data-tooltip-direction='bottom']:after {
+    bottom: calc(-100% + 15px);
+    z-index: 200;
+}
+
+.flytable [data-tooltip]:hover:after {
+    opacity: 1;
+    visibility: visible;
+}
