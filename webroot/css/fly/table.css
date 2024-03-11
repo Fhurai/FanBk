@@ -13,6 +13,10 @@
     --table-amoled: #101010;
 }
 
+
+/*
+ * Element Fly Table
+ */
 .flytable {
     display: block;
     width: calc(100% + 2rem);
@@ -28,22 +32,35 @@
     display: block;
 }
 
+
+/*
+ * Barre haute et barre basse.
+ */
 .flytable .upperBar>*,
 .flytable .lowerBar>* {
     display: inline-block;
 }
 
+/*
+ * Barre haute.
+ */
 .flytable .upperBar .header {
     font-weight: bold;
     font-size: 36px;
     padding: 0 1rem;
 }
 
+/*
+ * Barre basse.
+ */
 .flytable .lowerBar .footer {
     font-weight: bold;
     padding: 1.5rem 1rem;
 }
 
+/*
+ * Menus barre haute & barre basse.
+ */
 .flytable .upperBar .menu,
 .flytable .lowerBar .menu {
     background-color: var(--table-amoled);
@@ -52,6 +69,9 @@
     padding: 1rem;
 }
 
+/*
+ * Menu barre haute.
+ */
 .flytable .upperBar .menu {
     border-radius: 0 0 0 1rem;
     position: absolute;
@@ -59,6 +79,9 @@
     top: 0;
 }
 
+/*
+ * Menu barre basse.
+ */
 .flytable .lowerBar .menu {
     border-radius: 1rem 0 0 0;
     position: absolute;
@@ -66,6 +89,9 @@
     bottom: 0;
 }
 
+/*
+ * Elements des menus barre haute et barre basse.
+ */
 .flytable .upperBar .menu>*,
 .flytable .lowerBar .menu>* {
     display: table-cell;
@@ -73,11 +99,17 @@
     cursor: pointer;
 }
 
+/*
+ * Elements non action des menus barre haute et barre basse.
+ */
 .flytable .upperBar .menu>*:not(:last-child),
 .flytable .lowerBar .menu>*:not(:last-child) {
     border-right: 0.1px solid var(--table-darkgrey);
 }
 
+/*
+ * Au survol des éléments des menus de barre haute et barre basse.
+ */
 .flytable .upperBar .menu>*:hover,
 .flytable .lowerBar .menu>*:hover {
     color: var(--table-lightgrey);
@@ -87,6 +119,9 @@
  * Tableau
  */
 
+/*
+ * Table de l'élément Fly Table
+ */
 .flytable .table {
     border-collapse: separate;
     border-spacing: 0 0.5em;
@@ -95,6 +130,9 @@
     overflow-x: scroll;
 }
 
+/*
+ * Tete et corps de la table.
+ */
 .flytable .table .head,
 .flytable .table .body {
     display: table-row-group;
@@ -102,7 +140,9 @@
     border-color: inherit;
 }
 
-
+/*
+ * Ligne des colonnes, ligne des filtres et toutes les lignes du corps.
+ */
 .flytable .table .head .columns,
 .flytable .table .head .filters,
 .flytable .table .body .row {
@@ -112,29 +152,48 @@
     margin: 0.5rem 0;
 }
 
+/*
+ * Ligne survolée dans le corps de la table.
+ */
 .flytable .table .body .row:hover {
     filter: brightness(125%);
 }
 
+/*
+ * Premier élément de la ligne des colonnes et de la ligne des filtres.
+ */
 .flytable .table .head .columns div:first-child,
 .flytable .table .head .filters div:first-child {
     visibility: hidden;
     width: 5%;
 }
 
+/*
+ * Deuxieme élément de la ligne des colonnes.
+ */
 .flytable .table .head .columns div:nth-child(2) {
     border-radius: 1rem 0 0 1rem;
 }
 
+/*
+ * Premier élément des lignes de corps.
+ */
 .flytable .table .body .row div:first-child {
     border-radius: 2.5rem 0 0 2.5rem;
     text-align: end;
 }
 
+/*
+ * Tous les éléments de la ligne des colonnes non action (pour le tri).
+ */
 .flytable .table .head .columns .column:not(.action) {
     cursor: pointer;
+    overflow: visible;
 }
 
+/*
+ * Pseudo élément vide pour le tri
+ */
 .flytable .table .head .columns .column::before {
     content: "	";
     padding: 0 0.5rem;
@@ -145,33 +204,56 @@
     left: 1rem;
 }
 
+/*
+ * Pseudo élément pour le tri ascendant
+ */
 .flytable .table .head .columns .column[sort='ASC']:before {
     content: "ASC." attr(sort-order);
 }
 
+/*
+ * Pseudo élément pour le tri descendant.
+ */
 .flytable .table .head .columns .column[sort='DESC']:before {
     content: "DESC." attr(sort-order);
 }
 
+/*
+ * Tous les éléments de la ligne des colonnes.
+ */
 .flytable .table .head .columns>* {
     background-color: var(--table-grey);
     color: var(--table-black);
     border-right: 0.1px solid var(--table-black);
 }
 
+/*
+ * Tous les éléments des lignes du corps de la table.
+ */
 .flytable .table .body .row>* {
     background-color: var(--table-darkgrey);
     color: var(--table-lightgrey);
     border-right: 0.1px solid var(--table-black);
 }
 
+/*
+ * Tous les liens et éléments dans les liens.
+ */
 .flytable .table .body .row a,
 .flytable .table .body .row a>* {
     background-color: var(--table-darkgrey);
     color: var(--table-lightgrey);
-    margin: 0 0.5rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 30rem;
+    display: inline-block;
+    vertical-align: middle;
 }
 
+/*
+ * Tous les éléments de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
+ */
 .flytable .table .head .columns .column,
 .flytable .table .head .filters .filter,
 .flytable .table .body .row .cell {
@@ -180,22 +262,53 @@
     padding: 1.2rem 1.5rem;
     text-align: left;
     position: relative;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 30rem;
 }
 
+/*
+ * Les champs trop longs sont coupés.
+ */
+.flytable .table .body .row .cell span.cut {
+    width: 24rem;
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+/*
+ * Premier élément de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
+ */
 .flytable .table .head .columns .column:first-child,
 .flytable .table .head .filters .filter:first-child,
 .flytable .table .body .row .cell:first-child {
     padding-left: 0;
 }
 
+/*
+ * Dernier élément de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
+ */
 .flytable .table .head .columns .column:last-child,
 .flytable .table .head .filters .filter:last-child,
 .flytable .table .body .row .cell:last-child {
     border-radius: 0 1rem 1rem 0;
-    display: grid;
+    width: inherit;
     text-align: end;
+    max-width: 15rem;
 }
 
+/*
+ * Les liens de la dernière cellule des lignes du corps.
+ */
+.flytable .table .body .row .cell:last-child a {
+    margin: 0 0.5rem;
+}
+
+/*
+ * Input de filtre.
+ */
 .flytable .table .head .filters .filter input {
     border: unset;
     border-radius: unset;
@@ -204,6 +317,9 @@
     border-bottom: 0.1px solid var(--table-lightgrey);
 }
 
+/*
+ * Select de filtre.
+ */
 .flytable .table .head .filters .filter select {
     border: unset;
     border-radius: unset;
@@ -212,10 +328,16 @@
     border-bottom: 0.1px solid var(--table-lightgrey);
 }
 
+/*
+ * Input du dernier élément de la ligne des filtres.
+ */
 .flytable .table .head .filters .filter:last-child input {
     visibility: hidden;
 }
 
+/*
+ * Dernier élément de la ligne des colonnes.
+ */
 .flytable .table .head .columns .column:last-child {
     text-align: center;
     display: table-cell;
@@ -225,6 +347,9 @@
  * Tooltip
  */
 
+/*
+  * Tooltip non visible.
+  */
 .flytable [data-tooltip]:after {
     content: attr(data-tooltip);
     background-color: var(--table-black);
@@ -241,11 +366,17 @@
     visibility: hidden;
 }
 
+/*
+ * Tooltip pour un élément trop haut.
+ */
 .flytable [data-tooltip][data-tooltip-direction='bottom']:after {
     bottom: calc(-100% + 15px);
     z-index: 200;
 }
 
+/*
+ * Tooltip visible.
+ */
 .flytable [data-tooltip]:hover:after {
     opacity: 1;
     visibility: visible;
