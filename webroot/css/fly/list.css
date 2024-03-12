@@ -80,7 +80,7 @@
  */
 .flylist .listor .drop .drag:not(.add) div.input {
     border-style: solid;
-    border-width: 5px;
+    border-width: 1px;
     border-color: var(--lightgrey);
     border-radius: 4px;
 }
@@ -161,7 +161,7 @@
     color: var(--lightgrey);
     margin-bottom: unset;
     border: unset;
-    height: 4rem;
+    height: 5rem;
     vertical-align: text-top;
 }
 

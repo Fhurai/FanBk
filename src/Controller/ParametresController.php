@@ -34,7 +34,7 @@ class ParametresController extends AppController
      * 
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      */
-    public function edit(){
+    public function edit(?string $id = null){
         // Initialisation de la variable des paramètres.
         $parametres = ["Classement" => [], "Note" => []];
 

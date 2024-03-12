@@ -88,7 +88,7 @@
  */
 .flyselect .select .selector .input {
     border-style: solid;
-    border-width: 5px;
+    border-width: 1px;
     border-color: var(--lightgrey);
     border-radius: 4px;
 }

@@ -112,6 +112,7 @@ const ajoutDisplay = (container, libelle, option) => {
     // Création de l'option à afficher dans le conteneur d'affichage.
     let div = document.createElement("div");
     div.classList = "option";
+    div.dataset.tooltip = "Unselect \"" + libelle + "\"";
     div.innerHTML = libelle + `<input name="` + option[2] + `[]" value=` + option[3] + `  required/>`;
 
     // Le bouton de suppression de l'option est cliqué
