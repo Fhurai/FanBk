@@ -7,7 +7,6 @@ namespace App\Model\Table;
 use App\Model\Entity\Series;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -131,13 +130,13 @@ class SeriesTable extends Table
      */
     public function findActive(Query $query, $options)
     {
+        // Initialisation sous requête pour les séries avec max_classement.
         $subquery = TableRegistry::getTableLocator()->get("SeriesSearch")
             ->find()
             ->select(["id", "nom", "description", "max_classement" => "MAX(classement)", "note", "evaluation", "fanfiction", "auteur"])
             ->group("id");
 
-        $condition =  array_key_exists("nsfw", $options) && !$options["nsfw"] ? ["series.suppression_date IS" => null, "max_classement <=" => 3] : ["series.suppression_date IS" => null];
-
+        // Retourne les séries correspondantes à la sous requête avec date de suppression vide.
         return $this->find()
             ->join([
                 "Search" => [
@@ -146,7 +145,7 @@ class SeriesTable extends Table
                     "conditions" => ["Series.id=SeriesSearch__id"]
                 ]
             ])
-            ->where($condition);
+            ->where(["series.suppression_date IS" => null]);
     }
 
     /**
@@ -156,13 +155,13 @@ class SeriesTable extends Table
      */
     public function findInactive(Query $query, $options)
     {
+        // Initialisation sous requête pour les séries avec max_classement.
         $subquery = TableRegistry::getTableLocator()->get("SeriesSearch")
             ->find()
             ->select(["id", "nom", "description", "max_classement" => "MAX(classement)", "note", "evaluation", "fanfiction", "auteur"])
             ->group("id");
 
-        $condition =  array_key_exists("nsfw", $options["user"]) && !$options["user"]["nsfw"] ? ["series.suppression_date IS NOT" => null, "max_classement <=" => 3] : ["series.suppression_date IS NOT" => null];
-
+        // Retourne les séries correspondantes à la sous requête avec date de suppression non vide.
         return $this->find()
             ->join([
                 "Search" => [
@@ -171,7 +170,7 @@ class SeriesTable extends Table
                     "conditions" => ["Series.id=SeriesSearch__id"]
                 ]
             ])
-            ->where($condition);
+            ->where(["series.suppression_date IS NOT" => null]);
     }
 
     /**
@@ -182,6 +181,55 @@ class SeriesTable extends Table
     public function findNotNoted(Query $query, $options)
     {
         return $this->find("active")->where(["series.note IS" => null]);
+    }
+
+    /**
+     * Retourne les séries correspondantes aux critères de recherche.
+     *
+     * @param Query $query La requête de base.
+     * @param array $options Les critères de recherche.
+     * @return Query La requête avec les critères de recherche.
+     */
+    public function findSearch(Query $query, array $options)
+    {
+        // Initialisation de la sous requête.
+        $subquery = (clone $query);
+
+        // Initialisation du tableau de l'ordre de tri.
+        $order = [];
+        foreach ($options["sort"] as $value) $order["series." . (strrpos($value[0], "date") ? substr_replace($value[0], "_", strrpos($value[0], "date")) . "date" : $value[0])] = $value[1];
+
+        foreach ($options["filters"] as $value) {
+            // Pour chaque filtre, création de la jointure correspondante avec sa condition de sélection.
+
+            if (!in_array($value[0], ["fanfictions", "auteurs"]))
+                // Si l'association recherchée n'est pour les fanfictions ou les auteurs, alors jointure sur une vue série avec l'objet de l'association.
+                $subquery->matching("series" . ucfirst(str_replace("[]", "", $value[0])), function ($q) use ($value) {
+                    return $q->where(["series" . ucfirst(str_replace("[]", "", $value[0])) . "." . substr(str_replace("[]", "", $value[0]), 0, strlen(str_replace("[]", "", $value[0])) - 1) . "_id" => $value[1]]);
+                });
+            else
+                // Si l'association recherchée est pour les fanfictions ou l'auteur, alors jointure sur la table des fanfictions.
+                $subquery->matching("fanfictions", function ($q) use ($value) {
+                    return $q->where(["fanfictions." . ($value[0] === "fanfictions" ? "id" : "auteur") => $value[1]]);
+                });
+        }
+
+        // Initialisation du tableau de condition pour les séries.
+        $condition = [];
+        foreach ($options["search"] as $value) $condition["series." . $value[0] . " LIKE"] = "%" . $value[1] . "%";
+
+        // Retourne les fanfictions qui correspondent aux conditions de la sous requête.
+        return $query->find($options["active"] ? "active" : "inactive")->contain([
+            'fanfictions' => [
+                'auteurs',
+                'langages',
+                'fandoms',
+                'personnages',
+                'relations',
+                'tags',
+                'liens'
+            ]
+        ])->where(["series.id in" => array_column($subquery->where($condition)->toArray(), "id")])->where(!$options["nsfw"] ? ["max_classement <=" => 2] : [])->order($order);
     }
 
     /**
@@ -206,117 +254,5 @@ class SeriesTable extends Table
                 }
             ]
         ]);
-    }
-
-    /**
-     * Retourne les séries liées à la recherche.
-     * 
-     * @return Query La requête des séries recherchées.
-     */
-    public function findSearch(Query $query, $options)
-    {
-
-        $query = $this->find("active", $options);
-
-        $condition = [];
-        $sort = [];
-        $search = [];
-
-        if (!is_null($options)) {
-
-            if (array_key_exists("inactive", $options) && $options["inactive"])
-                $query = $this->find("inactive", $options);
-
-
-            /**
-             * PARTIE SORT
-             */
-            if (array_key_exists("sort", $options)) {
-                if (!is_null($options["sort"])) {
-                    foreach ($options["sort"] as $key => $sortOption) {
-                        if ($sortOption !== "") $sort["series." . $key] = $sortOption;
-                    }
-                }
-            }
-
-            /**
-             * PARTIE SEARCH
-             */
-            if (array_key_exists("search", $options)) {
-                if (array_key_exists("fields", $options["search"])) {
-                    if (!is_null($options["search"]["fields"])) {
-                        foreach ($options["search"]["fields"] as $key => $searchOption) {
-                            if ($searchOption !== "") {
-                                if (!in_array($key, ["fanfictions", "auteurs"])) {
-                                    $cle =  "series." . $key;
-                                } else {
-                                    $cle =  "Search.SeriesSearch__" . substr($key, 0, -1);
-                                }
-                                $search[] = "$cle " . (!array_key_exists($key, $options["search"]["not"])  || boolval($options["search"]["not"][$key]) ? "" : "NOT ") . "LIKE '%" . $searchOption . "%'";
-                            }
-                        }
-                    }
-                }
-                if (array_key_exists("operator", $options["search"]))
-                    $search = [$options["search"]["operator"] => $search];
-            }
-
-            /**
-             * PARTIE FILTERS
-             */
-            $subquery = clone $query;
-            if (array_key_exists("filters", $options)) {
-                if (array_key_exists("fields", $options["filters"])) {
-                    if (!is_null($options["filters"]["fields"]) && !empty($options["filters"]["fields"])) {
-                        foreach ($options["filters"]["fields"] as $key => $filterOption) {
-                            if ($filterOption !== "" && $filterOption !== '0') {
-                                if (in_array($key, ["fandoms", "relations", "personnages", "tags"])) {
-                                    $table = substr($key, 0, -1);
-                                    if ($options["filters"]["operator"][$key] === "AND") {
-                                        $tempquery = TableRegistry::getTableLocator()->get("Series" . ucfirst($key))
-                                            ->find()
-                                            ->select(["series_id"])
-                                            ->where([
-                                                "Series" . ucfirst($key) . "." . $table . "_id IN " => $filterOption
-                                            ])
-                                            ->group(["series_id"]);
-                                    } else {
-                                        $tempquery = TableRegistry::getTableLocator()->get("Series" . ucfirst($key))
-                                            ->find()
-                                            ->select(["series_id"])
-                                            ->where([
-                                                implode(" " . $options["filters"]["operator"][$key] . " ", array_map(function ($filterValue) use ($key, $table) {
-                                                    return "Series" . ucfirst($key) . "." . $table . "_id = " . $filterValue;
-                                                }, $filterOption))
-                                            ])
-                                            ->group(["series_id"]);
-                                    }
-                                    $subquery->where(["series.id " . (!array_key_exists($key, $options["filters"]["not"])  || boolval($options["filters"]["not"][$key]) ? "IN " : "NOT IN ") => $tempquery]);
-                                } else {
-                                    $cle = ($key === "classement" ? "max_classement" : "series." . $key);
-                                    $condition[] = ["$cle " . (!array_key_exists($key, $options["filters"]["not"])  || boolval($options["filters"]["not"][$key]) ? "" : "!= ") => $filterOption];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            $subquery = $subquery->select([
-                "series.id",
-            ])->where([$condition, $search]);
-            return $query->select([
-                "id",
-                "nom",
-                "description",
-                "note",
-                "evaluation",
-                "creation_date",
-                "update_date",
-                "suppression_date"
-            ])->where([
-                "id IN" => $subquery->count() > 0 ? array_column(array_column($subquery->toArray(), "series"), "id") : [null]
-            ])->order($sort);
-        }
-        return $query;
     }
 }
