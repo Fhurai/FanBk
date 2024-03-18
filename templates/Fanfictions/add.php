@@ -1,3 +1,10 @@
+<?php
+
+/**
+ * @var \App\Model\Entity\Fanfiction $fanfiction La fanfiction en cours de création.
+ * @var array $params Paramètres session.
+ */
+?>
 <!-- Partie Add -->
 <div class="row">
 
@@ -12,7 +19,7 @@
 
             <?php // Premère partie du panneau 
             ?>
-            <?php echo $this->FlyPanel->panelBegin($panels["lien"], ["id" => "lien"]); ?>
+            <?php echo $this->FlyPanel->panelBegin($params["panels"]["lien"], ["id" => "lien"]); ?>
 
             <!-- Formulaire du check -->
             <?= $this->Form->create(null, ['url' => ["controller" => "fanfictions", "action" => "checkLien"]]) ?>
@@ -37,7 +44,7 @@
 
             <?php // Premère partie du panneau 
             ?>
-            <?php echo $this->FlyPanel->panelBegin($panels["fanfiction"], ["id" => "fanfiction"]); ?>
+            <?php echo $this->FlyPanel->panelBegin($params["panels"]["fanfiction"], ["id" => "fanfiction"]); ?>
 
             <?= $this->element("form/fanfiction", ["fanfiction" => $fanfiction, "action" => "add"]) ?>
 

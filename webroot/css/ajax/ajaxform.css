@@ -24,13 +24,20 @@
  */
 .ajax.form .btn {
     position: absolute;
-    left: -7%;
+    left: 21rem;
     margin: -1rem;
     padding: 2rem 2.5rem;
     border-radius: 10px;
     line-height: 1rem;
     cursor: pointer;
     background-color: var(--addform-black);
+}
+
+/**
+ * Bouton d'affichage de la modale.
+ */
+.flypanel .panel .ajax.form .btn{
+    left: -5rem;
 }
 
 /**
@@ -74,6 +81,7 @@
     border-radius: 4px;
     padding: 1rem;
     border: 1px solid var(--addform-darkgrey);
+    text-align: center;
 }
 
 /**
@@ -205,10 +213,6 @@
  * Si écran smartphone
  */
 @media screen and (max-width: 640px) {
-
-    .ajax.form .btn {
-        left: 0%;
-    }
 
     .ajax.form .modal {
         max-width: 90%;

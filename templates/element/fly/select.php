@@ -15,12 +15,14 @@ $label = isset($label) ? $label : "New Select";
 $class = isset($class) ? $class : "";
 $required = isset($required) ? $required : false;
 
-//Setup de la variable de groupage en fonction des options fournies par le parent.
+//Setup de la variable de groupage en fonction des options fournies par le parent.=
 if (!is_array($options)) {
     $tempQuery = clone $options;
     $tempQuery = $tempQuery->first();
-} else
-    $tempQuery = $options[0];
+} else{
+    $key = array_key_first($options);
+    $tempQuery = $options[$key];
+}
 
 if (is_array($tempQuery))
     $group = true;

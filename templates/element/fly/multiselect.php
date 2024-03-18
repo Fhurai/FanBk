@@ -16,11 +16,12 @@ $class = isset($class) ? $class : "";
 $required = isset($required) ? $required : false;
 
 //Setup de la variable de groupage en fonction des options fournies par le parent.
-if (!is_array($options)) {
-    $tempQuery = clone $options;
-    $tempQuery = $tempQuery->first();
-} else
-    $tempQuery = array_shift($options);
+if (!is_array($options))
+    $tempQuery = (clone $options)->first();
+else{
+    $key = array_key_first($options);
+    $tempQuery = $options[$key];
+}
 
 if (is_array($tempQuery))
     $group = true;

@@ -30,4 +30,11 @@ interface ObjectControllerInterface
      * @return boolean Indication que l'entité existe déjà ou non.
      */
     public function exist(array $data): bool;
+
+    /**
+     * Méthode qui importe les options nécessaires au formulaire de l'entité.
+     *
+     * @return void
+     */
+    public function importFormOptions(): void;
 }

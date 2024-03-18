@@ -5,19 +5,23 @@ declare(strict_types=1);
 namespace App\Model\Table;
 
 use App\Model\Entity\Fanfiction;
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 
 /**
  * Fanfictions Model
  *
- * @property \App\Model\Table\FanfictionsLiensTable&\Cake\ORM\Association\HasMany $Liens
- * @property \App\Model\Table\FandomsTable&\Cake\ORM\Association\BelongsToMany $Fandoms
- * @property \App\Model\Table\PersonnagesTable&\Cake\ORM\Association\BelongsToMany $Personnages
- * @property \App\Model\Table\RelationsTable&\Cake\ORM\Association\BelongsToMany $Relations
- * @property \App\Model\Table\TagsTable&\Cake\ORM\Association\BelongsToMany $Tags
+ * @property \App\Model\Table\FanfictionsLiensTable&\Cake\ORM\Association\HasMany $liens
+ * @property \App\Model\Table\FandomsTable&\Cake\ORM\Association\BelongsToMany $fandoms
+ * @property \App\Model\Table\PersonnagesTable&\Cake\ORM\Association\BelongsToMany $personnages
+ * @property \App\Model\Table\RelationsTable&\Cake\ORM\Association\BelongsToMany $relations
+ * @property \App\Model\Table\TagsTable&\Cake\ORM\Association\BelongsToMany $tags
  *
  * @method \App\Model\Entity\Fanfiction newEmptyEntity()
  * @method \App\Model\Entity\Fanfiction newEntity(array $data, array $options = [])
@@ -152,13 +156,24 @@ class FanfictionsTable extends Table
      */
     public function newEmptyEntity(): Fanfiction
     {
-        $fandom = new Fanfiction();
-        $fandom->id = null;
-        $fandom->nom = "";
-        $fandom->description = "";
-        $fandom->creation_date = new FrozenTime("Europe/Paris");
-        $fandom->update_date = new FrozenTime("Europe/Paris");
-        return $fandom;
+        $fanfiction = new Fanfiction();
+        $fanfiction->id = null;
+        $fanfiction->nom = "";
+        $fanfiction->description = "";
+        $fanfiction->creation_date = new FrozenTime("Europe/Paris");
+        $fanfiction->update_date = new FrozenTime("Europe/Paris");
+
+        // Si une url de fanfiction est présente dans la session.
+        if (Router::getRequest()->getSession()->check("fanfictions.url")) {
+
+            // Création de l'objet lien, qui est valorisé puis ajouté à la nouvelle fanfiction.
+            $fanfiction->liens = [];
+            $lien = $this->liens->newEmptyEntity();
+            $lien->lien = Router::getRequest()->getSession()->read("fanfictions.url", "");
+            $fanfiction->liens[] = $lien;
+        }
+
+        return $fanfiction;
     }
 
     /**
@@ -168,8 +183,17 @@ class FanfictionsTable extends Table
      */
     public function findActive(Query $query, $options)
     {
-        $condition = array_key_exists("nsfw", $options) && !$options["nsfw"] ? ["fanfictions.suppression_date IS" => null, "fanfictions.classement <= 3"] : ["fanfictions.suppression_date IS" => null];
+        $condition = ["fanfictions.suppression_date IS" => null];
         return $this->find()
+            ->contain([
+                'auteurs',
+                'fandoms',
+                'personnages',
+                'relations',
+                'tags',
+                'liens',
+                'series'
+            ])
             ->where($condition);
     }
 
@@ -180,153 +204,67 @@ class FanfictionsTable extends Table
      */
     public function findInactive(Query $query, $options)
     {
-        $condition = array_key_exists("nsfw", $options) && !$options["nsfw"] ? ["fanfictions.suppression_date IS NOT" => null, "fanfictions.classement <= 3"] : ["fanfictions.suppression_date IS NOT" => null];
+        $condition = ["fanfictions.suppression_date IS NOT" => null];
         return $this->find()
+            ->contain([
+                'auteurs',
+                'fandoms',
+                'personnages',
+                'relations',
+                'tags',
+                'liens',
+                'series'
+            ])
             ->where($condition);
     }
 
     /**
-     * Retourne les fanfictions non notées.
+     * Retourne les fanfictions actives non notées.
      * 
      * @return Query La requête des fanfictions non notées.
      */
-    public function findNotNoted(Query $query, $options)
+    public function findNotNoted(Query $query, array $options)
     {
         return $this->find("active")->where(["fanfictions.note IS" => null]);
     }
 
     /**
-     * Retourne les fanfictions liées à la recherche.
-     * 
-     * @return Query La requête des fanfictions recherchées.
+     * Retourne les fanfictions correspondantes aux critères de recherche.
+     *
+     * @param Query $query La requête de base.
+     * @param array $options Les critères de recherche.
+     * @return Query La requête avec les critères de recherche.
      */
-    public function findSearch(Query $query, $options)
+    public function findSearch(Query $query, array $options)
     {
+        // Création de la sous requête.
+        $subquery = (clone $query)
+            ->contain([
+                'auteurs'
+            ]);
 
+        // Initialisation du tableau de l'ordre de tri.
+        $order = [];
+        foreach ($options["sort"] as $value) $order["fanfictions." . (strrpos($value[0], "date") ? substr_replace($value[0], "_", strrpos($value[0], "date")) . "date" : $value[0])] = $value[1];
 
-        $query = $this->find("active", $options)->contain([
-            'auteurs',
-            'langages',
-            'fandoms'  => function ($q) {
-                return $q->order('nom');
-            },
-            'personnages'  => function ($q) {
-                return $q->order('nom');
-            },
-            'relations'  => function ($q) {
-                return $q->order('nom');
-            },
-            'tags'  => function ($q) {
-                return $q->order('nom');
-            },
-            'liens',
-            'series'  => function ($q) {
-                return $q->order('nom');
-            }
-        ]);
-
-        $condition = [];
-        $sort = [];
-        $search = [];
-
-        if (!is_null($options)) {
-
-            /**
-             * PARTIE INACTIVE
-             */
-            if (array_key_exists("inactive", $options) && $options["inactive"])
-                $query = $this->find("inactive", $options)->contain([
-                    'auteurs',
-                    'langages',
-                    'fandoms'  => function ($q) {
-                        return $q->order('nom');
-                    },
-                    'personnages'  => function ($q) {
-                        return $q->order('nom');
-                    },
-                    'relations'  => function ($q) {
-                        return $q->order('nom');
-                    },
-                    'tags'  => function ($q) {
-                        return $q->order('nom');
-                    },
-                    'liens',
-                    'series'  => function ($q) {
-                        return $q->order('nom');
-                    }
-                ]);
-
-            /**
-             * PARTIE SORT
-             */
-            if (array_key_exists("sort", $options)) {
-                if (!is_null($options["sort"])) {
-                    foreach ($options["sort"] as $key => $sortOption) {
-                        if ($sortOption !== "") $sort["fanfictions." . $key] = $sortOption;
-                    }
-                }
-            }
-
-            /**
-             * PARTIE SEARCH
-             */
-            if (array_key_exists("search", $options)) {
-                if (array_key_exists("fields", $options["search"])) {
-                    if (!is_null($options["search"]["fields"])) {
-                        foreach ($options["search"]["fields"] as $key => $searchOption) {
-                            if ($searchOption !== "") {
-                                if ($key !== "series") {
-                                    $cle = in_array($key, ["auteurs"]) ? $key . ".nom" : "fanfictions." . $key;
-                                    $search[] = "$cle " . (!array_key_exists("not", $options["search"]) || !array_key_exists($key, $options["search"]["not"])  || boolval($options["search"]["not"][$key]) ? "" : "NOT ") . "LIKE '%" . $searchOption . "%'";
-                                } else {
-                                    $query->matching("series", function ($q) use ($options, $key, $searchOption) {
-                                        return $q->where(["series.nom " . (!array_key_exists($key, $options["search"]["not"])  || boolval($options["search"]["not"][$key]) ? "" : "NOT ") . "LIKE '%" . $searchOption . "%'"]);
-                                    });
-                                }
-                            }
-                            if (array_key_exists("operator", $options["search"]))
-                                if (is_array($options["search"]["operator"]))
-                                    $search = [$options["search"]["operator"][$key] => $search];
-                                else
-                                    $search = [$options["search"]["operator"] => $search];
-                        }
-                    }
-                }
-            }
-
-            /**
-             * PARTIE FILTERS
-             */
-            if (array_key_exists("filters", $options)) {
-                if (array_key_exists("fields", $options["filters"])) {
-                    if (!is_null($options["filters"]["fields"]) && !empty($options["filters"]["fields"])) {
-                        foreach ($options["filters"]["fields"] as $key => $filterOption) {
-                            if ($filterOption !== "" && $filterOption !== '0') {
-                                if (in_array($key, ["fandoms", "relations", "personnages", "tags"])) {
-                                    if ($options["filters"]["operator"][$key] === "AND") {
-                                        $query->matching($key, function ($q) use ($options, $key, $filterOption) {
-                                            return $q->where(["$key.id " . (!array_key_exists($key, $options["filters"]["not"])  || boolval($options["filters"]["not"][$key]) ? "in" : "not in ") => $filterOption]);
-                                        });
-                                    } else {
-                                        $filter = "(" . implode(" " . $options["filters"]["operator"][$key] . " ", array_map(function ($filterValue) use ($key, $options) {
-                                            return "$key.id " . (!array_key_exists($key, $options["filters"]["not"])  || boolval($options["filters"]["not"][$key]) ? "= " : "!= ") .  $filterValue;
-                                        }, $filterOption)) . ")";
-
-                                        $query->matching($key, function ($q) use ($filter) {
-                                            return $q->where([$filter]);
-                                        });
-                                    }
-                                } else {
-                                    $cle = "fanfictions." . $key;
-                                    $condition[] = ["$cle " . (!array_key_exists($key, $options["filters"]["not"])  || boolval($options["filters"]["not"][$key]) ? "" : "!= ") => $filterOption];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        foreach ($options["filters"] as $value) {
+            // Pour chaque filtre, création de la jointure correspondante avec sa condition de sélection.
+            $subquery->matching(str_replace("[]", "", $value[0]), function ($q) use ($value) {
+                return $q->where([str_replace("[]", "", $value[0]) . ".id" => $value[1]]);
+            });
         }
-        return $query->where([$condition, $search])->group(["fanfictions.id"])->order($sort);
+
+        // Initialisation du tableau de condition pour les fanfictions.
+        $condition = [];
+        foreach ($options["search"] as $value) $condition["fanfictions." . $value[0] . " LIKE"] = "%".$value[1]."%";
+
+
+        if(!$options["nsfw"])
+            // Si l'option nsfw n'est pas activée, récupération uniquement des fanfictions classée 2 ou moins.
+            $condition["classement <="] = 2;
+
+        // Retourne les fanfictions qui correspondent aux conditions de la sous requête.
+        return $query->find($options["active"] ? "active" : "inactive")->where(["fanfictions.id in" => array_column($subquery->where($condition)->toArray(), "id")])->order($order);
     }
 
     /**
@@ -347,5 +285,93 @@ class FanfictionsTable extends Table
                 'series'
             ]
         ]);
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @param EventInterface $event
+     * @param ArrayObject $data
+     * @param ArrayObject $options
+     * @return void
+     */
+    public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options)
+    {
+        // Si un auteur est fourni, conversion en integer.
+        if (!empty($data["auteur"])) $data["auteur"] = intval($data["auteur"]);
+
+        // Si un langage est fourni, conversion en integer.
+        if (!empty($data["langage"])) $data["langage"] = intval($data["langage"]);
+
+        // Si une note est fournie, conversion en integer.
+        if (!empty($data["note"])) $data["note"] = intval($data["note"]);
+
+        // Si des liens sont fournis, ce sont des chaines de caracteres.
+        if (!empty($data["liens"])) {
+
+            // Création d'entités FanfictionLiens à partir de ces chaines.
+            $data["liens"] = array_map(function ($url) {
+                $link = $this->liens->newEmptyEntity();
+                $link->lien = trim($url);
+                $link->creation_date = FrozenTime::now("Europe/Paris");
+                $link->update_date = FrozenTime::now("Europe/Paris");
+                return $link;
+            }, $data["liens"]);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @param EventInterface $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $options
+     * @return void
+     */
+    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    {
+        if (!empty($options["fandoms"])) {
+            // Si des identifiants de fandoms sont fournis, 
+
+            // Récupération des fandoms pour les associer directement à la fanfiction.
+            $entity->fandoms = array_map(function ($id) {
+                return $this->fandoms->get($id);
+            }, array_filter($options["fandoms"], function ($fandom) {
+                return !empty($fandom);
+            }));
+        }
+
+        if (!empty($options["relations"])) {
+            // Si des identifiants de relations sont fournis, 
+
+            // Récupération des relations pour les associer directement à la fanfiction.
+            $entity->relations = array_map(function ($id) {
+                return $this->relations->get($id);
+            }, array_filter($options["relations"], function ($relation) {
+                return !empty($relation);
+            }));
+        }
+
+        if (!empty($options["personnages"])) {
+            // Si des identifiants de personnages sont fournis, 
+
+            // Récupération des personnages pour les associer directement à la fanfiction.
+            $entity->personnages = array_map(function ($id) {
+                return $this->personnages->get($id);
+            }, array_filter($options["personnages"], function ($personnage) {
+                return !empty($personnage);
+            }));
+        }
+
+        if (!empty($options["tags"])) {
+            // Si des identifiants de tags sont fournis, 
+
+            // Récupération des tags pour les associer directement à la fanfiction.
+            $entity->tags = array_map(function ($id) {
+                return $this->tags->get($id);
+            }, array_filter($options["tags"], function ($tag) {
+                return !empty($tag);
+            }));
+        }
     }
 }

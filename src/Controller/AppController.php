@@ -54,14 +54,16 @@ class AppController extends Controller implements ObjectControllerInterface
      */
     public function initialize(): void
     {
+        // Appel méthode parente.
         parent::initialize();
 
+        // Chargement compsants pour gérer les requêtes, les alertes flash, l'url et l'authentification.
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
-
-        // Add this line to check authentication result and lock your site
+        $this->loadComponent('Url');
         $this->loadComponent('Authentication.Authentication');
 
+        // Chargements des tables pour la manipulation des données en BDD.
         $this->Auteurs = $this->fetchModel("Auteurs");
         $this->Fandoms = $this->fetchModel("Fandoms");
         $this->Fanfictions = $this->fetchModel("Fanfictions");
@@ -72,37 +74,59 @@ class AppController extends Controller implements ObjectControllerInterface
         $this->Tags = $this->fetchModel("Tags");
         $this->Users = $this->fetchModel("Users");
         $this->Series = $this->fetchModel("Series");
+
+        // Envoi à tous templates des tableaux pour encoder les objets et actions lors des appels ajax.
+        $this->Url->setArrays();
     }
 
     /**
      * Méthode qui écrit un tableau dans la session.
-     * @param string $cle
-     * @param array $array
+     * 
+     * @param string $cle La clé générale des données dans la session (l'entité du controller utilisant cette méthode).
+     * @param array $array Le tableau de données à enregistrer dans la session.
      */
     protected function writeSession(string $cle, array $array)
     {
+        // Parcours du tableau de données à placer dans la session.
         foreach ($array as $key => $value) {
+
             if (is_array($value))
+
+                // Si la donnée est un tableau, appel récursif.
                 $this->writeSession($cle . ".$key", $value);
             else {
+
+                // La donnée n'est pas un tableau, elle peut être placée dans la session.
                 $this->request->getSession()->write($cle . ".$key", $value);
             }
         }
     }
 
     /**
-     * Retourne si une entité existe ou non.
+     * Méthode générique pour vérifier l'existence de l'entité avant de la sauvegarder.
      *
-     * @param array $data
-     * @return boolean
+     * @param array $data Les données du formulaire.
+     * @return boolean Indication si l'entité existe ou non dans la base de données.
      */
     public function exist(array $data): bool
     {
+        // Par défaut, retourne faux.
         return false;
     }
 
     /**
-     * @inheritDoc
+     * Méthode générique pour importer les options nécessaires au formulaire d'ajout ou d'édition d'une entité.
+     *
+     * @return void
+     */
+    public function importFormOptions(): void
+    {
+        // Par défaut, ne fait rien.
+    }
+
+    /**
+     * Index method
+     * Liste toutes les entités du controller.
      *
      * @return void
      */
@@ -111,25 +135,13 @@ class AppController extends Controller implements ObjectControllerInterface
         // Récupération des paramètres depuis l'url.
         $params = $this->getRequest()->getParam("?") ?? [];
 
-        // Récupération du nom de l'entité manipulé
-        $name = $this->name;
-
-        // Récupération des entités en fonction des paramètres.
-        $entities = strtolower($name);
-        $$entities = is_null($params) || !array_key_exists("inactive", $params) ? $this->$name->find('active') : $this->$name->find('inactive');
-
-        // Récupération du décompte des entités.
-        $entitiesCount = strtolower($name) . "Count";
-        $$entitiesCount = $$entities->count();
-
-        // Envoi de la liste des entités, leur décompte et les paramètres au template.
-        $this->set($entities, $$entities);
-        $this->set($entitiesCount, $$entitiesCount);
+        // Envoi des paramètres au template.
         $this->set(compact("params"));
     }
 
     /**
      * View method
+     * Affiche l'entité identifiée.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Renders view
@@ -150,6 +162,7 @@ class AppController extends Controller implements ObjectControllerInterface
 
     /**
      * Add method
+     * Page de création de l'entité du controller.
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
      */
@@ -199,10 +212,14 @@ class AppController extends Controller implements ObjectControllerInterface
 
         // Envoi de l'entité vide au template.
         $this->set($entity, $$entity);
+
+        // Import des options pour le formulaire.
+        $this->importFormOptions();
     }
 
     /**
-     * Delete method
+     * Edit method
+     * Page d'édition de l'entité du controller.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to index.
@@ -220,44 +237,40 @@ class AppController extends Controller implements ObjectControllerInterface
         // Si des données sont envoyées par le formulaire de la page.
         if ($this->request->is(["post", "put"])) {
 
-            // Si l'entité fournie n'existe pas déjà.
-            if (!$this->exist($this->request->getData())) {
+            // Valorisation de l'entité avec les données du formulaire.
+            $$entity = $this->$name->patchEntity($$entity, $this->request->getData());
 
-                // Valorisation de l'entité avec les données du formulaire.
-                $$entity = $this->$name->patchEntity($$entity, $this->request->getData());
+            // Sauvegarde de l'entité
+            if ($this->$name->save($$entity)) {
 
-                // Sauvegarde de l'entité
-                if ($this->$name->save($$entity)) {
-
-                    // Succès de la sauvegarde, avertissement de l'utilisateur.
-                    $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
-                    $args = ($entity === "user" ? $$entity->username : $$entity->nom);
-                    $this->Flash->success(__($avertissement, $args));
-                    $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
-
-                    // Redirection de l'utilisateur vers l'index des auteurs.
-                    return $this->redirect(['action' => 'index']);
-                }
-
-                // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
-                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
+                // Succès de la sauvegarde, avertissement de l'utilisateur.
+                $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' {0} a été sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . ' avec succès.';
                 $args = ($entity === "user" ? $$entity->username : $$entity->nom);
-                $this->Flash->error(__($avertissement, $args));
-                $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
+                $this->Flash->success(__($avertissement, $args));
+                $this->log(__($avertissement, $args), LogLevel::INFO, $$entity);
+
+                // Redirection de l'utilisateur vers l'index des auteurs.
+                return $this->redirect(['action' => 'index']);
             }
 
-            // Avertissement de l'utilisateur connecté que l'auteur existe déjà
-            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' existe déjà.';
-            $this->Flash->warning(__($avertissement));
-            $this->log(__(__($avertissement)));
+            // Erreur lors de la sauvegarde, avertissement de l'utilisateur.
+            $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : (in_array($entity, ['relation', 'series']) ? "a" : "e")) . ' ' . $entity . ' n\'a pas pu être sauvegardé' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
+            $args = ($entity === "user" ? $$entity->username : $$entity->nom);
+            $this->Flash->error(__($avertissement, $args));
+            $this->log(__($avertissement, $args), LogLevel::ERROR, $$entity);
         }
 
         // Envoi de l'entité à éditer au template.
         $this->set($entity, $$entity);
+
+        // Import des options pour le formulaire.
+        $this->importFormOptions();
     }
 
     /**
      * Delete method
+     * Méthode de suppression de l'entité du controller.
+     * Pas de rendu, juste manipulation de donnée dans la partie backend.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to index.
@@ -303,6 +316,8 @@ class AppController extends Controller implements ObjectControllerInterface
 
     /**
      * Restore method
+     * Méthode de restoration de l'entité du controller.
+     * Pas de rendu, juste manipulation de donnée dans la partie backend.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to index.
@@ -349,6 +364,7 @@ class AppController extends Controller implements ObjectControllerInterface
 
     /**
      * Méthode pour rediriger l'utilisateur vers les fanfictions de l'entité cliqué.
+     * 
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to Fanfictions index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
@@ -363,9 +379,7 @@ class AppController extends Controller implements ObjectControllerInterface
 
         // Paramètres set avec les données du tag.
         $params = [];
-        $params["filters"]["fields"][$name] = $id;
-        $params["filters"]["not"][$name] = true;
-        $params["filters"]["operator"][$name] = "AND";
+        $params["filters"][$name] = $id;
 
         // Paramètres enregistrés dans la session.
         $this->writeSession("fanfictions", $params);
@@ -376,6 +390,8 @@ class AppController extends Controller implements ObjectControllerInterface
 
     /**
      * Note method
+     * Méthode pour évaluer et noter l'entité du controller.
+     * Pas de rendu, juste manipulation de donnée dans la partie backend.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to index.
@@ -417,6 +433,8 @@ class AppController extends Controller implements ObjectControllerInterface
 
     /**
      * Denote method
+     * Méthode pour enlever l'évaluation et la note de l'entité du controller.
+     * Pas de rendu, juste manipulation de donnée dans la partie backend.
      *
      * @param string|null $id Entity id.
      * @return \Cake\Http\Response|null|void Redirects to index.
@@ -445,6 +463,7 @@ class AppController extends Controller implements ObjectControllerInterface
                 $this->Flash->success(__($avertissement, $args));
                 $this->log(__($avertissement, $args));
             } else {
+
                 // Erreur lors de la sauvegarde de l'entité, avertissement de l'utilisateur connecté.
                 $avertissement = 'L' . (in_array($entity, ['auteur', 'utilisateur']) ? "'" : ($entity === "series" ? "a" : "e")) . ' ' . $entity . ' {0} n\'a pu être dénoté' . (in_array($entity, ['relation', 'series']) ? "e" : "") . '. Veuillez réessayer.';
                 $args = ($entity === "user" ? $$entity->username : $$entity->nom);
@@ -458,7 +477,8 @@ class AppController extends Controller implements ObjectControllerInterface
     }
 
     /**
-     * Méthode pour réinitialiser la liste des entités.
+     * Méthode pour réinitialiser la liste des entités affichées par la session.
+     * Majoritairement pour éviter d'avoir un filtre bloqué ad vitam par défaut en arrivant sur la page d'index.
      *
      * @return \Cake\Http\Response Redirects to entities index page.
      */

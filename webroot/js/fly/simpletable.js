@@ -49,15 +49,20 @@ const activateFlyTable = (container) => {
      * Evenements Table simple.
      */
     if (container.querySelector(".table").classList[1] === "simple") {
-        // Remplissage de la table simple.
-        populateSimpleTable(container);
+        // Remplir le champ de data avec les données des entités.
+        loadFullData(container, true);
+
+        // Activer l'affichage actives/inactives
+        document.querySelector(".upperBar .menu > *:nth-child(2)").addEventListener("click", function (event) {
+            console.log(event.currentTarget.innerText);
+            loadFullData(container, event.currentTarget.innerText === "Actives");
+            event.currentTarget.innerHTML = "<a>" + (event.currentTarget.innerHTML === "Actives" ? "Inactives" : "Actives") + "</a>";
+            reinitializeSimple(container);
+        });
 
         // Activation tri et filtres.
         sortSimple(container);
         filterSimple(container);
-
-        // Tri par nom par défaut à l'arrivée sur la page.
-        container.querySelector(".columns .column[col='1']").click();
 
         // Clique sur le bouton de réinitialisation.
         container.querySelector(".lowerBar .menu div:nth-child(1)").addEventListener("click", function () {
@@ -65,10 +70,41 @@ const activateFlyTable = (container) => {
             window.scrollTo(0, 0);
         });
     }
+}
 
-    /**
-     * Table complexe.
-     */
+/**
+ * Méthode de chargement des données et création contenu tableau complexe.
+ * @param {Element} container L'elément FlyTable 
+ * @param {boolean} active Indication si chargement d'entités actives ou inactives.
+ */
+const loadFullData = (container, active) => {
+    // Valorisation des arguments nécessaires au chargement de la modale.
+    let payload = {
+        "_object": container.querySelector('[name="_object"]').value,
+        "_action": container.querySelector('[name="_action"]').value,
+        "active": active
+    };
+
+    // Remplacement du contenu de la modale par une icone de chargement.
+    container.querySelector(".table .body").innerHTML = "<span class='spinner'></span>";
+
+    // Setup appel Ajax
+    fetch("/ajax/call", {
+        method: "POST",
+        headers: {
+            "X-CSRF-Token": container.querySelector("[name]").value,
+            "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(payload)
+    }).then(res => res.json())
+        // Si l'appel s'est bien passé.
+        .then(data => {
+            container.querySelector("[name='flytable_data']").value = JSON.stringify(data.list);
+            populateSimpleTable(container);
+            container.querySelector("#count").innerHTML = data.list.length;
+            container.querySelector("#countTotal").innerHTML = data.list.length;
+        });
 }
 
 /**
@@ -98,6 +134,13 @@ const uniqid = (prefix = "", random = false) => {
     // Retourne l'identifiant avec le préfix avant et le random apres.
     return `${prefix}${id}${random ? `.${Math.trunc(Math.random() * 100000000)}` : ""}`;
 };
+
+/**
+ * Méthode qui échappe HTML d'une chaîne de caractères.
+ * @param {string} htmlStr La chaîne de caractères avant échappement.
+ * @returns string chaîne de caractères après échappement.
+ */
+const escapeHTML = (htmlStr) => htmlStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 /**
  * Méthode table simple.
@@ -188,8 +231,13 @@ const populateSimpleTable = (container) => {
         // Ajout des boutons & formulaires dans le champ action.
         action.innerHTML += "<a data-tooltip='View " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' href='/" + type + "/view/" + element.id + "'><span class='material-symbols-outlined'>Visibility</span></a>";
         action.innerHTML += "<a data-tooltip='Edit " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' href='/" + type + "/edit/" + element.id + "'><span class='material-symbols-outlined'>Edit</span></a>";
-        action.innerHTML += "<form name='post_" + id + "' style='display:none;' method='post' action='/" + type + "/delete/" + element.id + "'><input type='hidden' name='_method' value='POST'><input type='hidden' name='_csrfToken' autocomplete='off' value='" + container.querySelector("[name]").value + "'></form>";
-        action.innerHTML += "<a data-tooltip='Delete " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' data-confirm-message='Are your sure to delete " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' href='#' onclick='if (confirm(this.dataset.confirmMessage)) { document.post_" + id + ".submit();} event.returnValue = false; return false;'><span class='material-symbols-outlined'>Delete</span></a>";
+        if (window.location.search === "") {
+            action.innerHTML += "<form name='post_" + id + "' style='display:none;' method='post' action='/" + type + "/delete/" + element.id + "'><input type='hidden' name='_method' value='POST'><input type='hidden' name='_csrfToken' autocomplete='off' value='" + container.querySelector("[name]").value + "'></form>";
+            action.innerHTML += "<a data-tooltip='Delete " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' data-confirm-message='Are your sure to delete " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' href='#' onclick='if (confirm(this.dataset.confirmMessage)) { document.post_" + id + ".submit();} event.returnValue = false; return false;'><span class='material-symbols-outlined'>Delete</span></a>";
+        } else {
+            action.innerHTML += "<form name='post_" + id + "' style='display:none;' method='post' action='/" + type + "/restore/" + element.id + "'><input type='hidden' name='_method' value='POST'><input type='hidden' name='_csrfToken' autocomplete='off' value='" + container.querySelector("[name]").value + "'></form>";
+            action.innerHTML += "<a data-tooltip='Restore " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' data-confirm-message='Are your sure to restore " + (Object.hasOwn(element, "nom") ? element.nom : element.username) + "' href='#' onclick='if (confirm(this.dataset.confirmMessage)) { document.post_" + id + ".submit();} event.returnValue = false; return false;'><span class='material-symbols-outlined'>restore_page</span></a>";
+        }
 
     });
 }
@@ -290,7 +338,7 @@ const setSimpleSortOrder = (column) => {
 }
 
 /**
- * Méthode qui tri la table simple en fonction des données du tableau de tri.
+ * Méthode qui trie la table simple en fonction des données du tableau de tri.
  * @param {Element} container 
  */
 const sortSimpleTable = (container) => {

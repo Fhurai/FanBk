@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
+use Cake\ORM\TableRegistry;
 
 /**
  * Series Entity
@@ -60,10 +62,10 @@ class Series extends Entity
     ];
 
     // Propriétés virtuelles, calculées à partir des données de la série déjà connues.
-    protected $_virtual = ["classement", "langages", "auteurs", "fandoms", "relations", "personnages", "tags"];
+    protected $_virtual = ["classement", "classement_obj", "langages", "langage_obj", "auteurs", "fandoms", "relations", "personnages", "tags"];
 
     // Cache des propriétés virtuelles pour éviter de recalculer les propriétés virtuelles chaque fois qu'elles sont utilisées.
-    protected $_cache = ["_classement", "_langages", "_auteurs", "_fandoms", "_relations", "_personnages", "_tags"];
+    protected $_cache = ["_classement", "_classement_obj", "_langages", "_langage_obj", "_auteurs", "_fandoms", "_relations", "_personnages", "_tags"];
 
     /**
      * Setter personnalisé pour le nom
@@ -87,9 +89,9 @@ class Series extends Entity
      * Setter personnalisé pour l'évaluation
      * @return string L'évaluation sans espace avant ou après, et avec la première lettre en majuscule.
      */
-    protected function _setEvaluation(string $evaluation): ?string
+    protected function _setEvaluation(?string $evaluation): ?string
     {
-        return trim(ucfirst($evaluation));
+        return !is_null($evaluation) ? trim(ucfirst($evaluation)) : null;
     }
 
     /**
@@ -140,6 +142,21 @@ class Series extends Entity
     }
 
     /**
+     * Getter personnalisé pour le classement sous forme de chaîne de caractères.
+     *
+     * @return string|null Le classement sous forme de chaîne de caractères.
+     */
+    protected function _getClassementObj(): ?string
+    {
+        // La variable dans le cache n'existe pas ou est nulle.
+        if (!array_key_exists("_classement_obj", $this->_cache) || is_null($this->_cache["_classement_obj"])) {
+
+            $this->_cache["_classement_obj"] = Configure::read("parametres.Classement", [0 => "", 1 => "", 2 => "", 3 => "", 4 => "", 5 => ""])[$this->classement];
+        }
+        return $this->_cache["_classement_obj"];
+    }
+
+    /**
      * Langages de la série en fonction des langages de ses fanfictions.
      * @return array|boolean Le tableau des langages, sinon false.
      */
@@ -159,6 +176,22 @@ class Series extends Entity
     }
 
     /**
+     * Getter personnalisé pour le langage sous forme de chaîne de caractères.
+     *
+     * @return string|null Le langage sous forme de chaîne de caractères.
+     */
+    protected function _getLangageObj(): ?string
+    {
+        // La variable dans le cache n'existe pas ou est nulle.
+        if (!array_key_exists("_langage_obj", $this->_cache) || is_null($this->_cache["_langage_obj"])) {
+            $this->_cache["_langage_obj"] = $this->langages ? implode(" & ", array_map(function ($id) {
+                return TableRegistry::getTableLocator()->get("Langages")->get($id)->nom;
+            }, $this->langages)) : "";
+        }
+        return $this->_cache["_langage_obj"];
+    }
+
+    /**
      * Auteurs de la série en fonction des auteurs de ses fanfictions.
      * @return array|boolean Le tableau des auteurs, sinon false.
      */
@@ -169,7 +202,11 @@ class Series extends Entity
         if (!array_key_exists("_auteurs", $this->_cache) || is_null($this->_cache["_auteurs"])) {
 
             if (!empty($this->fanfictions)) //Vérification que les fanfictions de la série existent
-                $this->_cache["_auteurs"] = array_unique(array_column($this->fanfictions, "auteur")); // Auteurs de la série sont celles des fanfictions.
+
+                // Auteurs de la série sont celles des fanfictions.
+                $this->_cache["_auteurs"] = array_map(function ($id) {
+                    return TableRegistry::getTableLocator()->get("Auteurs")->get($id);
+                }, array_unique(array_column($this->fanfictions, "auteur")));
             else //Pas de fanfiction disponible
                 $this->_cache["_auteurs"] = false; // Auteurs n'existe pas.
 
@@ -179,7 +216,7 @@ class Series extends Entity
 
     /**
      * Fandoms de la série en fonction des fandoms de ses fanfictions.
-     * @return array|boolean Le tableau des fandoms, sinon false.
+     * @return string|null Le tableau des fandoms, sinon false.
      */
     protected function _getFandoms()
     {
@@ -187,13 +224,31 @@ class Series extends Entity
         // La variable dans le cache n'existe pas ou est nulle.
         if (!array_key_exists("_fandoms", $this->_cache) || is_null($this->_cache["_fandoms"])) {
 
-            if (!empty($this->fanfictions)) { //Vérification que les fanfictions de la série existent
-                $this->_cache["_fandoms"] = []; //Initialisation du tableau des fandoms
-                foreach ($this->fanfictions as $fanfiction) { //Merge du tableau des fandoms de la fanfiction parcourue dans le cache des fandoms.
-                    $this->_cache["_fandoms"] = !is_null($fanfiction->fandoms) ? array_unique(array_merge($this->_cache["_fandoms"], array_column($fanfiction->fandoms, "id"))) : [];
+            //Vérification que les fanfictions de la série existent
+            if (!empty($this->fanfictions)) {
+
+                //Initialisation du tableau des fandoms
+                $this->_cache["_fandoms"] = [];
+
+                //Merge du tableau des fandoms de la fanfiction parcourue dans le cache des fandoms.
+                foreach ($this->fanfictions as $fanfiction) {
+                    $this->_cache["_fandoms"] = array_unique(array_merge($this->_cache["_fandoms"], array_column($fanfiction->fandoms, "id")));
                 }
+
+                // Récupération de tous les fandoms sous forme d'objet.
+                $sortedFandoms = array_map(function ($id) {
+                    return TableRegistry::getTableLocator()->get("Fandoms")->get($id);
+                }, $this->_cache["_fandoms"]);
+
+                // Tri des fandoms par nom.
+                usort($sortedFandoms, function ($a, $b) {
+                    return strcmp($a->nom, $b->nom);
+                });
+
+                // Valorisation du cache avec le tableau trié de fandoms.
+                $this->_cache["_fandoms"] = $sortedFandoms;
             } else //Pas de fanfiction disponible
-                $this->_cache["_fandoms"] = false; // Fandoms n'existe pas.
+                $this->_cache["_fandoms"] = ""; // Fandoms n'existe pas.
         }
         return $this->_cache["_fandoms"];
     }
@@ -208,11 +263,29 @@ class Series extends Entity
         // La variable dans le cache n'existe pas ou est nulle.
         if (!array_key_exists("_relations", $this->_cache) || is_null($this->_cache["_relations"])) {
 
-            if (!empty($this->fanfictions)) { //Vérification que les fanfictions de la série existent
-                $this->_cache["_relations"] = []; //Initialisation du tableau des relations
-                foreach ($this->fanfictions as $fanfiction) { //Merge du tableau des relations de la fanfiction parcourue dans le cache des relations.
+            //Vérification que les fanfictions de la série existent
+            if (!empty($this->fanfictions)) {
+
+                //Initialisation du tableau des relations
+                $this->_cache["_relations"] = [];
+
+                //Merge du tableau des relations de la fanfiction parcourue dans le cache des relations.
+                foreach ($this->fanfictions as $fanfiction) {
                     $this->_cache["_relations"] = !is_null($fanfiction->relations) ? array_unique(array_merge($this->_cache["_relations"], array_column($fanfiction->relations, "id"))) : [];
                 }
+
+                // Récupération de tous les relations sous forme d'objet.
+                $sortedRelations = array_map(function ($id) {
+                    return TableRegistry::getTableLocator()->get("Relations")->get($id);
+                }, $this->_cache["_relations"]);
+
+                // Tri des relations par nom.
+                usort($sortedRelations, function ($a, $b) {
+                    return strcmp($a->nom, $b->nom);
+                });
+
+                // Valorisation du cache avec le tableau trié de relations.
+                $this->_cache["_relations"] = $sortedRelations;
             } else //Pas de fanfiction disponible
                 $this->_cache["_relations"] = false; // Relations n'existe pas.
         }
@@ -229,11 +302,29 @@ class Series extends Entity
         // La variable dans le cache n'existe pas ou est nulle.
         if (!array_key_exists("_personnages", $this->_cache) || is_null($this->_cache["_personnages"])) {
 
-            if (!empty($this->fanfictions)) { //Vérification que les fanfictions de la série existent
-                $this->_cache["_personnages"] = []; //Initialisation du tableau des personnages
-                foreach ($this->fanfictions as $fanfiction) { //Merge du tableau des personnages de la fanfiction parcourue dans le cache des personnages.
+            //Vérification que les fanfictions de la série existent
+            if (!empty($this->fanfictions)) {
+
+                //Initialisation du tableau des personnages
+                $this->_cache["_personnages"] = [];
+
+                //Merge du tableau des personnages de la fanfiction parcourue dans le cache des personnages.
+                foreach ($this->fanfictions as $fanfiction) {
                     $this->_cache["_personnages"] = !is_null($fanfiction->personnages) ? array_unique(array_merge($this->_cache["_personnages"], array_column($fanfiction->personnages, "id"))) : [];
                 }
+
+                // Récupération de tous les personnages sous forme d'objet.
+                $sortedPersonnages = array_map(function ($id) {
+                    return TableRegistry::getTableLocator()->get("Personnages")->get($id);
+                }, $this->_cache["_personnages"]);
+
+                // Tri des personnages par nom.
+                usort($sortedPersonnages, function ($a, $b) {
+                    return strcmp($a->nom, $b->nom);
+                });
+
+                // Valorisation du cache avec le tableau trié de personnages.
+                $this->_cache["_personnages"] = $sortedPersonnages;
             } else //Pas de fanfiction disponible
                 $this->_cache["_personnages"] = false; // Personnages n'existe pas.
         }
@@ -250,11 +341,29 @@ class Series extends Entity
         // La variable dans le cache n'existe pas ou est nulle.
         if (!array_key_exists("_tags", $this->_cache) || is_null($this->_cache["_tags"])) {
 
-            if (!empty($this->fanfictions)) { //Vérification que les fanfictions de la série existent
-                $this->_cache["_tags"] = []; //Initialisation du tableau des tags
-                foreach ($this->fanfictions as $fanfiction) { //Merge du tableau des tags de la fanfiction parcourue dans le cache des tags.
+            //Vérification que les fanfictions de la série existent
+            if (!empty($this->fanfictions)) {
+
+                //Initialisation du tableau des tags
+                $this->_cache["_tags"] = [];
+
+                //Merge du tableau des tags de la fanfiction parcourue dans le cache des tags.
+                foreach ($this->fanfictions as $fanfiction) {
                     $this->_cache["_tags"] = !is_null($fanfiction->tags) ? array_unique(array_merge($this->_cache["_tags"], array_column($fanfiction->tags, "id"))) : [];
                 }
+
+                // Récupération de tous les tags sous forme d'objet.
+                $sortedTags = array_map(function ($id) {
+                    return TableRegistry::getTableLocator()->get("Tags")->get($id);
+                }, $this->_cache["_tags"]);
+
+                // Tri des tags par nom.
+                usort($sortedTags, function ($a, $b) {
+                    return strcmp($a->nom, $b->nom);
+                });
+
+                // Valorisation du cache avec le tableau trié de tags.
+                $this->_cache["_tags"] = $sortedTags;
             } else //Pas de fanfiction disponible
                 $this->_cache["_tags"] = false; // Tags n'existe pas.
         }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
+use Cake\ORM\TableRegistry;
 
 /**
  * Fanfiction Entity
@@ -59,6 +61,12 @@ class Fanfiction extends Entity
         '_joinData' => true
     ];
 
+    // Propriétés virtuelles, calculées à partir des données de la série déjà connues.
+    protected $_virtual = ["classement_obj", "note_obj", "langage_obj"];
+
+    // Cache des propriétés virtuelles pour éviter de recalculer les propriétés virtuelles chaque fois qu'elles sont utilisées.
+    protected $_cache = ["_classement_obj", "note_obj", "_langage_obj"];
+
     /**
      * Setter personnalisé pour le nom
      * @return string Le nom sans espace avant ou après, et avec la première lettre en majuscule.
@@ -81,9 +89,9 @@ class Fanfiction extends Entity
      * Setter personnalisé pour l'évaluation
      * @return string L'évaluation sans espace avant ou après, et avec la première lettre en majuscule.
      */
-    protected function _setEvaluation(string $evaluation): ?string
+    protected function _setEvaluation(?string $evaluation): ?string
     {
-        return trim(ucfirst($evaluation));
+        return !is_null($evaluation) ? trim(ucfirst($evaluation)) : null;
     }
 
     /**
@@ -112,5 +120,50 @@ class Fanfiction extends Entity
     protected function _setSuppressionDate(FrozenTime|string|null $suppression_date): ?FrozenTime
     {
         return !empty($suppression_date) ? FrozenTime::createFromFormat("Y-m-d H:i:s", is_string($suppression_date) ? $suppression_date : $suppression_date->format("Y-m-d H:i:s"), "Europe/Paris") : null;
+    }
+
+    /**
+     * Getter personnalisé pour le classement sous forme de chaine de caractères.
+     *
+     * @return string|null Le classement sous forme de chaine de caractères.
+     */
+    protected function _getClassementObj(): ?string
+    {
+        // La variable dans le cache n'existe pas ou est nulle.
+        if (!array_key_exists("_classement_obj", $this->_cache) || is_null($this->_cache["_classement_obj"])) {
+
+            $this->_cache["_classement_obj"] = !empty($this->classement) ? Configure::read("parametres.Classement", [0 => "A", 1 => "B", 2 => "C", 3 => "D", 4 => "E", 5 => "F"])[$this->classement] : "";
+        }
+        return $this->_cache["_classement_obj"];
+    }
+
+    /**
+     * Getter personnalité pour la note sous forme de chaîne de caractères.
+     *
+     * @return string|null La note sous forme de chaîne de caractères.
+     */
+    protected function _getNoteObj(): ?string
+    {
+        // La variable dans le cache n'existe pas ou est nulle.
+        if (!array_key_exists("_note_obj", $this->_cache) || is_null($this->_cache["_note_obj"])) {
+
+            $this->_cache["_note_obj"] = !empty($this->note) ? Configure::read("parametres.Note", [0 => "A", 1 => "B", 2 => "C", 3 => "D", 4 => "E", 5 => "F"])[$this->classement] : "";
+        }
+        return $this->_cache["_note_obj"];
+    }
+
+    /**
+     * Getter personnalisé pour le langage sous forme de chaîne de caractères.
+     *
+     * @return string|null Le langage sous forme de chaîne de caractères.
+     */
+    protected function _getLangageObj(): ?string
+    {
+        // La variable dans le cache n'existe pas ou est nulle.
+        if (!array_key_exists("langage_obj", $this->_cache) || is_null($this->_cache["langage_obj"])) {
+
+            $this->_cache["langage_obj"] = !empty($this->langage) ? TableRegistry::getTableLocator()->get("Langages")->get($this->langage)->nom : "";
+        }
+        return $this->_cache["langage_obj"];
     }
 }
