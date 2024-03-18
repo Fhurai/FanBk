@@ -4,9 +4,10 @@ use Cake\ORM\Query;
 
 /**
  * @var \App\View\AppView $this
- * @var Query $users
+ * @var array $params
+ * @var array $users
  */
 ?>
 <div class="users index">
-    <?= $this->cell("FlyTable", ["entities" => $users->toArray(), "params" => $params]) ?>
+    <?= $this->cell("FlyTable", ["params" => $params, "urlObject" => array_flip($objects)["users"]]) ?>
 </div>

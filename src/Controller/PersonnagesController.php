@@ -20,7 +20,23 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function exist(array $data): bool
     {
+        // Retourne si des personnages avec le même nom existe pour le même fandom existent.
+        // (Des personnages peuvent avoir le même nom mais pas dans le même fandom).
         return $this->Personnages->find()->where(["nom LIKE" => "%" . $data["nom"] . "%", "fandom" => $data["fandom"]])->count() > 0;
+    }
+
+    /**
+     * Méthode qui importe les options nécessaires au formulaire de personnages.
+     *
+     * @return void
+     */
+    public function importFormOptions(): void
+    {
+        // Récupération des fandoms sous forme de liste.
+        $fandoms = $this->Fandoms->find('list')->order(["nom" => "ASC"])->toArray();
+
+        //  Envoi des données au template.
+        $this->set(compact('fandoms'));
     }
 
     /**
@@ -30,6 +46,7 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function index()
     {
+        // Appel méthode parente.
         parent::index();
     }
 
@@ -42,6 +59,7 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function view($id = null)
     {
+        // Appel méthode parente.
         parent::view($id);
     }
 
@@ -52,13 +70,8 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function add()
     {
+        // Appel méthode parente.
         parent::add();
-
-        // Récupération des fandoms sous forme de query.
-        $fandoms = $this->Personnages->fandoms->find('list', ['limit' => 200])->order(["nom" => "ASC"]);
-
-        //  Envoi des données au template.
-        $this->set(compact('fandoms'));
     }
 
     /**
@@ -70,13 +83,8 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function edit($id = null)
     {
+        // Appel méthode parente.
         parent::edit($id);
-
-        // Récupération des fandoms sous forme de query.
-        $fandoms = $this->Personnages->fandoms->find('list', ['limit' => 200])->order(["nom" => "ASC"]);
-
-        //  Envoi des données au template.
-        $this->set(compact('fandoms'));
     }
 
     /**
@@ -88,6 +96,7 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function delete($id = null)
     {
+        // Appel méthode parente.
         parent::delete($id);
     }
 
@@ -100,6 +109,7 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function restore($id = null)
     {
+        // Appel méthode parente.
         parent::restore($id);
     }
 
@@ -112,6 +122,7 @@ class PersonnagesController extends AppController implements ObjectControllerInt
      */
     public function filterRedirect($id = null)
     {
+        // Appel méthode parente.
         parent::filterRedirect($id);
     }
 }

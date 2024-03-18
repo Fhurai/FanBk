@@ -31,6 +31,9 @@ class UrlComponent extends Component
         "p11" => "personnages",
         "r9" => "relations",
         "t4" => "tags",
+        "f11" => "fanfictions",
+        "s6" => "series",
+        "u5" => "users"
     ];
 
     /**
@@ -45,6 +48,8 @@ class UrlComponent extends Component
         "e4" => "edit",
         "e6" => "exists",
         "g6" => "getAll",
+        "n4" => "note",
+        "g11" => "getFiltered"
     ];
 
     /**
@@ -55,25 +60,32 @@ class UrlComponent extends Component
     public function setArrays()
     {
 
+        // Envoi du tableau de crytapge des objets au template du controller.
         $this->getController()->set("objects", $this->_OBJECTS);
+
+        // Envoi du tableau de crytapge des actions au template du controller.
         $this->getController()->set("actions", $this->_ACTIONS);
     }
 
     /**
      * Méthode pour récupérer l'objet à manipuler depuis le chaîne cryptée dans l'url.
-     * 
-     * @return string L'objet à manipuler.
+     *
+     * @param string $field L'objet crypté manipulé.
+     * @return string L'objet non crypté manipulé.
      */
-    public function getObject(string $field){
+    public function getObject(string $field)
+    {
         return $this->_OBJECTS[$field];
     }
 
     /**
      * Méthode pour récupérer l'action à manipuler depuis le chaîne cryptée dans l'url.
-     * 
-     * @return string L'action à manipuler.
+     *
+     * @param string $field L'action cryptée manipulée.
+     * @return string L'action non cryptée manipulée.
      */
-    public function getAction(string $field){
+    public function getAction(string $field)
+    {
         return $this->_ACTIONS[$field];
     }
 }

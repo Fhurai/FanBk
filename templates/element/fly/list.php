@@ -17,27 +17,37 @@ $required = isset($required) ? $required : false;
 $type = isset($type) ? $type : "text";
 $maxlength = isset($maxlength) ? $maxlength : 255;
 
+// Vérification si les options du select sont groupées ou non.
 if ($type === "select") {
-    //Setup de la variable de groupage en fonction des options fournies par le parent.
-    if (!is_array($options)) {
-        $tempQuery = clone $options;
-        $tempQuery = $tempQuery->first();
-    } else
-        $tempQuery = $options[0];
+    // Récupération du premier élément de la liste d'options.
+    if (!is_array($options))
+        $tempQuery = (clone $options)->first();
+    else {
+        $key = array_key_first($options);
+        $tempQuery = $options[$key];
+    }
 
     if (is_array($tempQuery))
+        // Si le premier élément est un tableau, alors c'est un groupe d'options.
         $group = true;
     else
+        // Sinon, alors c'est une option directe.
         $group = false;
 }
 ?>
+
+<!-- Objet Fly List -->
 <div class="flylist">
     <?php // Si le nom de la date est fourni. 
     ?>
     <?php if (isset($name)) : ?>
+
+        <!-- Type de tableau caché -->
         <span id="type" hidden><?= $type ?></span>
+
         <!-- Partie list -->
         <div class="list">
+
             <!-- Label -->
             <?php // Si la date est requise, un petit text rouge est affiché. 
             ?>
@@ -107,7 +117,7 @@ if ($type === "select") {
                                 </div>
 
                                 <!-- Bouton de suppression -->
-                                <?php if ($key !== '') : ?>
+                                <?php if ($key !== '' && $key !== 0) : ?>
                                     <div>🗑️</div>
                                 <?php else : ?>
                                     <div></div>

@@ -20,7 +20,7 @@ use Cake\I18n\FrozenTime;
 
     <?php
     // Champ nom de la fanfiction (l'utilisateur doit définir le nom de la fanfiction => requis.)
-    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $fanfiction->nom, "required" => true, "placeholder" => "Nom de la fanfiction", "maxlength" => 50]);
+    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => h($fanfiction->nom), "required" => true, "placeholder" => "Nom de la fanfiction", "maxlength" => 50]);
 
     echo $this->element("ajax/ajaxform", ["type" => "auteurs"]);
     // Selecteur simple pour choisir l'auteur de la fanfiction.
@@ -30,7 +30,7 @@ use Cake\I18n\FrozenTime;
     echo $this->element("fly/select", ["options" => $parametres["Classement"], "name" => "classement", "label" => "Classement", "value" => $fanfiction->classement, "required" => true]);
 
     // Champ description (l'utilisateur doit définir la description de la fanfiction => requis.)
-    echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => $fanfiction->description, "required" => true, "placeholder" => "Description de la fanfiction"]);
+    echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => h($fanfiction->description), "required" => true, "placeholder" => "Description de la fanfiction"]);
 
     echo $this->element("ajax/ajaxform", ["type" => "fandoms"]);
     // Selecteur multiple pour choisir le fandom de la fanfiction.

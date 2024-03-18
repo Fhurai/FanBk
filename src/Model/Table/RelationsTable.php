@@ -10,7 +10,6 @@ use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
@@ -136,26 +135,30 @@ class RelationsTable extends Table
 
     /**
      * @inheritDoc
-     * 
+     *
+     * @param EventInterface $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $options
      * @return void
      */
-    public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options)
+    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         // Si les personnages sont bien fournies dans les données de modification.
-        if (!empty($data["personnages"])) {
+        if (!empty($options["personnages"])) {
 
             // Pour chaque personnage dans les données du formulaire, récupération de toutes ses informations à partir de son identifiant.
-            $data["personnages"] = array_map(function ($personnage) {
+            $personnages = array_map(function ($personnage) {
                 return $this->personnages->get($personnage);
-            }, $data["personnages"]);
+            }, $options["personnages"]);
 
             // Tri des personnages par ordre alphabétique dans la relation.
-            usort($data["personnages"], function ($perso1, $perso2) {
+            usort($personnages, function ($perso1, $perso2) {
                 return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
             });
 
             // Automatisation du nom de la relation avec le nom des personnages.
-            $data["nom"] = implode(" / ", array_column($data["personnages"], "nom"));
+            $entity->nom = implode(" / ", array_column($personnages, "nom"));
+            $entity->personnages = $personnages;
         }
     }
 }

@@ -34,21 +34,6 @@ use Cake\View\Exception\MissingTemplateException;
  */
 class PagesController extends AppController
 {
-
-    public function initialize(): void
-    {
-        parent::initialize();
-
-        $auteurs = $this->Auteurs->find("list")->toArray();
-        $fandoms = $this->Fandoms->find("list")->toArray();
-        $langages = $this->Langages->find("list")->toArray();
-        $relations = $this->Relations->find("list")->toArray();
-        $personnages = $this->Personnages->find("list")->toArray();
-        $tags = $this->Tags->find("list")->toArray();
-
-        $this->set(compact("auteurs", "fandoms", "langages", "relations", "personnages", "tags"));
-    }
-
     /**
      * Displays a view
      *
@@ -77,32 +62,6 @@ class PagesController extends AppController
         if (!empty($path[1])) {
             $subpage = $path[1];
         }
-
-        $fanfictions = $this->Fanfictions->find("notNoted")->order("rand()")->limit(5)->contain([
-            'auteurs',
-            'langages',
-            'fandoms',
-            'personnages',
-            'relations',
-            'tags',
-            'liens'
-        ]);
-
-        $series = $this->Series->find("notNoted")->order("rand()")->limit(5)->contain([
-            'fanfictions' => [
-                'auteurs',
-                'langages',
-                'fandoms',
-                'personnages',
-                'relations',
-                'tags',
-                'liens'
-            ]
-        ]);
-
-        $parametres = Configure::check("parametres") ? Configure::read("parametres") : [];
-
-        $this->set(compact('page', 'subpage', 'fanfictions', 'series', 'parametres'));
 
         try {
             return $this->render(implode('/', $path));

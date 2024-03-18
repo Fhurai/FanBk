@@ -31,8 +31,22 @@ class RelationsController extends AppController implements ObjectControllerInter
             return strcmp(strtolower($perso1), strtolower($perso2));
         });
 
-        // Retourne si une relation existe avec le noom de tous ces personnages.
+        // Retourne si une relation existe avec le nom de tous ces personnages.
         return $this->Relations->find()->where(["nom" => implode(" / ", $personnages)])->count() > 0;
+    }
+
+    /**
+     * Méthode qui importe les options nécessaires au formulaire des relations.
+     *
+     * @return void
+     */
+    public function importFormOptions(): void
+    {
+        // Récupération des personnages sous forme de query, groupés par nom de fandom.
+        $personnages = $this->Personnages->find('list', ["keyField" => "id", "valueField" => "nom", "groupField" => "fandom_obj.nom"])->contain(["fandoms"])->order(["fandoms.nom" =>  "ASC", "personnages.nom" => "ASC"]);
+
+        //  Envoi des données au template.
+        $this->set(compact('personnages'));
     }
 
     /**
@@ -42,6 +56,7 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function index()
     {
+        // Appel méthode parente.
         parent::index();
     }
 
@@ -54,6 +69,7 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function view($id = null)
     {
+        // Appel méthode parente.
         parent::view($id);
     }
 
@@ -64,17 +80,8 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function add()
     {
+        // Appel méthode parente.
         parent::add();
-
-        // Récupération des personnages sous forme de query, groupés par nom de fandom.
-        $personnages = $this->Relations->personnages->find('list', [
-            "keyField" => "id",
-            "valueField" => "nom",
-            "groupField" => "fandom_obj.nom"
-        ])->contain(["fandoms"])->order(["fandoms.nom" =>  "ASC", "personnages.nom" => "ASC"]);
-
-        //  Envoi des données au template.
-        $this->set(compact('personnages'));
     }
 
     /**
@@ -86,17 +93,8 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function edit($id = null)
     {
+        // Appel méthode parente.
         parent::edit($id);
-
-        // Récupération des personnages sous forme de query, groupés par nom de fandom.
-        $personnages = $this->Relations->personnages->find('list', [
-            "keyField" => "id",
-            "valueField" => "nom",
-            "groupField" => "fandom_obj.nom"
-        ])->contain(["fandoms"])->order(["fandoms.nom" =>  "ASC", "personnages.nom" => "ASC"]);
-
-        //  Envoi des données au template.
-        $this->set(compact('personnages'));
     }
 
     /**
@@ -108,6 +106,7 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function delete($id = null)
     {
+        // Appel méthode parente.
         parent::delete($id);
     }
 
@@ -120,6 +119,7 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function restore($id = null)
     {
+        // Appel méthode parente.
         parent::restore($id);
     }
 
@@ -131,6 +131,7 @@ class RelationsController extends AppController implements ObjectControllerInter
      */
     public function filterRedirect($id = null)
     {
+        // Appel méthode parente.
         parent::filterRedirect($id);
     }
 }

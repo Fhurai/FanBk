@@ -147,7 +147,7 @@
     display: none;
     overflow: scroll;
     max-height: 29.5rem;
-    position: absolute;
+    position: relative;
     width: 70%;
     z-index: 10;
 }

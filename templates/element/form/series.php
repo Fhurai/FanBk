@@ -19,11 +19,11 @@ use Cake\I18n\FrozenTime;
     <?php
 
     // Champ nom de la série (l'utilisateur doit définir le nom de la série => requis.)
-    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => $series->nom, "required" => true, "placeholder" => "Nom de la série", "maxlength" => 100]);
+    echo $this->element("fly/text", ["name" => "nom", "label" => "Nom", "value" => h($series->nom), "required" => true, "placeholder" => "Nom de la série", "maxlength" => 100]);
 
 
     // Champ description de la série (l'utilisateur doit définir la description de la série => requis.)
-    echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => $series->description, "required" => true, "placeholder" => "Description de la série"]);
+    echo $this->element("fly/textarea", ["name" => "description", "label" => "Description", "value" => h($series->description), "required" => true, "placeholder" => "Description de la série"]);
 
     // Liste à la volée des liens de la fanfiction (avec un lien obligatoire).
     echo $this->element("fly/list", ["name" => "fanfictions", "label" => "Fanfictions de la série", "value" => $series->fanfictions, "required" => true, "type" => "select", "options" => $fanfictions]);
