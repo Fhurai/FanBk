@@ -65,7 +65,6 @@
 .flytable .lowerBar .menu {
     background-color: var(--table-amoled);
     float: right;
-
     padding: 1rem;
 }
 
@@ -100,6 +99,15 @@
 }
 
 /*
+ * Boutons d'appel des modales de filtre, recherche et de tri.
+ */
+.flytable .upperBar .menu>* label {
+    font-size: 16px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+/*
  * Elements non action des menus barre haute et barre basse.
  */
 .flytable .upperBar .menu>*:not(:last-child),
@@ -116,13 +124,13 @@
 }
 
 /**
- * Tableau
+ * Tableau simple
  */
 
 /*
  * Table de l'élément Fly Table
  */
-.flytable .table {
+.flytable .table.simple {
     border-collapse: separate;
     border-spacing: 0 0.5em;
     width: 100%;
@@ -133,8 +141,8 @@
 /*
  * Tete et corps de la table.
  */
-.flytable .table .head,
-.flytable .table .body {
+.flytable .table.simple .head,
+.flytable .table.simple .body {
     display: table-row-group;
     vertical-align: middle;
     border-color: inherit;
@@ -143,9 +151,9 @@
 /*
  * Ligne des colonnes, ligne des filtres et toutes les lignes du corps.
  */
-.flytable .table .head .columns,
-.flytable .table .head .filters,
-.flytable .table .body .row {
+.flytable .table.simple .head .columns,
+.flytable .table.simple .head .filters,
+.flytable .table.simple .body .row {
     display: table-row;
     vertical-align: inherit;
     border-color: inherit;
@@ -155,15 +163,15 @@
 /*
  * Ligne survolée dans le corps de la table.
  */
-.flytable .table .body .row:hover {
+.flytable .table.simple .body .row:hover {
     filter: brightness(125%);
 }
 
 /*
  * Premier élément de la ligne des colonnes et de la ligne des filtres.
  */
-.flytable .table .head .columns div:first-child,
-.flytable .table .head .filters div:first-child {
+.flytable .table.simple .head .columns div:first-child,
+.flytable .table.simple .head .filters div:first-child {
     visibility: hidden;
     width: 5%;
 }
@@ -171,14 +179,14 @@
 /*
  * Deuxieme élément de la ligne des colonnes.
  */
-.flytable .table .head .columns div:nth-child(2) {
+.flytable .table.simple .head .columns div:nth-child(2) {
     border-radius: 1rem 0 0 1rem;
 }
 
 /*
  * Premier élément des lignes de corps.
  */
-.flytable .table .body .row div:first-child {
+.flytable .table.simple .body .row div:first-child {
     border-radius: 2.5rem 0 0 2.5rem;
     text-align: end;
 }
@@ -186,7 +194,7 @@
 /*
  * Tous les éléments de la ligne des colonnes non action (pour le tri).
  */
-.flytable .table .head .columns .column:not(.action) {
+.flytable .table.simple .head .columns .column:not(.action) {
     cursor: pointer;
     overflow: visible;
 }
@@ -194,7 +202,7 @@
 /*
  * Pseudo élément vide pour le tri
  */
-.flytable .table .head .columns .column::before {
+.flytable .table.simple .head .columns .column::before {
     content: "	";
     padding: 0 0.5rem;
     font-size: 12px;
@@ -207,21 +215,21 @@
 /*
  * Pseudo élément pour le tri ascendant
  */
-.flytable .table .head .columns .column[sort='ASC']:before {
+.flytable .table.simple .head .columns .column[sort='ASC']:before {
     content: "ASC." attr(sort-order);
 }
 
 /*
  * Pseudo élément pour le tri descendant.
  */
-.flytable .table .head .columns .column[sort='DESC']:before {
+.flytable .table.simple .head .columns .column[sort='DESC']:before {
     content: "DESC." attr(sort-order);
 }
 
 /*
  * Tous les éléments de la ligne des colonnes.
  */
-.flytable .table .head .columns>* {
+.flytable .table.simple .head .columns>* {
     background-color: var(--table-grey);
     color: var(--table-black);
     border-right: 0.1px solid var(--table-black);
@@ -230,7 +238,7 @@
 /*
  * Tous les éléments des lignes du corps de la table.
  */
-.flytable .table .body .row>* {
+.flytable .table.simple .body .row>* {
     background-color: var(--table-darkgrey);
     color: var(--table-lightgrey);
     border-right: 0.1px solid var(--table-black);
@@ -239,8 +247,8 @@
 /*
  * Tous les liens et éléments dans les liens.
  */
-.flytable .table .body .row a,
-.flytable .table .body .row a>* {
+.flytable .table.simple .body .row a,
+.flytable .table.simple .body .row a>* {
     background-color: var(--table-darkgrey);
     color: var(--table-lightgrey);
     white-space: nowrap;
@@ -254,9 +262,9 @@
 /*
  * Tous les éléments de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
  */
-.flytable .table .head .columns .column,
-.flytable .table .head .filters .filter,
-.flytable .table .body .row .cell {
+.flytable .table.simple .head .columns .column,
+.flytable .table.simple .head .filters .filter,
+.flytable .table.simple .body .row .cell {
     display: table-cell;
     vertical-align: inherit;
     padding: 1.2rem 1.5rem;
@@ -270,7 +278,7 @@
 /*
  * Les champs trop longs sont coupés.
  */
-.flytable .table .body .row .cell span.cut {
+.flytable .table.simple .body .row .cell span.cut {
     width: 24rem;
     display: inline-block;
     text-overflow: ellipsis;
@@ -281,18 +289,18 @@
 /*
  * Premier élément de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
  */
-.flytable .table .head .columns .column:first-child,
-.flytable .table .head .filters .filter:first-child,
-.flytable .table .body .row .cell:first-child {
+.flytable .table.simple .head .columns .column:first-child,
+.flytable .table.simple .head .filters .filter:first-child,
+.flytable .table.simple .body .row .cell:first-child {
     padding-left: 0;
 }
 
 /*
  * Dernier élément de la ligne des colonnes, de la ligne des filtres & des lignes de corps.
  */
-.flytable .table .head .columns .column:last-child,
-.flytable .table .head .filters .filter:last-child,
-.flytable .table .body .row .cell:last-child {
+.flytable .table.simple .head .columns .column:last-child,
+.flytable .table.simple .head .filters .filter:last-child,
+.flytable .table.simple .body .row .cell:last-child {
     border-radius: 0 1rem 1rem 0;
     width: inherit;
     text-align: end;
@@ -302,14 +310,14 @@
 /*
  * Les liens de la dernière cellule des lignes du corps.
  */
-.flytable .table .body .row .cell:last-child a {
+.flytable .table.simple .body .row .cell:last-child a {
     margin: 0 0.5rem;
 }
 
 /*
  * Input de filtre.
  */
-.flytable .table .head .filters .filter input {
+.flytable .table.simple .head .filters .filter input {
     border: unset;
     border-radius: unset;
     background-color: var(--table-black);
@@ -320,7 +328,7 @@
 /*
  * Select de filtre.
  */
-.flytable .table .head .filters .filter select {
+.flytable .table.simple .head .filters .filter select {
     border: unset;
     border-radius: unset;
     background-color: var(--table-black);
@@ -331,16 +339,221 @@
 /*
  * Input du dernier élément de la ligne des filtres.
  */
-.flytable .table .head .filters .filter:last-child input {
+.flytable .table.simple .head .filters .filter:last-child input {
     visibility: hidden;
 }
 
 /*
  * Dernier élément de la ligne des colonnes.
  */
-.flytable .table .head .columns .column:last-child {
+.flytable .table.simple .head .columns .column:last-child {
     text-align: center;
     display: table-cell;
+}
+
+
+/**
+ * Table complex
+ */
+
+.flytable .table.complex {
+    padding: 0.5rem;
+}
+
+/*
+ * Cacher toute la fanfiction à part le titre.
+ */
+.flytable .table.complex .body .rowblock:has(input:checked) .details,
+.flytable .table.complex .body .rowblock:has(input:checked) .description {
+    display: none;
+}
+
+/*
+ * Le block fanfiction.
+ */
+.flytable .table.complex .body .rowblock {
+    padding: 0.5rem;
+    display: block;
+    border-radius: 1rem;
+    margin: 0.5rem 0;
+    background-color: var(--table-darkgrey);
+    position: relative;
+}
+
+/*
+ * Nom de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title .nom {
+    display: inline-block;
+    padding: 0 0.5rem 0 0;
+    font-size: 18px;
+    text-decoration-line: underline;
+    text-decoration-color: var(--table-red);
+    text-decoration-style: double;
+}
+
+/*
+ * Fleche pour le lien de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title span {
+    color: var(--table-red);
+    cursor: pointer;
+}
+
+/*
+ * Le conteneur pour l'ouverture et la fermeture de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title label.end {
+    float: inline-end;
+    padding: 0 0.5rem;
+    cursor: pointer;
+}
+
+/*
+ * La checkbox qui se cache derriere l'ouverture et la fermeture de fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title label.end input {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+}
+
+/*
+ * Fleche pour ouvrir la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title label.end:has(input:not(:checked))::before {
+    content: "▲";
+    position: absolute;
+    right: 1%;
+}
+
+/*
+ * Fleche pour fermer la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title label.end:has(input:checked)::before {
+    content: "▼";
+    position: absolute;
+    right: 1%;
+}
+
+/*
+ * Liste des liens de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title ul {
+    position: absolute;
+    background-color: var(--table-black);
+    border: 1px solid var(--table-red);
+    list-style: none;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    top: -7rem;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/*
+ * Lien dans la liste des liens de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title ul li {
+    margin-bottom: 0;
+}
+
+/*
+ * Lien pas à la dernière place dans la liste des liens de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title ul li:not(:last-child) {
+    border-bottom: 1px solid var(--table-red);
+}
+
+/*
+ * Url de lien dans la liste des liens de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title ul li a {
+    display: flex;
+    float: right;
+    margin-left: 0.5rem;
+}
+
+/*
+ * Affichage de la liste des liens de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .title.multi ul {
+    opacity: 1;
+    visibility: visible;
+}
+
+/*
+ * Description de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .description {
+    background-color: var(--table-lightgrey);
+    color: var(--table-darkgrey);
+    border-radius: 4px;
+    padding: 0 0.5rem;
+}
+
+/*
+ * Details de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .details {
+    font: status-bar;
+}
+
+/*
+ * Icones dans les détails de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .details .material-symbols-outlined {
+    font-size: 18px;
+    vertical-align: bottom;
+}
+
+/*
+ * Icones pas à la premiere dans les détails de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .details .material-symbols-outlined:not(:first-child) {
+    margin-left: 3rem;
+}
+
+/*
+ * Descriptif de details de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock .details span.descriptif {
+    width: 97%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    vertical-align: middle;
+    text-wrap: nowrap;
+    position: relative;
+    overflow-wrap: normal;
+    border: unset;
+}
+
+/*
+ * Panneau d'actions de la fanfiction ouverte.
+ */
+.flytable .table.complex .body .rowblock .action-panel {
+    position: absolute;
+    right: 1%;
+    bottom: -1rem;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/*
+ * Panneau d'actions de la fanfiction fermée.
+ */
+.flytable .table.complex .body .rowblock:has(input:checked) .action-panel {
+    right: 3rem;
+    bottom: 0;
+}
+
+/*
+ * Affichage du panneau d'action au survol de la fanfiction.
+ */
+.flytable .table.complex .body .rowblock:hover .action-panel {
+    opacity: 1;
+    visibility: visible;
 }
 
 /*
@@ -350,7 +563,7 @@
 /*
   * Tooltip non visible.
   */
-.flytable [data-tooltip]:after {
+.flytable [data-tooltip]:not(.option):after {
     content: attr(data-tooltip);
     background-color: var(--table-black);
     border: 1px solid var(--table-red);
@@ -380,4 +593,253 @@
 .flytable [data-tooltip]:hover:after {
     opacity: 1;
     visibility: visible;
+}
+
+
+/**
+ * Modal
+ */
+body:has(#modalFilters:checked),
+body:has(#modalSearch:checked),
+body:has(#modalSort:checked) {
+    overflow-y: hidden;
+}
+
+.flytable .modalcheckbox {
+    display: none;
+}
+
+.flytable .modalcheckbox:checked~.modalwindow,
+.flytable .modalcheckbox:checked~.modalback {
+    display: block;
+}
+
+/*
+ * Fond d'écran noir lors de la modale.
+ */
+.flytable .modal.back {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    z-index: 100;
+}
+
+.flytable .modalback {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+    z-index: 100;
+}
+
+/*
+ * Fenetre de la modale.
+ */
+.flytable .modal.window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: block;
+    max-width: 40%;
+    max-height: 60rem;
+    background-color: var(--table-amoled);
+    box-sizing: border-box;
+    z-index: 150;
+    border-radius: 4px;
+    padding: 1rem;
+    border: 1px solid var(--table-darkgrey);
+    text-align: center;
+    border-radius: 4px;
+}
+
+/*
+ * Fenêtre de la modale.
+ */
+.flytable .modalwindow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: none;
+    max-width: 40%;
+    max-height: 60rem;
+    background-color: var(--table-amoled);
+    box-sizing: border-box;
+    z-index: 150;
+    border-radius: 4px;
+    padding: 1rem;
+    border: 1px solid var(--table-darkgrey);
+    text-align: center;
+    border-radius: 4px;
+}
+
+/**
+ * L'entete de la modale.
+ */
+.flytable .modal.window .head,
+.flytable .modalwindow .head {
+    background-color: var(--table-darkgrey);
+    border-bottom: 1px solid var(--table-darkgrey);
+    box-sizing: border-box;
+    height: 50px;
+    border-radius: 4px;
+}
+
+/**
+ * L'entete de la modale quand il caché.
+ */
+.flytable .modal.window .head.hidden,
+.flytable .modalwindow .head.hidden {
+    background-color: transparent;
+    border-bottom: unset;
+}
+
+/**
+ * Le titre de l'entete.
+ */
+.flytable .modal.window .head h3,
+.flytable .modalwindow .head h3 {
+    margin: 0;
+    box-sizing: border-box;
+    padding-left: 15px;
+    line-height: 50px;
+    color: var(--table-lightgrey);
+    font-size: 16px;
+    display: inline-block;
+    font-size: 2.0rem;
+    font-weight: 700;
+}
+
+/**
+ * Le titre de l'entete quand l'entete est caché.
+ */
+.flytable .modal.window .head.hidden h3,
+.flytable .modalwindow .head.hidden h3 {
+    visibility: hidden;
+    display: inline-block;
+}
+
+/**
+ * le bouton de fermeture dans l'entete.
+ */
+.flytable .modalwindow .head label {
+    background-color: var(--addform-darkgrey);
+    box-sizing: border-box;
+    border-left: 1px solid var(--addform-darkgrey);
+    float: right;
+    line-height: 50px;
+    padding: 0 15px 0 15px;
+    cursor: pointer;
+    color: var(--addform-lightgrey);
+}
+
+/**
+ * Le bouton de fermeture dans l'entete quand l'entete est caché.
+ */
+.flytable .modalwindow .head.hidden label {
+    border-radius: 5px;
+}
+
+/**
+ * Le corps de la modale.
+ */
+.flytable .modal.window fieldset,
+.flytable .modalwindow .fieldset {
+    margin: 0.5rem 0rem;
+    width: 100%;
+    height: 45rem;
+    overflow: scroll;
+    background-color: var(--table-black);
+    padding: 0.5rem;
+    text-align: justify;
+}
+
+/**
+ * Arriere plan de l'icone de chargement.
+ */
+.spinner:not([hidden]) {
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--table-black);
+    opacity: 75%;
+    width: unset;
+}
+
+/**
+ * Icone de chargement.
+ */
+.spinner::after {
+    content: "";
+    width: 80px;
+    height: 80px;
+    border: 2px solid #f3f3f3;
+    border-top: 3px solid #222222;
+    border-radius: 100%;
+    will-change: transform;
+    animation: spin 1s infinite linear
+}
+
+/*
+ * Si écran smartphone
+ */
+@media screen and (max-width: 640px) {
+
+    .flytable .upperBar .menu {
+        position: relative;
+        border-radius: 1rem 0 0 1rem;
+    }
+
+    .flytable .table.complex {
+        margin: 8rem 0;
+    }
+
+    .flytable .modal.window,
+    .flytable .modalwindow {
+        max-width: 90%;
+    }
+}
+
+
+/**
+ * Animation rotation
+ */
+@-webkit-keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/**
+ * Animation rotation
+ */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
