@@ -4,7 +4,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // Si la page contient au moins un champ texte FLY.
-    if (hasFlyText())
+    if (hasFlyTextarea())
 
         // Parcours de tous les champ texte FLY pour les activer.
         Array.from(document.querySelectorAll(".flytextarea"))

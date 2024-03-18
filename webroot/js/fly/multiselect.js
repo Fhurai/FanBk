@@ -1,3 +1,7 @@
+// Indication si le multiselect est requis ou non.
+// Nécessaire pour la création à vide du champ.
+let isRequired = false;
+
 /**
  * Le contenu de la page est chargé.
  */
@@ -105,6 +109,9 @@ const clickOptionMultiple = (e, container) => {
  * @param {array} option Tableau d'informations d'une option
  */
 const ajoutDisplay = (container, libelle, option) => {
+    // Récupération si le multiselect est requis ou non, si suppression de toutes options sélectionnées.
+    isRequired = container.querySelector(".choices > input[name='" + option[2] + "[]']").required;
+
     // Si l'input dummy est présent dans le container d'affichage, il est supprimé.
     if (container.querySelectorAll(".choices > input[name='" + option[2] + "[]']").length > 0)
         container.querySelector(".choices > input[name='" + option[2] + "[]']").remove();
@@ -199,7 +206,7 @@ const removeOption = (e, container, option) => {
         // Création d'un nouveau input dummy pour le requiert.
         let dummyInput = document.createElement("input");
         dummyInput.name = option[2] + "[]";
-        dummyInput.required = "required";
+        if (isRequired) dummyInput.required = "required";
 
         // Ajout de l'input dummy dans la partie choix multiple.
         container.querySelector(".choices").appendChild(dummyInput);

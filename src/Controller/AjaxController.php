@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Cake\Event\EventInterface;
+use Cake\Core\Configure;
 use Cake\Http\Exception\BadRequestException;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
-use Cake\ORM\Table;
 
 /**
  * Ajax Controller
@@ -41,21 +39,30 @@ class AjaxController extends AppController
     */
    private function returnSuccessJson(array $array)
    {
+      // Ajoute la réponse HTTP 200 au tableau de données à renvoyer au format JSON.
       $array["http"] = 200;
+
+      // Retourne le tableau de données sous forme de string JSON.
       return $this->response->withStringBody(json_encode($array));
    }
 
    /**
     * Méthode pour récupérer l'objet vide à créer et sa table pour le sauvegarder.
     *
-    * @return array
+    * @return array [entité, $table]
     */
    private function getVariables()
    {
+      // Récupère le type d'objet manipulé décrypté
       $type = ucfirst($this->Url->getObject($this->request->getParsedBody()["_object"]));
-      $singular = substr($this->Url->getObject($this->request->getParsedBody()["_object"]), 0, -1);
-      $$singular = $this->$type->newEmptyEntity();
 
+      // Récupère le nom de l'objet manipulé décrypté.
+      $singular = substr($this->Url->getObject($this->request->getParsedBody()["_object"]), 0, -1);
+
+      // Récupère l'entité manipulé.
+      $$singular = (isset($this->request->getParsedBody()["id"]) ? $this->$type->get($this->request->getParsedBody()["id"]) : $this->$type->newEmptyEntity());
+
+      // Retourne l'entité et son type/sa table.
       return [$$singular, $type];
    }
 
@@ -72,27 +79,9 @@ class AjaxController extends AppController
       // Parcours des données envoyées par l'appel Ajax.
       foreach ($this->request->getParsedBody() as $key => $value) {
 
-         // Si le premier caractère est un underscore ou que la donnée
-         if ($key[0] !== '_' && !strpos($key, 'date')) {
-
-            if (!is_array($value))
-               // Si la donnée n'est pas un tableau, elle est remise directe dans les données n
-               $data[$key] = $value;
-            else {
-               // La donnée est un tableau (name[])
-
-               // Retirer le tableau du nom
-               $key = str_replace("[]", "", $key);
-
-               // Récupérer le nom de la table.
-               $table = ucfirst($key);
-
-               // Initialiser le tableau dans les données nettoyées.
-               $data[$key] = [];
-
-               // Récupération des objets du tableau à partir de leurs identifiants et valorisation de ceux-ci dans le tableau des données nettoyées.
-               foreach ($value as $id) $data[$key][] = $this->$table->get($id);
-            }
+         // Si le premier caractère est un underscore, on la remet dans les données clean.
+         if ($key[0] !== '_') {
+            $data[str_replace("[]", "", $key)] = $value;
          }
       }
 
@@ -101,7 +90,9 @@ class AjaxController extends AppController
    }
 
    /**
-    * 
+    * Méthode pour récupérer un formulaire correspondant au type de donnée manipulée.
+    *
+    * @return Response Le formulaire sous forme HTML.
     */
    public function getForm()
    {
@@ -134,6 +125,13 @@ class AjaxController extends AppController
          // Si l'objet manipulé est un personnage, envoi des fandoms au template.
          $this->set("fandoms", $this->Fandoms->find('list')->order(["nom" => "ASC"]));
 
+      if ($this->Url->getAction($data["action"]) === "note") {
+         // Envoi de l'identifiant dans le template.
+         $this->set("id", $data["id"]);
+
+         $this->set("parametres", Configure::read("parametres"));
+      }
+
       // Envoi de l'objet manipulé dans le template.
       $this->set($singular, $$singular);
 
@@ -161,17 +159,23 @@ class AjaxController extends AppController
          // Récupération de l'entité et de sa table.
          [$entity, $table] = $this->getVariables();
 
-         // Si l'entité est bien créée et sauvegardée.
-         if ($entity = $this->$action($entity, $table))
+         if ($action !== "_getAll" && $action !== "_getFiltered") {
+            // Si l'entité est bien créée et sauvegardée.
+            if ($entity = $this->$action($entity, $table))
 
-            // Retourne l'entité et la liste des entités, comprenant la nouvelle entité.
+               // Retourne l'entité et la liste des entités, comprenant la nouvelle entité.
+               return $this->returnSuccessJson([
+                  "entity" => $entity,
+                  "list" => ($action === "_note" ? $this->$table->find("active")->toArray() : $this->$table->find("list")->order(["nom"])->toArray())
+               ]);
+            else
+               // Erreur rencontrée lors de la création ou de la sauvegarde de l'entité.
+               return $this->returnSuccessJson(["http" => 500]);
+         } else
+            // L'appel est pour une liste d'entité à renvoyer.
             return $this->returnSuccessJson([
-               "entity" => $entity,
-               "list" => $this->$table->find("list")->order(["nom"])->toArray()
+               "list" => $this->$action($table, $this->request->getParsedBody()["active"])
             ]);
-         else
-            // Erreur rencontrée lors de la création ou de la sauvegarde de l'entité.
-            return $this->returnSuccessJson(["http" => 500]);
       }
 
       // La page n'est pas appelée par un appel Ajax, access interdit.
@@ -185,7 +189,7 @@ class AjaxController extends AppController
     *
     * @param Entity $entity L'entité à créer.
     * @param string $table La table pour manipuler l'entitée.
-    * @return void
+    * @return Entity|bool L'entité créée si succes. Sinon false.
     */
    private function _add(Entity $entity, string $table)
    {
@@ -193,33 +197,8 @@ class AjaxController extends AppController
       // Nettoyage des données à valoriser dans la nouvelle entité.
       $data = $this->cleanData();
 
-      // Valorisation de la date de création avec la date d'update envoyée par l'appel Ajax.
-      $data["creation_date"] = FrozenTime::createFromFormat("Y-m-d H:i:s", $this->request->getParsedBody()["update_date"], "Europe/Paris");
-
       // Valorisation des autres données de l'entité avec les données de l'appel Ajax.
-      $entity = $this->Relations->patchEntity($entity, $data);
-
-      // Selon le type de l'entité.
-      switch ($table) {
-
-            // Si entité de type Relations
-         case "Relations";
-
-            // Les personnages sont ajoutées à l'entité.
-            $entity->personnages = $data["personnages"];
-
-            // Tri des personnages par ordre alphabétique dans la relation.
-            usort($entity->personnages, function ($perso1, $perso2) {
-               return strcmp(strtolower($perso1->nom), strtolower($perso2->nom));
-            });
-
-            // Nom valorisé avec le nom des personnages dans l'ordre alphabétique            $entity->nom = implode(" / ", array_column($entity->personnages, "nom"));
-            break;
-
-            // Si entité est un autre type
-         default:
-            break;
-      }
+      $entity = $this->$table->patchEntity($entity, $data);
 
       // Sauvegarde l'entité.
       if ($this->$table->save($entity))
@@ -228,5 +207,53 @@ class AjaxController extends AppController
       else
          // Erreur lors de la sauvegarde, retourne faux.
          return false;
+   }
+
+   /**
+    * Méthode de notation d'une entité.
+    *
+    * @param Entity $entity L'entité à noter.
+    * @param string $table La table pour manipuler l'entité.
+    * @return Entiity|bool L'entité noté si succes. Sinon false.
+    */
+   private function _note(Entity $entity, string $table)
+   {
+      // Nettoyage des données à valoriser dans la nouvelle entité.
+      $data = $this->cleanData();
+
+      // Valorisation des autres données de l'entité avec les données de l'appel Ajax.
+      $entity = $this->$table->patchEntity($entity, $data);
+
+      // Sauvegarde l'entité.
+      if ($this->$table->save($entity))
+         // Sauvegarde avec succès, retourne l'entité.
+         return $entity;
+      else
+         // Erreur lors de la sauvegarde, retourne faux.
+         return false;
+   }
+
+   /**
+    * Méthode pour récupérer toutes les entités sans conditions à part celle d'activité.
+    *
+    * @param string $table La table pour manipuler les entités.
+    * @param boolean $actives Indication si entités actives ou non.
+    * @return Query La requête de récupération des entités.
+    */
+   private function _getAll(string $table, bool $actives = true)
+   {
+      return $this->$table->find($actives ? "active" : "inactive");
+   }
+
+   /**
+    * Méthode pour récupérer les entités correspondantes aux conditions de filtre.
+    *
+    * @param string $table La table pour manipuler les entités.
+    * @param boolean $actives Indication si entités actives ou non.
+    * @return Query La requête de récupération des entités.
+    */
+   private function _getFiltered(string $table, bool $actives = true)
+   {
+      return $this->$table->find("search", array_merge($this->request->getParsedBody(), ["nsfw" => $this->request->getSession()->read("user.nsfw")]));
    }
 }
