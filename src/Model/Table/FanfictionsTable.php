@@ -256,15 +256,18 @@ class FanfictionsTable extends Table
 
         // Initialisation du tableau de condition pour les fanfictions.
         $condition = [];
-        foreach ($options["search"] as $value) $condition["fanfictions." . $value[0] . " LIKE"] = "%".$value[1]."%";
+        foreach ($options["search"] as $value) $condition["fanfictions." . $value[0] . " LIKE"] = "%" . $value[1] . "%";
 
 
-        if(!$options["nsfw"])
+        if (!$options["nsfw"])
             // Si l'option nsfw n'est pas activée, récupération uniquement des fanfictions classée 2 ou moins.
             $condition["classement <="] = 2;
 
         // Retourne les fanfictions qui correspondent aux conditions de la sous requête.
-        return $query->find($options["active"] ? "active" : "inactive")->where(["fanfictions.id in" => array_column($subquery->where($condition)->toArray(), "id")])->order($order);
+        if ($subquery->where($condition)->count() > 0)
+            return $query->find($options["active"] ? "active" : "inactive")->where(["fanfictions.id in" => array_column($subquery->where($condition)->toArray(), "id")])->order($order);
+        else
+            return $query->find($options["active"] ? "active" : "inactive")->order($order);
     }
 
     /**

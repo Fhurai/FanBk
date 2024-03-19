@@ -103,7 +103,6 @@ const loadFullData = (container, active) => {
             container.querySelector("[name='flytable_data']").value = JSON.stringify(data.list);
             populateSimpleTable(container);
             container.querySelector("#count").innerHTML = data.list.length;
-            container.querySelector("#countTotal").innerHTML = data.list.length;
         });
 }
 

@@ -104,7 +104,11 @@ const loadFullData = (container, active) => {
             // Si HTTP code 200 sur l'appel, la response est tournée en JSON.
             return res.json();
         // Si HTTP code autre que 200 sur l'appel, envoi d'une erreur.
-        throw new Error(res.body);
+        try {
+            return res.text().then(text => {throw new Error(text)});
+        } catch (error) {
+            console.error(error);
+        }
     })
         // Si l'appel s'est bien passé.
         .then(data => {
@@ -118,7 +122,9 @@ const loadFullData = (container, active) => {
             container.querySelector("#count").innerHTML = data.list.length;
         })
         // Si erreur, message d'erreur dans la console.
-        .catch((error) => console.error(error));
+        .catch((stream) => {
+            console.error(stream);
+        });
 }
 
 /**

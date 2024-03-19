@@ -219,17 +219,30 @@ class SeriesTable extends Table
         foreach ($options["search"] as $value) $condition["series." . $value[0] . " LIKE"] = "%" . $value[1] . "%";
 
         // Retourne les fanfictions qui correspondent aux conditions de la sous requête.
-        return $query->find($options["active"] ? "active" : "inactive")->contain([
-            'fanfictions' => [
-                'auteurs',
-                'langages',
-                'fandoms',
-                'personnages',
-                'relations',
-                'tags',
-                'liens'
-            ]
-        ])->where(["series.id in" => array_column($subquery->where($condition)->toArray(), "id")])->where(!$options["nsfw"] ? ["max_classement <=" => 2] : [])->order($order);
+        if ($subquery->where($condition)->count() > 0)
+            return $query->find($options["active"] ? "active" : "inactive")->contain([
+                'fanfictions' => [
+                    'auteurs',
+                    'langages',
+                    'fandoms',
+                    'personnages',
+                    'relations',
+                    'tags',
+                    'liens'
+                ]
+            ])->where(["series.id in" => array_column($subquery->where($condition)->toArray(), "id")])->where(!$options["nsfw"] ? ["max_classement <=" => 2] : [])->order($order);
+        else
+            return $query->find($options["active"] ? "active" : "inactive")->contain([
+                'fanfictions' => [
+                    'auteurs',
+                    'langages',
+                    'fandoms',
+                    'personnages',
+                    'relations',
+                    'tags',
+                    'liens'
+                ]
+            ])->where(!$options["nsfw"] ? ["max_classement <=" => 2] : [])->order($order);
     }
 
     /**
