@@ -159,7 +159,7 @@ class FlyTableCell extends Cell
             ],
             "property" => [
                 "nom" => "Nom",
-                "create_date" => "Date de création",
+                "creation_date" => "Date de création",
                 "update_date" => "Date de modification"
             ]
         ];
