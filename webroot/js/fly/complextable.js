@@ -63,6 +63,7 @@ const activateFlyTable = (container) => {
         setupBtnSort(container);
 
         // Chargement des données et création de la table complexe.
+        sortTable = [["updatedate", "DESC"]];
         loadFullData(container, true);
 
         // Setup du bouton des réinitialisations.

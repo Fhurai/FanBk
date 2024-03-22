@@ -110,7 +110,7 @@ const clickOptionMultiple = (e, container) => {
  */
 const ajoutDisplay = (container, libelle, option) => {
     // Récupération si le multiselect est requis ou non, si suppression de toutes options sélectionnées.
-    isRequired = container.querySelector(".choices > input[name='" + option[2] + "[]']").required;
+    if(container.querySelector(".choices > input[name='" + option[2] + "[]']") !== null) isRequired = container.querySelector(".choices > input[name='" + option[2] + "[]']").required;
 
     // Si l'input dummy est présent dans le container d'affichage, il est supprimé.
     if (container.querySelectorAll(".choices > input[name='" + option[2] + "[]']").length > 0)
